@@ -20,5 +20,8 @@ namespace Sistema_BC_SMART_POINT.Models
         [Required]
         public DateTime FechaCreación {  get; set; }
 
+        // Conexion con Venta
+        public ICollection<Venta>? Ventas { get; set; }
+
     }
 }
