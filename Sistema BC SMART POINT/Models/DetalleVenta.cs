@@ -13,6 +13,14 @@ namespace Sistema_BC_SMART_POINT.Models
         public decimal PrecioUnitario { get; set; }
         [Required]
         public decimal SubTotal { get; set; }
-        
+
+        // Conexion con Venta
+        public int VentaId { get; set; }
+        public Venta? Venta { get; set; }
+
+        // Conexion con Producto
+        public int ProductoId { get; set; }
+        public Producto? Producto { get; set; }
+
     }
 }

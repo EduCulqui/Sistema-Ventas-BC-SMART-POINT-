@@ -35,6 +35,14 @@ namespace Sistema_BC_SMART_POINT.Models
         [Required]
         public string NumeroSeguimiento { get; set; }
 
+        // Conexion con Venta
+        public int VentaId { get; set; }
+        public Venta? Venta { get; set; }
+
+        // Conexion con Administrador (quien actualiza el estado)
+        public int? AdministradorId { get; set; }
+        public Administrador? Administrador { get; set; }
+
 
     }
 }

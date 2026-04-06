@@ -29,7 +29,24 @@ namespace Sistema_BC_SMART_POINT.Models
         [Required]
         public DateTime FechaRegistro { get; set; }
 
-       
+        // Conexion con Categoria
+        public int CategoriaId { get; set; }
+        public Categoria? Categoria { get; set; }
+
+        // Conexion con Proveedor
+        public int ProveedorId { get; set; }
+        public Proveedor? Proveedor { get; set; }
+
+        // Conexion con DetalleVenta
+        public ICollection<DetalleVenta>? DetallesVenta { get; set; }
+
+        // Conexion con ProductoVariante (stock se maneja por variante)
+        public ICollection<ProductoVariante>? Variantes { get; set; }
+
+        // Propiedad calculada: Stock total de todas las variantes activas
+        [NotMapped]
+        public int StockTotal => Variantes?.Where(v => v.Estado).Sum(v => v.StockActual) ?? 0;
+
     }
 }
 

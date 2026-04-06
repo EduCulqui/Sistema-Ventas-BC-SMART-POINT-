@@ -13,12 +13,6 @@ namespace Sistema_BC_SMART_POINT.Models
             [Required]
             public int ProductoId { get; set; }
 
-            [Required, StringLength(10)]
-            public string Talla { get; set; }
-
-            [Required, StringLength(50)]
-            public string Color { get; set; }
-
             [Required]
             public int StockActual { get; set; }
 

@@ -18,7 +18,12 @@ namespace Sistema_BC_SMART_POINT.Models
         public string DniRuc { get; set; }
         [Required]
         public DateTime FechaNacimiento { get; set; }
-            
-        public Cliente() { }
+
+        // Conexion con Usuario
+        public int UsuarioId { get; set; }
+        public Usuario Usuario { get; set; }
+
+        // Conexion con Venta
+        public ICollection<Venta>? Ventas { get; set; }
     }
 }
