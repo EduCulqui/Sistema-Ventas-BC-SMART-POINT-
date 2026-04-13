@@ -23,8 +23,6 @@ namespace Sistema_BC_SMART_POINT.Models
         [Required]
         public DateTime FechaEntregaEstimada { get; set; }
 
-        public DateTime? FechaEntregaReal { get; set; }
-
         //(pendiente, en proceso, alistado, enviado, entregado, cancelado)
         [Required, StringLength(20)]
         public string EstadoEnvio { get; set; }

@@ -12,8 +12,8 @@ using Sistema_BC_SMART_POINT.Data;
 namespace Sistema_BC_SMART_POINT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260413033947_Mig01")]
-    partial class Mig01
+    [Migration("20260413220436_Mig")]
+    partial class Mig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -225,9 +225,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime>("FechaEntregaEstimada")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaEntregaReal")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("FechaEnvio")

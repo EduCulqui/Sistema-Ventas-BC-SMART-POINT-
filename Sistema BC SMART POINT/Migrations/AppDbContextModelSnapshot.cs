@@ -224,9 +224,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                     b.Property<DateTime>("FechaEntregaEstimada")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("FechaEntregaReal")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("FechaEnvio")
                         .HasColumnType("datetime2");
 

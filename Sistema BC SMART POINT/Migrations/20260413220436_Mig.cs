@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Sistema_BC_SMART_POINT.Migrations
 {
     /// <inheritdoc />
-    public partial class Mig01 : Migration
+    public partial class Mig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -236,7 +236,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                     CodigoPostal = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: false),
                     FechaEnvio = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FechaEntregaEstimada = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FechaEntregaReal = table.Column<DateTime>(type: "datetime2", nullable: true),
                     EstadoEnvio = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     EmpresaTransporte = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     NumeroSeguimiento = table.Column<string>(type: "nvarchar(max)", nullable: false),
