@@ -18,9 +18,9 @@ namespace Sistema_BC_SMART_POINT.Models
         public int VentaId { get; set; }
         public Venta? Venta { get; set; }
 
-        // Conexion con Producto
+        // Relación con Producto
         public int ProductoId { get; set; }
-        public Producto? Producto { get; set; }
+        public Producto Producto { get; set; }
 
     }
 }

@@ -10,13 +10,11 @@ namespace Sistema_BC_SMART_POINT.Data
         {
         }
         public DbSet<Administrador> Administradores { get; set; }
-        public DbSet<AlertaStock> AlertaStock { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<DetalleVenta> DetallesVentas { get; set; }
         public DbSet<Envio> Envios { get; set; }
         public DbSet<Producto> Productos { get; set; }
-        public DbSet<ProductoVariante> ProductoVariantes { get; set; }
         public DbSet<Proveedor> Proveedores { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Venta> Ventas { get; set; }
@@ -60,14 +58,8 @@ namespace Sistema_BC_SMART_POINT.Data
             modelBuilder.Entity<DetalleVenta>()
                 .HasOne(dv => dv.Venta)
                 .WithMany(v => v.DetallesVenta)
-                .HasForeignKey(dv => dv.VentaId);
-
-            // Producto 1:N DetalleVenta
-            modelBuilder.Entity<DetalleVenta>()
-                .HasOne(dv => dv.Producto)
-                .WithMany(p => p.DetallesVenta)
-                .HasForeignKey(dv => dv.ProductoId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .HasForeignKey(dv => dv.VentaId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Venta 1:0..1 Envio
             modelBuilder.Entity<Envio>()
@@ -82,23 +74,12 @@ namespace Sistema_BC_SMART_POINT.Data
                 .HasForeignKey(e => e.AdministradorId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // ProductoVariante 1:N AlertaStock
-            modelBuilder.Entity<AlertaStock>()
-                .HasOne(a => a.ProductoVariante)
-                .WithMany()
-                .HasForeignKey(a => a.ProductoVarianteId);
-
-            // Producto 1:N ProductoVariante
-            modelBuilder.Entity<ProductoVariante>()
-                .HasOne(pv => pv.Producto)
-                .WithMany(p => p.Variantes)
-                .HasForeignKey(pv => pv.ProductoId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Índice único para evitar duplicados
-            modelBuilder.Entity<ProductoVariante>()
-                .HasIndex(pv => new { pv.ProductoId})
-                .IsUnique();
+            // Producto 1:N DetalleVenta
+            modelBuilder.Entity<DetalleVenta>()
+                .HasOne(dv => dv.Producto)
+                .WithMany(p => p.DetallesVenta)
+                .HasForeignKey(dv => dv.ProductoId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             // CuponDescuento 1:N Venta (un cupon puede usarse en multiples ventas)
             modelBuilder.Entity<Venta>()

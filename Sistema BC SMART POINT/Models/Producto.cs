@@ -14,39 +14,42 @@ namespace Sistema_BC_SMART_POINT.Models
         [Required, StringLength(255)]
         public string Descripcion { get; set; }
 
-        [Required]
-        public decimal PrecioCompra { get; set; }
+        [StringLength(200)]
+        public string? ImagenUrl { get; set; }
+
+        [StringLength(50)]
+        public string? Color { get; set; }
+
+        [StringLength(50)]
+        public string? Capacidad { get; set; }
+
+        [StringLength(50)]
+        public string? Modelo { get; set; }
 
         [Required]
-        public decimal PrecioVenta { get; set; }
+        public decimal Precio { get; set; }
 
-        [Required, StringLength(200)]
-        public string ImagenUrl { get; set; }
+        [Required]
+        public int StockActual { get; set; }
+
+        [Required]
+        public int StockMinimo { get; set; }
 
         [Required]
         public bool Estado { get; set; } = true;
 
         [Required]
-        public DateTime FechaRegistro { get; set; }
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
 
-        // Conexion con Categoria
+        // Relaciones
         public int CategoriaId { get; set; }
         public Categoria? Categoria { get; set; }
 
-        // Conexion con Proveedor
         public int ProveedorId { get; set; }
         public Proveedor? Proveedor { get; set; }
 
-        // Conexion con DetalleVenta
+        // Relación con DetalleVenta 
         public ICollection<DetalleVenta>? DetallesVenta { get; set; }
-
-        // Conexion con ProductoVariante (stock se maneja por variante)
-        public ICollection<ProductoVariante>? Variantes { get; set; }
-
-        // Propiedad calculada: Stock total de todas las variantes activas
-        [NotMapped]
-        public int StockTotal => Variantes?.Where(v => v.Estado).Sum(v => v.StockActual) ?? 0;
-
     }
 }
 

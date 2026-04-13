@@ -49,39 +49,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                     b.ToTable("Administradores");
                 });
 
-            modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.AlertaStock", b =>
-                {
-                    b.Property<int>("IdAlertaStock")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAlertaStock"));
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("Estado")
-                        .HasMaxLength(255)
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("FechaAlerta")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("FechaResolucion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ProductoVarianteId")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdAlertaStock");
-
-                    b.HasIndex("ProductoVarianteId");
-
-                    b.ToTable("AlertaStock");
-                });
-
             modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.Categoria", b =>
                 {
                     b.Property<int>("IdCategoria")
@@ -288,8 +255,16 @@ namespace Sistema_BC_SMART_POINT.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdProducto"));
 
+                    b.Property<string>("Capacidad")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int>("CategoriaId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
@@ -303,22 +278,28 @@ namespace Sistema_BC_SMART_POINT.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ImagenUrl")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Modelo")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal>("PrecioCompra")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("PrecioVenta")
+                    b.Property<decimal>("Precio")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ProveedorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockActual")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockMinimo")
                         .HasColumnType("int");
 
                     b.HasKey("IdProducto");
@@ -328,37 +309,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                     b.HasIndex("ProveedorId");
 
                     b.ToTable("Productos");
-                });
-
-            modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.ProductoVariante", b =>
-                {
-                    b.Property<int>("IdProductoVariante")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdProductoVariante"));
-
-                    b.Property<bool>("Estado")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StockActual")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StockMinimo")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdProductoVariante");
-
-                    b.HasIndex("ProductoId")
-                        .IsUnique();
-
-                    b.ToTable("ProductoVariantes");
                 });
 
             modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.Proveedor", b =>
@@ -512,17 +462,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.AlertaStock", b =>
-                {
-                    b.HasOne("Sistema_BC_SMART_POINT.Models.ProductoVariante", "ProductoVariante")
-                        .WithMany()
-                        .HasForeignKey("ProductoVarianteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProductoVariante");
-                });
-
             modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.Cliente", b =>
                 {
                     b.HasOne("Sistema_BC_SMART_POINT.Models.Usuario", "Usuario")
@@ -590,17 +529,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                     b.Navigation("Proveedor");
                 });
 
-            modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.ProductoVariante", b =>
-                {
-                    b.HasOne("Sistema_BC_SMART_POINT.Models.Producto", "Producto")
-                        .WithMany("Variantes")
-                        .HasForeignKey("ProductoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Producto");
-                });
-
             modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.Venta", b =>
                 {
                     b.HasOne("Sistema_BC_SMART_POINT.Models.Cliente", "Cliente")
@@ -642,8 +570,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
             modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.Producto", b =>
                 {
                     b.Navigation("DetallesVenta");
-
-                    b.Navigation("Variantes");
                 });
 
             modelBuilder.Entity("Sistema_BC_SMART_POINT.Models.Proveedor", b =>

@@ -91,9 +91,13 @@ namespace Sistema_BC_SMART_POINT.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    PrecioCompra = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PrecioVenta = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ImagenUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ImagenUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Color = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Capacidad = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Modelo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    StockActual = table.Column<int>(type: "int", nullable: false),
+                    StockMinimo = table.Column<int>(type: "int", nullable: false),
                     Estado = table.Column<bool>(type: "bit", nullable: false),
                     FechaRegistro = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CategoriaId = table.Column<int>(type: "int", nullable: false),
@@ -162,29 +166,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductoVariantes",
-                columns: table => new
-                {
-                    IdProductoVariante = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductoId = table.Column<int>(type: "int", nullable: false),
-                    StockActual = table.Column<int>(type: "int", nullable: false),
-                    StockMinimo = table.Column<int>(type: "int", nullable: false),
-                    Estado = table.Column<bool>(type: "bit", nullable: false),
-                    FechaRegistro = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductoVariantes", x => x.IdProductoVariante);
-                    table.ForeignKey(
-                        name: "FK_ProductoVariantes_Productos_ProductoId",
-                        column: x => x.ProductoId,
-                        principalTable: "Productos",
-                        principalColumn: "IdProducto",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Ventas",
                 columns: table => new
                 {
@@ -214,29 +195,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                         principalTable: "CuponDescuento",
                         principalColumn: "IdCuponDescuento",
                         onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AlertaStock",
-                columns: table => new
-                {
-                    IdAlertaStock = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FechaAlerta = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Estado = table.Column<bool>(type: "bit", maxLength: 255, nullable: false),
-                    FechaResolucion = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ProductoVarianteId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AlertaStock", x => x.IdAlertaStock);
-                    table.ForeignKey(
-                        name: "FK_AlertaStock_ProductoVariantes_ProductoVarianteId",
-                        column: x => x.ProductoVarianteId,
-                        principalTable: "ProductoVariantes",
-                        principalColumn: "IdProductoVariante",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -308,11 +266,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AlertaStock_ProductoVarianteId",
-                table: "AlertaStock",
-                column: "ProductoVarianteId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Clientes_UsuarioId",
                 table: "Clientes",
                 column: "UsuarioId",
@@ -356,12 +309,6 @@ namespace Sistema_BC_SMART_POINT.Migrations
                 column: "ProveedorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductoVariantes_ProductoId",
-                table: "ProductoVariantes",
-                column: "ProductoId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Ventas_ClienteId",
                 table: "Ventas",
                 column: "ClienteId");
@@ -376,16 +323,13 @@ namespace Sistema_BC_SMART_POINT.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AlertaStock");
-
-            migrationBuilder.DropTable(
                 name: "DetallesVentas");
 
             migrationBuilder.DropTable(
                 name: "Envios");
 
             migrationBuilder.DropTable(
-                name: "ProductoVariantes");
+                name: "Productos");
 
             migrationBuilder.DropTable(
                 name: "Administradores");
@@ -394,19 +338,16 @@ namespace Sistema_BC_SMART_POINT.Migrations
                 name: "Ventas");
 
             migrationBuilder.DropTable(
-                name: "Productos");
+                name: "Categorias");
+
+            migrationBuilder.DropTable(
+                name: "Proveedores");
 
             migrationBuilder.DropTable(
                 name: "Clientes");
 
             migrationBuilder.DropTable(
                 name: "CuponDescuento");
-
-            migrationBuilder.DropTable(
-                name: "Categorias");
-
-            migrationBuilder.DropTable(
-                name: "Proveedores");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");
