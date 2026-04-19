@@ -1,0 +1,54 @@
+﻿@model Sistema_BC_SMART_POINT.Models.ViewModels.RegistroViewModel
+@{
+    ViewData["Title"] = "Crear cuenta";
+}
+
+<h2>Crear cuenta</h2>
+
+@if (TempData["Exito"] != null)
+{
+    <p style="color:green">@TempData["Exito"]</p>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <p style="color:red">@Html.ValidationSummary()</p>
+}
+
+<form method="post" asp-action="Registro">
+    @Html.AntiForgeryToken()
+
+    <div>
+        <label asp-for="Nombres">Nombres</label>
+        <input asp-for="Nombres" />
+        <span asp-validation-for="Nombres" style="color:red"></span>
+    </div>
+
+    <div>
+        <label asp-for="Apellidos">Apellidos</label>
+        <input asp-for="Apellidos" />
+        <span asp-validation-for="Apellidos" style="color:red"></span>
+    </div>
+
+    <div>
+        <label asp-for="Email">Correo</label>
+        <input asp-for="Email" type="email" />
+        <span asp-validation-for="Email" style="color:red"></span>
+    </div>
+
+    <div>
+        <label asp-for="Contrasenia">Contraseña</label>
+        <input asp-for="Contrasenia" type="password" />
+        <span asp-validation-for="Contrasenia" style="color:red"></span>
+    </div>
+
+    <div>
+        <label asp-for="ConfirmarContrasenia">Confirmar contraseña</label>
+        <input asp-for="ConfirmarContrasenia" type="password" />
+        <span asp-validation-for="ConfirmarContrasenia" style="color:red"></span>
+    </div>
+
+    <button type="submit">Crear cuenta</button>
+</form>
+
+<p><a href="@Url.Action("Login")">¿Ya tienes cuenta? Inicia sesión</a></p>

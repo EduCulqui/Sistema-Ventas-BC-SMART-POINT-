@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Producto>
+
+@{
+    ViewData["Title"] = "Catálogo";
+    var categorias = ViewBag.Categorias as IEnumerable<Sistema_BC_SMART_POINT.Models.Categoria>;
+    int? categoriaSeleccionada = ViewBag.CategoriaId;
+    string busqueda = ViewBag.Busqueda ?? "";
+    string orden = ViewBag.Orden ?? "";
+}
+
+<h2>Catálogo de productos (@Model.Count())</h2>
+
+<form method="get" asp-action="Index">
+    <input type="text" name="busqueda" value="@busqueda" placeholder="Buscar..." />
+
+    <select name="categoriaId">
+        <option value="">Todas las categorías</option>
+        @foreach (var cat in categorias ?? Enumerable.Empty<Sistema_BC_SMART_POINT.Models.Categoria>())
+        {
+            <option value="@cat.IdCategoria"
+                    selected="@(categoriaSeleccionada == cat.IdCategoria ? "selected" : null)">
+                @cat.NomCategoria
+            </option>
+        }
+    </select>
+
+    <select name="orden">
+        <option value="">Nombre A–Z</option>
+        <option value="precio_asc" selected="@(orden == "precio_asc" ? "selected" : null)">Precio: menor a mayor</option>
+        <option value="precio_desc" selected="@(orden == "precio_desc" ? "selected" : null)">Precio: mayor a menor</option>
+    </select>
+
+    <button type="submit">Filtrar</button>
+    <a href="@Url.Action("Index")">Limpiar</a>
+</form>
+
+<hr />
+
+@if (!Model.Any())
+{
+    <p>No se encontraron productos.</p>
+}
+else
+{
+    <ul>
+        @foreach (var p in Model)
+        {
+            <li>
+                <a href="@Url.Action("Detalle", new { id = p.IdProducto })">@p.Nombre</a>
+                — S/ @p.Precio.ToString("0.00")
+                — Stock: @p.StockActual
+                @if (p.Categoria != null)
+                {
+                    <span>(@p.Categoria.NomCategoria)</span>
+                }
+            </li>
+        }
+    </ul>
+}

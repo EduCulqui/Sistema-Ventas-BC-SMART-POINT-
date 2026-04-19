@@ -1,0 +1,55 @@
+﻿@model Sistema_BC_SMART_POINT.Models.Producto
+@{
+    ViewData["Title"] = Model.Nombre;
+}
+
+<h2>@Model.Nombre</h2>
+<p>Modelo: @Model.Modelo</p>
+<p>Categoría: @Model.Categoria?.NomCategoria</p>
+<p>Precio: S/ @Model.Precio.ToString("0.00")</p>
+<p>Stock: @Model.StockActual unidades</p>
+
+@if (!string.IsNullOrEmpty(Model.Descripcion))
+{
+    <p>@Model.Descripcion</p>
+}
+
+@if (Model.Proveedor != null)
+{
+    <p>Proveedor: @Model.Proveedor.NombreEmpresa</p>
+}
+
+<hr />
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    @if (TempData["Exito"] != null)
+    {
+        <p style="color:green">@TempData["Exito"]</p>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <p style="color:red">@TempData["Error"]</p>
+    }
+
+    <form method="post" asp-controller="Carrito" asp-action="Agregar">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="productoId" value="@Model.IdProducto" />
+        <label>
+            Cantidad:
+            <input type="number" name="cantidad" value="1" min="1" max="@Model.StockActual" style="width:60px" />
+        </label>
+        <button type="submit">Agregar al carrito</button>
+    </form>
+}
+else
+{
+    <p>
+        <a href="@Url.Action("Login", "Auth", new { ReturnUrl = Context.Request.Path })">
+            Inicia sesión para agregar al carrito
+        </a>
+    </p>
+}
+
+<hr />
+<a href="@Url.Action("Index", "Catalogo")">← Volver al catálogo</a>
