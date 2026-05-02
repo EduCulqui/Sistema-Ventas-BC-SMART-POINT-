@@ -1,55 +1,279 @@
 ﻿@model Sistema_BC_SMART_POINT.Models.Producto
 @{
     ViewData["Title"] = Model.Nombre;
+
+    string stockClass = Model.StockActual == 0 ? "stock-empty"
+                      : Model.StockActual <= Model.StockMinimo ? "stock-low"
+                      : "stock-ok";
+    string stockText = Model.StockActual == 0 ? "Sin stock"
+                      : Model.StockActual <= Model.StockMinimo ? $"Últimas unidades ({Model.StockActual})"
+                      : $"En stock ({Model.StockActual})";
 }
 
-<h2>@Model.Nombre</h2>
-<p>Modelo: @Model.Modelo</p>
-<p>Categoría: @Model.Categoria?.NomCategoria</p>
-<p>Precio: S/ @Model.Precio.ToString("0.00")</p>
-<p>Stock: @Model.StockActual unidades</p>
+<div class="detalle-bc">
 
-@if (!string.IsNullOrEmpty(Model.Descripcion))
-{
-    <p>@Model.Descripcion</p>
-}
+    <div class="detalle-img-col">
+        <div class="detalle-img-wrap">
+            @if (Model.Categoria != null)
+            {
+                <span class="badge-cat-bc">@Model.Categoria.NomCategoria</span>
+            }
+            <img src="@(string.IsNullOrEmpty(Model.ImagenUrl) ? "/images/no-image.png" : Model.ImagenUrl)"
+                 alt="@Model.Nombre" class="detalle-img" />
+        </div>
+    </div>
 
-@if (Model.Proveedor != null)
-{
-    <p>Proveedor: @Model.Proveedor.NombreEmpresa</p>
-}
+    <div class="detalle-info-col">
 
-<hr />
+        <h1 class="detalle-nombre">@Model.Nombre</h1>
 
-@if (User.Identity?.IsAuthenticated == true)
-{
-    @if (TempData["Exito"] != null)
-    {
-        <p style="color:green">@TempData["Exito"]</p>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <p style="color:red">@TempData["Error"]</p>
-    }
+        <p class="detalle-specs">
+            @string.Join(" · ", new[] { Model.Modelo, Model.Color, Model.Capacidad }
+                        .Where(s => !string.IsNullOrEmpty(s)))
+        </p>
 
-    <form method="post" asp-controller="Carrito" asp-action="Agregar">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="productoId" value="@Model.IdProducto" />
-        <label>
-            Cantidad:
-            <input type="number" name="cantidad" value="1" min="1" max="@Model.StockActual" style="width:60px" />
-        </label>
-        <button type="submit">Agregar al carrito</button>
-    </form>
-}
-else
-{
-    <p>
-        <a href="@Url.Action("Login", "Auth", new { ReturnUrl = Context.Request.Path })">
-            Inicia sesión para agregar al carrito
+        <div class="detalle-price">
+            <span class="price-currency">S/</span>
+            <span class="price-amount-lg">@Model.Precio.ToString("0.00")</span>
+        </div>
+
+        <span class="product-stock @stockClass" style="margin-bottom: 1rem; display:inline-block;">
+            @stockText
+        </span>
+
+        @if (!string.IsNullOrEmpty(Model.Descripcion))
+        {
+            <p class="detalle-desc">@Model.Descripcion</p>
+        }
+
+        @if (Model.Proveedor != null)
+        {
+            <p class="detalle-proveedor">
+                <span>Proveedor:</span> @Model.Proveedor.NombreEmpresa
+            </p>
+        }
+
+        <hr class="detalle-divider" />
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <form method="post" asp-controller="Carrito" asp-action="Agregar" class="detalle-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productoId" value="@Model.IdProducto" />
+
+                <div class="detalle-cantidad">
+                    <label class="cantidad-label">Cantidad</label>
+                    <div class="cantidad-control">
+                        <button type="button" class="cantidad-btn" onclick="
+                                var i=document.getElementById('qty');
+                                if(+i.value>
+                            1) i.value=+i.value-1">−
+                        </button>
+                        <input type="number" id="qty" name="cantidad"
+                               value="1" min="1" max="@Model.StockActual"
+                               class="cantidad-input" />
+                        <button type="button" class="cantidad-btn" onclick="
+                                var i=document.getElementById('qty');
+                                if(+i.value<@Model.StockActual) i.value=+i.value+1">+</button>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="btn-bc btn-detalle-bc @(Model.StockActual == 0 ? "btn-bc-disabled" : "")"
+                        @(Model.StockActual == 0 ? "disabled" : "")>
+                    Agregar al carrito
+                </button>
+            </form>
+        }
+        else
+        {
+            <a href="@Url.Action("Login", "Auth", new { ReturnUrl = Context.Request.Path })"
+               class="btn-bc btn-detalle-bc">
+                Iniciar sesión para comprar
+            </a>
+        }
+
+        <a href="@Url.Action("Index", "Catalogo")" class="detalle-volver">
+            ← Volver al catálogo
         </a>
-    </p>
-}
 
-<hr />
-<a href="@Url.Action("Index", "Catalogo")">← Volver al catálogo</a>
+    </div>
+</div>
+
+              
+<style>
+    /*  Detalle producto  */
+    .detalle-bc {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: start;
+        padding: 2rem 0;
+    }
+
+    {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    }
+
+    /* Columna imagen */
+    .detalle-img-wrap {
+        position: relative;
+        background: var(--bc-fondo);
+        border: 1px solid var(--bc-borde);
+        border-radius: 20px;
+        aspect-ratio: 1 / 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .detalle-img {
+        width: 70%;
+        height: 70%;
+        object-fit: contain;
+    }
+
+    /* Columna info */
+    .detalle-nombre {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--bc-texto-1);
+        letter-spacing: -0.03em;
+        margin: 0 0 0.4rem;
+        line-height: 1.2;
+    }
+
+    .detalle-specs {
+        font-size: 0.875rem;
+        color: var(--bc-texto-2);
+        margin: 0 0 1.25rem;
+    }
+
+    .detalle-price {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        margin-bottom: 0.75rem;
+    }
+
+    .price-amount-lg {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--bc-texto-1);
+        letter-spacing: -0.03em;
+    }
+
+    .detalle-desc {
+        font-size: 0.9rem;
+        color: var(--bc-texto-2);
+        line-height: 1.6;
+        margin: 1rem 0;
+    }
+
+    .detalle-proveedor {
+        font-size: 0.82rem;
+        color: var(--bc-texto-2);
+        margin: 0;
+    }
+
+        .detalle-proveedor span {
+            color: var(--bc-texto-1);
+            font-weight: 500;
+        }
+
+    .detalle-divider {
+        border: none;
+        border-top: 1px solid var(--bc-borde);
+        margin: 1.25rem 0;
+    }
+
+    /* Cantidad */
+    .detalle-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .detalle-cantidad {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .cantidad-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--bc-texto-1);
+        min-width: 70px;
+    }
+
+    .cantidad-control {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--bc-borde);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--bc-blanco);
+    }
+
+    .cantidad-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: transparent;
+        font-size: 1.1rem;
+        color: var(--bc-texto-1);
+        cursor: pointer;
+        transition: background-color 0.15s;
+    }
+
+        .cantidad-btn:hover {
+            background: var(--bc-fondo);
+        }
+
+    .cantidad-input {
+        width: 48px;
+        height: 36px;
+        border: none;
+        border-left: 1px solid var(--bc-borde);
+        border-right: 1px solid var(--bc-borde);
+        text-align: center;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--bc-texto-1);
+        outline: none;
+        -moz-appearance: textfield;
+    }
+
+        .cantidad-input::-webkit-outer-spin-button,
+        .cantidad-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+    /* Botón principal detalle */
+    .btn-detalle-bc {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        border-radius: 12px;
+    }
+
+    /* Volver */
+    .detalle-volver {
+        display: inline-block;
+        margin-top: 1rem;
+        font-size: 0.875rem;
+        color: var(--bc-texto-2);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        .detalle-volver:hover {
+            color: var(--bc-amarillo);
+        }
+</style>

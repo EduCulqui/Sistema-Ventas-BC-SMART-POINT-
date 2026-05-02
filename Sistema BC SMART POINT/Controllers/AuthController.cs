@@ -32,7 +32,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 return View(vm);
             }
 
-            // Crear claims para la cookie de sesión
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
@@ -49,11 +48,13 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 principal,
                 new AuthenticationProperties { IsPersistent = vm.Recordarme });
 
-            // Regresar a la URL de origen o al catálogo
+            // Redirección por rol
             if (!string.IsNullOrEmpty(vm.ReturnUrl) && Url.IsLocalUrl(vm.ReturnUrl))
                 return Redirect(vm.ReturnUrl);
 
-            return RedirectToAction("Index", "Catalogo");
+            return usuario.Rol == "Administrador"
+                ? RedirectToAction("Dashboard", "Admin")
+                : RedirectToAction("Index", "Catalogo");
         }
 
         // GET Auth para Registro

@@ -1,0 +1,64 @@
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Proveedor>
+@{
+    ViewData["Title"] = "Proveedores";
+    Layout = "_AdminLayout";
+}
+
+<div class="adm-page-header">
+    <div>
+        <h1>Proveedores</h1>
+        <p>@Model.Count(p => p.Estado) activos · @Model.Count(p => !p.Estado) inactivos</p>
+    </div>
+    <a href="@Url.Action("CrearProveedor")" class="btn-adm-primary">+ Nuevo proveedor</a>
+</div>
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <h2>Listado de proveedores</h2>
+    </div>
+    <table class="adm-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Empresa</th>
+                <th>Contacto</th>
+                <th>Celular</th>
+                <th>RUC</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td style="color:#9ca3af;">@p.IdProveedor</td>
+                    <td style="font-weight:600;">@p.NombreEmpresa</td>
+                    <td style="color:#6b7280;">@p.ContactoNombre</td>
+                    <td>@p.Celular</td>
+                    <td style="font-family:monospace;">@p.Ruc</td>
+                    <td>
+                        <span class="@(p.Estado ? "badge-activo" : "badge-inactivo")">
+                            @(p.Estado ? "Activo" : "Inactivo")
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:8px;">
+                            <a href="@Url.Action("EditarProveedor", new { id = p.IdProveedor })"
+                               class="btn-adm-edit">Editar</a>
+                            @if (p.Estado)
+                            {
+                                <form method="post" asp-action="EliminarProveedor"
+                                      onsubmit="return confirm('¿Desactivar este proveedor?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.IdProveedor" />
+                                    <button type="submit" class="btn-adm-delete">Desactivar</button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

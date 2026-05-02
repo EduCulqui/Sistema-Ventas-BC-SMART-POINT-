@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 using Sistema_BC_SMART_POINT.Data;
 using Sistema_BC_SMART_POINT.Services;
 
@@ -15,13 +16,16 @@ builder.Services.AddSession(options =>
 });
 
 
-// Autenticación con cookies
-builder.Services.AddAuthentication("Cookies")
-    .AddCookie("Cookies", options =>
+// Autenticación 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(opt =>
     {
-        options.LoginPath = "/Auth/Login";
-        options.AccessDeniedPath = "/Auth/Login";
+        opt.LoginPath = "/Auth/Login";
+        opt.AccessDeniedPath = "/Auth/Login";
+        opt.ExpireTimeSpan = TimeSpan.FromHours(8);
     });
+
+builder.Services.AddScoped<AuthService>();
 
 
 // Add services to the container.
@@ -40,13 +44,13 @@ var app = builder.Build();
 
 app.UseStaticFiles();
 app.UseRouting();
-app.UseSession();           // ← Antes de UseAuthentication
+app.UseSession();        
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Catalogo}/{action=Index}/{id?}");  // La home es el catálogo
+    pattern: "{controller=Home}/{action=Index}/{id?}");  // La home es el catálogo
 
 app.Run();
 

@@ -1,0 +1,44 @@
+﻿@model Sistema_BC_SMART_POINT.Models.Categoria
+@{
+    ViewData["Title"] = "Editar categoría";
+    Layout = "_AdminLayout";
+}
+
+<div class="adm-page-header">
+    <div>
+        <h1>Editar categoría</h1>
+        <p>Modificando: <strong>@Model.NomCategoria</strong></p>
+    </div>
+    <a href="@Url.Action("Categorias")" class="btn-adm-edit">← Volver</a>
+</div>
+
+<div class="adm-form-card">
+    <form method="post" asp-action="EditarCategoria">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="IdCategoria" />
+
+        <div class="adm-field">
+            <label asp-for="NomCategoria">Nombre de la categoría</label>
+            <input asp-for="NomCategoria" />
+            <div class="field-error"><span asp-validation-for="NomCategoria"></span></div>
+        </div>
+
+        <div class="adm-field">
+            <label asp-for="Descripcion">Descripción</label>
+            <textarea asp-for="Descripcion"></textarea>
+            <div class="field-error"><span asp-validation-for="Descripcion"></span></div>
+        </div>
+
+        <div class="adm-field">
+            <div class="adm-check">
+                <input asp-for="Estado" type="checkbox" />
+                <label asp-for="Estado">Categoría activa</label>
+            </div>
+        </div>
+
+        <div class="adm-form-footer">
+            <button type="submit" class="btn-adm-primary">Guardar cambios</button>
+            <a href="@Url.Action("Categorias")" class="btn-adm-edit">Cancelar</a>
+        </div>
+    </form>
+</div>

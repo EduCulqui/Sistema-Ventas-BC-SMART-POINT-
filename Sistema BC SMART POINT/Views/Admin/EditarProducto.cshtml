@@ -1,0 +1,124 @@
+﻿@model Sistema_BC_SMART_POINT.Models.Producto
+@{
+    ViewData["Title"] = "Editar producto";
+    Layout = "_AdminLayout";
+    var categorias = ViewBag.Categorias as IEnumerable<Sistema_BC_SMART_POINT.Models.Categoria>;
+    var proveedores = ViewBag.Proveedores as IEnumerable<Sistema_BC_SMART_POINT.Models.Proveedor>;
+}
+
+<div class="adm-page-header">
+    <div>
+        <h1>Editar producto</h1>
+        <p>Modificando: <strong>@Model.Nombre</strong></p>
+    </div>
+    <a href="@Url.Action("Productos")" class="btn-adm-edit">← Volver</a>
+</div>
+
+<div class="adm-form-card" style="max-width:780px;">
+    <form method="post" asp-action="EditarProducto">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="IdProducto" />
+        <input type="hidden" asp-for="FechaRegistro" />
+
+        <p style="font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px;">
+            Información general
+        </p>
+
+        <div class="adm-form-grid-2">
+            <div class="adm-field" style="grid-column:1/-1;">
+                <label asp-for="Nombre">Nombre del producto</label>
+                <input asp-for="Nombre" />
+                <div class="field-error"><span asp-validation-for="Nombre"></span></div>
+            </div>
+            <div class="adm-field" style="grid-column:1/-1;">
+                <label asp-for="Descripcion">Descripción</label>
+                <textarea asp-for="Descripcion"></textarea>
+                <div class="field-error"><span asp-validation-for="Descripcion"></span></div>
+            </div>
+            <div class="adm-field">
+                <label asp-for="Modelo">Modelo</label>
+                <input asp-for="Modelo" />
+            </div>
+            <div class="adm-field">
+                <label asp-for="Color">Color</label>
+                <input asp-for="Color" />
+            </div>
+            <div class="adm-field">
+                <label asp-for="Capacidad">Capacidad</label>
+                <input asp-for="Capacidad" />
+            </div>
+            <div class="adm-field">
+                <label asp-for="ImagenUrl">URL de imagen</label>
+                <input asp-for="ImagenUrl" />
+            </div>
+        </div>
+
+        <p style="font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin:24px 0 16px;">
+            Precio y stock
+        </p>
+
+        <div class="adm-form-grid-2">
+            <div class="adm-field">
+                <label asp-for="Precio">Precio (S/)</label>
+                <input asp-for="Precio" type="number" step="0.01" />
+                <div class="field-error"><span asp-validation-for="Precio"></span></div>
+            </div>
+            <div class="adm-field">
+                <label asp-for="StockActual">Stock actual</label>
+                <input asp-for="StockActual" type="number" />
+                <div class="field-error"><span asp-validation-for="StockActual"></span></div>
+            </div>
+            <div class="adm-field">
+                <label asp-for="StockMinimo">Stock mínimo (alerta)</label>
+                <input asp-for="StockMinimo" type="number" />
+                <div class="field-error"><span asp-validation-for="StockMinimo"></span></div>
+            </div>
+        </div>
+
+        <p style="font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin:24px 0 16px;">
+            Clasificación
+        </p>
+
+        <div class="adm-form-grid-2">
+            <div class="adm-field">
+                <label asp-for="CategoriaId">Categoría</label>
+                <select asp-for="CategoriaId">
+                    <option value="">— Seleccionar —</option>
+                    @foreach (var cat in categorias ?? Enumerable.Empty<Sistema_BC_SMART_POINT.Models.Categoria>())
+                    {
+                        <option value="@cat.IdCategoria"
+                                selected="@(Model.CategoriaId == cat.IdCategoria ? "selected" : null)">
+                            @cat.NomCategoria
+                        </option>
+                    }
+                </select>
+                <div class="field-error"><span asp-validation-for="CategoriaId"></span></div>
+            </div>
+            <div class="adm-field">
+                <label asp-for="ProveedorId">Proveedor</label>
+                <select asp-for="ProveedorId">
+                    <option value="">— Seleccionar —</option>
+                    @foreach (var prov in proveedores ?? Enumerable.Empty<Sistema_BC_SMART_POINT.Models.Proveedor>())
+                    {
+                        <option value="@prov.IdProveedor"
+                                selected="@(Model.ProveedorId == prov.IdProveedor ? "selected" : null)">
+                            @prov.NombreEmpresa
+                        </option>
+                    }
+                </select>
+                <div class="field-error"><span asp-validation-for="ProveedorId"></span></div>
+            </div>
+            <div class="adm-field">
+                <div class="adm-check">
+                    <input asp-for="Estado" type="checkbox" />
+                    <label asp-for="Estado">Producto activo (visible en tienda)</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="adm-form-footer">
+            <button type="submit" class="btn-adm-primary">Guardar cambios</button>
+            <a href="@Url.Action("Productos")" class="btn-adm-edit">Cancelar</a>
+        </div>
+    </form>
+</div>

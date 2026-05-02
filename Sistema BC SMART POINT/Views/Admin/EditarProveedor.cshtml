@@ -1,0 +1,66 @@
+﻿@model Sistema_BC_SMART_POINT.Models.Proveedor
+@{
+    ViewData["Title"] = "Editar proveedor";
+    Layout = "_AdminLayout";
+}
+
+<div class="adm-page-header">
+    <div>
+        <h1>Editar proveedor</h1>
+        <p>Modificando: <strong>@Model.NombreEmpresa</strong></p>
+    </div>
+    <a href="@Url.Action("Proveedores")" class="btn-adm-edit">← Volver</a>
+</div>
+
+<div class="adm-form-card">
+    <form method="post" asp-action="EditarProveedor">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="IdProveedor" />
+
+        <div class="adm-form-grid-2">
+            <div class="adm-field">
+                <label asp-for="NombreEmpresa">Nombre de la empresa</label>
+                <input asp-for="NombreEmpresa" />
+                <div class="field-error"><span asp-validation-for="NombreEmpresa"></span></div>
+            </div>
+            <div class="adm-field">
+                <label asp-for="ContactoNombre">Nombre del contacto</label>
+                <input asp-for="ContactoNombre" />
+                <div class="field-error"><span asp-validation-for="ContactoNombre"></span></div>
+            </div>
+            <div class="adm-field">
+                <label asp-for="Celular">Celular</label>
+                <input asp-for="Celular" />
+                <div class="field-error"><span asp-validation-for="Celular"></span></div>
+            </div>
+            <div class="adm-field">
+                <label asp-for="Email">Correo electrónico</label>
+                <input asp-for="Email" type="email" />
+                <div class="field-error"><span asp-validation-for="Email"></span></div>
+            </div>
+            <div class="adm-field">
+                <label asp-for="Ruc">RUC</label>
+                <input asp-for="Ruc" />
+                <div class="field-error"><span asp-validation-for="Ruc"></span></div>
+            </div>
+            <div class="adm-field">
+                <label>Estado</label>
+                <div class="adm-check" style="margin-top:10px;">
+                    <input asp-for="Estado" type="checkbox" />
+                    <label asp-for="Estado">Proveedor activo</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="adm-field">
+            <label asp-for="Direccion">Dirección</label>
+            <input asp-for="Direccion" />
+            <div class="field-error"><span asp-validation-for="Direccion"></span></div>
+        </div>
+
+        <div class="adm-form-footer">
+            <button type="submit" class="btn-adm-primary">Guardar cambios</button>
+            <a href="@Url.Action("Proveedores")" class="btn-adm-edit">Cancelar</a>
+        </div>
+    </form>
+</div>

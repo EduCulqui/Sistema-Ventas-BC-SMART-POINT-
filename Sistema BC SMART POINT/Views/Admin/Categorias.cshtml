@@ -1,0 +1,65 @@
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Categoria>
+@{
+    ViewData["Title"] = "Categorías";
+    Layout = "_AdminLayout";
+}
+
+<div class="adm-page-header">
+    <div>
+        <h1>Categorías</h1>
+        <p>@Model.Count(c => c.Estado) activas · @Model.Count(c => !c.Estado) inactivas</p>
+    </div>
+    <a href="@Url.Action("CrearCategoria")" class="btn-adm-primary">+ Nueva categoría</a>
+</div>
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <h2>Listado de categorías</h2>
+    </div>
+    <table class="adm-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td style="color:#9ca3af;">@c.IdCategoria</td>
+                    <td style="font-weight:600;">@c.NomCategoria</td>
+                    <td style="color:#6b7280; max-width:300px;">@c.Descripcion</td>
+                    <td>
+                        @if (c.Estado)
+                        {
+                            <span class="badge-activo">Activa</span>
+                        }
+                        else
+                        {
+                            <span class="badge-inactivo">Inactiva</span>
+                        }
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:8px;">
+                            <a href="@Url.Action("EditarCategoria", new { id = c.IdCategoria })"
+                               class="btn-adm-edit">Editar</a>
+                            @if (c.Estado)
+                            {
+                                <form method="post" asp-action="EliminarCategoria"
+                                      onsubmit="return confirm('¿Desactivar esta categoría?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@c.IdCategoria" />
+                                    <button type="submit" class="btn-adm-delete">Desactivar</button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -3,52 +3,303 @@
     ViewData["Title"] = "Crear cuenta";
 }
 
-<h2>Crear cuenta</h2>
+<div class="auth-wrapper">
+    <div class="auth-card auth-card-wide">
 
-@if (TempData["Exito"] != null)
-{
-    <p style="color:green">@TempData["Exito"]</p>
-}
+        <div class="auth-header">
+            <span class="auth-logo">BC Smart Point</span>
+            <h1 class="auth-title">Crear cuenta</h1>
+        </div>
 
-@if (!ViewData.ModelState.IsValid)
-{
-    <p style="color:red">@Html.ValidationSummary()</p>
-}
+        @if (TempData["Exito"] != null)
+        {
+            <div class="alert-bc-exito" style="margin-bottom:1.25rem; border-radius:10px; padding:12px 16px;">
+                @TempData["Exito"]
+            </div>
+        }
 
-<form method="post" asp-action="Registro">
-    @Html.AntiForgeryToken()
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert-bc-error" style="margin-bottom:1.25rem; border-radius:10px; padding:12px 16px;">
+                @Html.ValidationSummary(false)
+            </div>
+        }
 
-    <div>
-        <label asp-for="Nombres">Nombres</label>
-        <input asp-for="Nombres" />
-        <span asp-validation-for="Nombres" style="color:red"></span>
+        <form method="post" asp-action="Registro" class="auth-form">
+            @Html.AntiForgeryToken()
+
+            @* Datos personales *@
+            <p class="auth-section-label">Datos personales</p>
+
+            <div class="auth-grid-2">
+                <div class="auth-field">
+                    <label asp-for="Nombres" class="auth-label">Nombres</label>
+                    <input asp-for="Nombres" class="auth-input" placeholder="Juan" />
+                    <span asp-validation-for="Nombres" class="auth-error"></span>
+                </div>
+                <div class="auth-field">
+                    <label asp-for="Apellidos" class="auth-label">Apellidos</label>
+                    <input asp-for="Apellidos" class="auth-input" placeholder="Pérez" />
+                    <span asp-validation-for="Apellidos" class="auth-error"></span>
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label asp-for="DniRuc" class="auth-label">DNI / RUC</label>
+                <input asp-for="DniRuc" class="auth-input" placeholder="12345678" />
+                <span asp-validation-for="DniRuc" class="auth-error"></span>
+            </div>
+
+            <div class="auth-grid-2">
+                <div class="auth-field">
+                    <label asp-for="Celular" class="auth-label">Celular</label>
+                    <input asp-for="Celular" class="auth-input" placeholder="987654321" />
+                    <span asp-validation-for="Celular" class="auth-error"></span>
+                </div>
+                <div class="auth-field">
+                    <label asp-for="FechaNacimiento" class="auth-label">Fecha de nacimiento</label>
+                    <input asp-for="FechaNacimiento" type="date" class="auth-input" />
+                    <span asp-validation-for="FechaNacimiento" class="auth-error"></span>
+                </div>
+            </div>
+
+            @* Dirección *@
+            <p class="auth-section-label">Dirección</p>
+
+            <div class="auth-field">
+                <label asp-for="Direccion" class="auth-label">Dirección</label>
+                <input asp-for="Direccion" class="auth-input" placeholder="Av. Ejemplo 123" />
+                <span asp-validation-for="Direccion" class="auth-error"></span>
+            </div>
+
+            <div class="auth-grid-2">
+                <div class="auth-field">
+                    <label asp-for="Ciudad" class="auth-label">Ciudad</label>
+                    <input asp-for="Ciudad" class="auth-input" placeholder="Cajamarca" />
+                    <span asp-validation-for="Ciudad" class="auth-error"></span>
+                </div>
+                <div class="auth-field">
+                    <label asp-for="CodigoPostal" class="auth-label">Código postal</label>
+                    <input asp-for="CodigoPostal" class="auth-input" placeholder="06001" />
+                    <span asp-validation-for="CodigoPostal" class="auth-error"></span>
+                </div>
+            </div>
+
+            @* Credenciales *@
+            <p class="auth-section-label">Credenciales</p>
+
+            <div class="auth-field">
+                <label asp-for="Email" class="auth-label">Correo electrónico</label>
+                <input asp-for="Email" type="email" class="auth-input" placeholder="tu@correo.com" />
+                <span asp-validation-for="Email" class="auth-error"></span>
+            </div>
+
+            <div class="auth-grid-2">
+                <div class="auth-field">
+                    <label asp-for="Contrasenia" class="auth-label">Contraseña</label>
+                    <input asp-for="Contrasenia" type="password" class="auth-input" placeholder="••••••••" />
+                    <span asp-validation-for="Contrasenia" class="auth-error"></span>
+                </div>
+                <div class="auth-field">
+                    <label asp-for="ConfirmarContrasenia" class="auth-label">Confirmar contraseña</label>
+                    <input asp-for="ConfirmarContrasenia" type="password" class="auth-input" placeholder="••••••••" />
+                    <span asp-validation-for="ConfirmarContrasenia" class="auth-error"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-bc btn-auth-bc">
+                Crear cuenta
+            </button>
+
+        </form>
+
+        <div class="auth-footer">
+            <a href="@Url.Action("Login")" class="auth-link">
+                ¿Ya tienes cuenta? <strong>Inicia sesión</strong>
+            </a>
+        </div>
+
     </div>
+</div>
 
-    <div>
-        <label asp-for="Apellidos">Apellidos</label>
-        <input asp-for="Apellidos" />
-        <span asp-validation-for="Apellidos" style="color:red"></span>
-    </div>
+<style>
+    /* ── Auth compartido (login + registro) ───────────── */
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 3rem 1rem 4rem;
+    }
 
-    <div>
-        <label asp-for="Email">Correo</label>
-        <input asp-for="Email" type="email" />
-        <span asp-validation-for="Email" style="color:red"></span>
-    </div>
+    .auth-card {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        width: 100%;
+        max-width: 420px;
+    }
 
-    <div>
-        <label asp-for="Contrasenia">Contraseña</label>
-        <input asp-for="Contrasenia" type="password" />
-        <span asp-validation-for="Contrasenia" style="color:red"></span>
-    </div>
+    .auth-card-wide {
+        max-width: 540px;
+    }
 
-    <div>
-        <label asp-for="ConfirmarContrasenia">Confirmar contraseña</label>
-        <input asp-for="ConfirmarContrasenia" type="password" />
-        <span asp-validation-for="ConfirmarContrasenia" style="color:red"></span>
-    </div>
+    .auth-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
 
-    <button type="submit">Crear cuenta</button>
-</form>
+    .auth-logo {
+        background: var(--bc-negro);
+        color: var(--bc-amarillo);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 4px 14px;
+        border-radius: 20px;
+    }
 
-<p><a href="@Url.Action("Login")">¿Ya tienes cuenta? Inicia sesión</a></p>
+    .auth-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--bc-texto-1);
+        letter-spacing: -0.03em;
+        margin: 0;
+    }
+
+    .auth-section-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--bc-texto-2);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin: 0.5rem 0 0;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--bc-borde);
+    }
+
+        .auth-section-label:first-of-type {
+            border-top: none;
+            padding-top: 0;
+            margin-top: 0;
+        }
+
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .auth-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    @@media (max-width: 480px) {
+        .auth-grid-2
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    .auth-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .auth-label {
+        font-size: 0.825rem;
+        font-weight: 500;
+        color: var(--bc-texto-1);
+    }
+
+    .auth-input {
+        width: 100%;
+        padding: 0.6rem 0.9rem;
+        border: 1px solid var(--bc-borde);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        color: var(--bc-texto-1);
+        background: var(--bc-fondo);
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+    }
+
+        .auth-input:focus {
+            border-color: var(--bc-amarillo);
+            box-shadow: 0 0 0 3px rgba(245, 197, 0, 0.15);
+            background: var(--bc-blanco);
+        }
+
+        .auth-input::placeholder {
+            color: var(--bc-texto-2);
+        }
+
+    .auth-error {
+        font-size: 0.75rem;
+        color: #b91c1c;
+    }
+
+    .auth-remember {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .auth-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--bc-amarillo);
+        cursor: pointer;
+    }
+
+    .auth-remember-label {
+        font-size: 0.85rem;
+        color: var(--bc-texto-2);
+        cursor: pointer;
+    }
+
+    .btn-auth-bc {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        border-radius: 12px;
+        margin-top: 0.5rem;
+        cursor: pointer;
+    }
+
+    .auth-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-top: 1.75rem;
+        text-align: center;
+    }
+
+    .auth-link {
+        font-size: 0.875rem;
+        color: var(--bc-texto-2);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        .auth-link:hover {
+            color: var(--bc-texto-1);
+        }
+
+        .auth-link strong {
+            color: var(--bc-texto-1);
+            font-weight: 600;
+        }
+</style>

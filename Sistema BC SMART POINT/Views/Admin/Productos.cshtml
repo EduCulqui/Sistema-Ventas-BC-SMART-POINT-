@@ -1,0 +1,73 @@
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Producto>
+@{
+    ViewData["Title"] = "Productos";
+    Layout = "_AdminLayout";
+}
+
+<div class="adm-page-header">
+    <div>
+        <h1>Productos</h1>
+        <p>@Model.Count(p => p.Estado) activos · @Model.Count(p => !p.Estado) inactivos</p>
+    </div>
+    <a href="@Url.Action("CrearProducto")" class="btn-adm-primary">+ Nuevo producto</a>
+</div>
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <h2>Inventario</h2>
+    </div>
+    <table class="adm-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td style="color:#9ca3af;">@p.IdProducto</td>
+                    <td>
+                        <div style="font-weight:600; color:#111827;">@p.Nombre</div>
+                        <div style="font-size:12px; color:#9ca3af;">@p.Modelo @p.Color @p.Capacidad</div>
+                    </td>
+                    <td style="color:#6b7280;">@p.Categoria?.NomCategoria</td>
+                    <td style="font-weight:600;">S/ @p.Precio.ToString("0.00")</td>
+                    <td>
+                        @if (p.StockActual <= p.StockMinimo)
+                        {
+                            <span class="badge-stock">@p.StockActual (bajo)</span>
+                        }
+                        else
+                        {
+                            <span style="color:#374151;">@p.StockActual</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="@(p.Estado ? "badge-activo" : "badge-inactivo")">
+                            @(p.Estado ? "Activo" : "Inactivo")
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:8px;">
+                            <a href="@Url.Action("EditarProducto", new { id = p.IdProducto })"
+                               class="btn-adm-edit">Editar</a>
+                            <form method="post" asp-action="EliminarProducto"
+                                  onsubmit="return confirm('¿Desactivar este producto?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@p.IdProducto" />
+                                <button type="submit" class="btn-adm-delete">Desactivar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

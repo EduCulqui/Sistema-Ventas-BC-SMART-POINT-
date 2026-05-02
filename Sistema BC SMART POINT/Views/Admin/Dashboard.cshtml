@@ -1,0 +1,182 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="adm-page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Bienvenido, @User.Identity?.Name — @DateTime.Now.ToString("dddd dd 'de' MMMM, yyyy")</p>
+    </div>
+    <a href="@Url.Action("Index", "Catalogo")" class="btn-adm-edit">Ver tienda</a>
+</div>
+
+<div class="adm-metrics">
+    <div class="adm-metric">
+        <div class="label">Productos activos</div>
+        <div class="value">@ViewBag.TotalProductos</div>
+    </div>
+    <div class="adm-metric">
+        <div class="label">Categorías</div>
+        <div class="value">@ViewBag.TotalCategorias</div>
+    </div>
+    <div class="adm-metric">
+        <div class="label">Proveedores</div>
+        <div class="value">@ViewBag.TotalProveedores</div>
+    </div>
+    <div class="adm-metric @(ViewBag.StockBajo > 0 ? "danger" : "success")">
+        <div class="label">Stock bajo</div>
+        <div class="value">@ViewBag.StockBajo</div>
+    </div>
+</div>
+
+<style>
+    /*  Page header  */
+    .adm-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .adm-page-header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            margin: 0 0 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .adm-page-header p {
+            font-size: 0.825rem;
+            color: var(--bc-texto-2);
+            margin: 0;
+            text-transform: capitalize;
+        }
+
+    .btn-adm-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--bc-negro);
+        background: var(--bc-amarillo);
+        border: none;
+        border-radius: 10px;
+        padding: 0.5rem 1.1rem;
+        text-decoration: none;
+        transition: background 0.15s, transform 0.1s;
+        white-space: nowrap;
+    }
+
+        .btn-adm-edit:hover {
+            background: #e0b400;
+            transform: translateY(-1px);
+        }
+
+        .btn-adm-edit:active {
+            transform: translateY(0);
+        }
+
+    /* Métricas */
+    .adm-metrics {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .adm-metric {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+        padding: 1.25rem 1.35rem 1.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .adm-metric:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Barra de acento inferior */
+        .adm-metric::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--bc-borde);
+            border-radius: 0 0 16px 16px;
+        }
+
+        .adm-metric:not(.danger):not(.success)::after {
+            background: var(--bc-amarillo);
+        }
+
+        .adm-metric.success::after {
+            background: #86efac;
+        }
+
+        .adm-metric.danger::after {
+            background: #fca5a5;
+        }
+
+        .adm-metric .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--bc-texto-2);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .adm-metric .value {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
+        .adm-metric.danger .value {
+            color: #b91c1c;
+        }
+
+        .adm-metric.success .value {
+            color: #15803d;
+        }
+    /* Responsive  */
+    @@media (max-width: 900px) {
+        .adm-metrics
+
+    {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    }
+
+    @@media (max-width: 560px) {
+        .adm-metrics
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .adm-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    }
+
+</style>

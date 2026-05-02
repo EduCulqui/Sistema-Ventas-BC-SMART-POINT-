@@ -1,0 +1,43 @@
+﻿@model Sistema_BC_SMART_POINT.Models.Categoria
+@{
+    ViewData["Title"] = "Nueva categoría";
+    Layout = "_AdminLayout";
+}
+
+<div class="adm-page-header">
+    <div>
+        <h1>Nueva categoría</h1>
+        <p>Completa los datos para registrar una nueva categoría</p>
+    </div>
+    <a href="@Url.Action("Categorias")" class="btn-adm-edit">← Volver</a>
+</div>
+
+<div class="adm-form-card">
+    <form method="post" asp-action="CrearCategoria">
+        @Html.AntiForgeryToken()
+
+        <div class="adm-field">
+            <label asp-for="NomCategoria">Nombre de la categoría</label>
+            <input asp-for="NomCategoria" placeholder="Ej: iPhone" />
+            <div class="field-error"><span asp-validation-for="NomCategoria"></span></div>
+        </div>
+
+        <div class="adm-field">
+            <label asp-for="Descripcion">Descripción</label>
+            <textarea asp-for="Descripcion" placeholder="Descripción breve de la categoría..."></textarea>
+            <div class="field-error"><span asp-validation-for="Descripcion"></span></div>
+        </div>
+
+        <div class="adm-field">
+            <div class="adm-check">
+                <input asp-for="Estado" type="checkbox" />
+                <label asp-for="Estado">Categoría activa</label>
+            </div>
+        </div>
+
+        <div class="adm-form-footer">
+            <button type="submit" class="btn-adm-primary">Guardar categoría</button>
+            <a href="@Url.Action("Categorias")" class="btn-adm-edit">Cancelar</a>
+        </div>
+    </form>
+</div>
