@@ -21,11 +21,16 @@ namespace Sistema_BC_SMART_POINT.Models
         [Required]
         public decimal TotalVenta { get; set; }
 
-        [Required, StringLength(20)]
+        [Required, StringLength(30)]
         public string MetodoPago { get; set; }
 
-        [Required, StringLength(20)]
+        [Required, StringLength(30)]
         public string EstadoPago { get; set; }
+
+        [StringLength(500)]
+        public string? ComprobantePago { get; set; }
+
+        public DateTime? FechaComprobante { get; set; }
 
 
         // Conexion con Cliente

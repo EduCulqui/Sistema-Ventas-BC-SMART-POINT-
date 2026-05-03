@@ -68,10 +68,35 @@ namespace Sistema_BC_SMART_POINT.Controllers
         {
             var cat = await _db.Categorias.FindAsync(id);
             if (cat == null) return NotFound();
-            // Baja lógica
             cat.Estado = false;
             await _db.SaveChangesAsync();
             TempData["Exito"] = "Categoría desactivada.";
+            return RedirectToAction("Categorias");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarCategoriaDefinitivo(int id)
+        {
+            var cat = await _db.Categorias.FindAsync(id);
+            if (cat == null)
+            {
+                TempData["Error"] = "Categoría no encontrada.";
+                return RedirectToAction("Categorias");
+            }
+            _db.Categorias.Remove(cat);
+            await _db.SaveChangesAsync();
+            TempData["Exito"] = "Categoría eliminada permanentemente.";
+            return RedirectToAction("Categorias");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivarCategoria(int id)
+        {
+            var cat = await _db.Categorias.FindAsync(id);
+            if (cat == null) return NotFound();
+            cat.Estado = true;
+            await _db.SaveChangesAsync();
+            TempData["Exito"] = "Categoría activada.";
             return RedirectToAction("Categorias");
         }
 
@@ -122,6 +147,30 @@ namespace Sistema_BC_SMART_POINT.Controllers
             prov.Estado = false;
             await _db.SaveChangesAsync();
             TempData["Exito"] = "Proveedor desactivado.";
+            return RedirectToAction("Proveedores");
+        }
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarProveedorDefinitivo(int id)
+        {
+            var prov = await _db.Proveedores.FindAsync(id);
+            if (prov == null)
+            {
+                TempData["Error"] = "Proveedor no encontrado.";
+                return RedirectToAction("Proveedores");
+            }
+            _db.Proveedores.Remove(prov);
+            await _db.SaveChangesAsync();
+            TempData["Exito"] = "Proveedor eliminado permanentemente.";
+            return RedirectToAction("Proveedores");
+        }
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivarProveedor(int id)
+        {
+            var prov = await _db.Proveedores.FindAsync(id);
+            if (prov == null) return NotFound();
+            prov.Estado = true;
+            await _db.SaveChangesAsync();
+            TempData["Exito"] = "Proveedor activado.";
             return RedirectToAction("Proveedores");
         }
 
@@ -193,6 +242,90 @@ namespace Sistema_BC_SMART_POINT.Controllers
             await _db.SaveChangesAsync();
             TempData["Exito"] = "Producto desactivado.";
             return RedirectToAction("Productos");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarProductoDefinitivo(int id)
+        {
+            var prod = await _db.Productos.FindAsync(id);
+            if (prod == null)
+            {
+                TempData["Error"] = "Producto no encontrado.";
+                return RedirectToAction("Productos");
+            }
+            _db.Productos.Remove(prod);
+            await _db.SaveChangesAsync();
+            TempData["Exito"] = "Producto eliminado permanentemente.";
+            return RedirectToAction("Productos");
+        }
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivarProducto(int id)
+        {
+            var prod = await _db.Productos.FindAsync(id);
+            if (prod == null) return NotFound();
+            prod.Estado = true;
+            await _db.SaveChangesAsync();
+            TempData["Exito"] = "Producto activado.";
+            return RedirectToAction("Productos");
+        }
+
+        //  VENTAS
+        public async Task<IActionResult> Ventas(string? estado, string? metodo)
+        {
+            var query = _db.Ventas
+                .Include(v => v.Cliente).ThenInclude(c => c.Usuario)
+                .Include(v => v.DetallesVenta)
+                .Include(v => v.Envio)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(estado))
+                query = query.Where(v => v.EstadoPago == estado);
+
+            if (!string.IsNullOrEmpty(metodo))
+                query = query.Where(v => v.MetodoPago == metodo);
+
+            var lista = await query
+                .OrderByDescending(v => v.FechaVenta)
+                .ToListAsync();
+
+            // Contador para filtros
+            ViewBag.TotalPendientes = await _db.Ventas.CountAsync(v => v.EstadoPago == "Pendiente");
+            ViewBag.TotalVerificando = await _db.Ventas.CountAsync(v => v.EstadoPago == "En verificación");
+            ViewBag.TotalPagados = await _db.Ventas.CountAsync(v => v.EstadoPago == "Pagado");
+            ViewBag.TotalRechazados = await _db.Ventas.CountAsync(v => v.EstadoPago == "Rechazado");
+            ViewBag.EstadoFiltro = estado;
+            ViewBag.MetodoFiltro = metodo;
+
+            return View(lista);
+        }
+
+        public async Task<IActionResult> DetalleVenta(int id)
+        {
+            var venta = await _db.Ventas
+                .Include(v => v.Cliente).ThenInclude(c => c.Usuario)
+                .Include(v => v.DetallesVenta).ThenInclude(d => d.Producto)
+                .Include(v => v.Envio)
+                .Include(v => v.CuponDescuento)
+                .FirstOrDefaultAsync(v => v.IdVenta == id);
+
+            if (venta == null) return NotFound();
+            return View(venta);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ValidarPago(int ventaId, string accion)
+        {
+            var venta = await _db.Ventas.FindAsync(ventaId);
+            if (venta == null) return NotFound();
+
+            venta.EstadoPago = accion == "aprobar" ? "Pagado" : "Rechazado";
+            await _db.SaveChangesAsync();
+
+            TempData["Exito"] = accion == "aprobar"
+                ? $"Pago del pedido #{ventaId} aprobado correctamente."
+                : $"Pago del pedido #{ventaId} fue rechazado.";
+
+            return RedirectToAction("DetalleVenta", new { id = ventaId });
         }
     }
 }

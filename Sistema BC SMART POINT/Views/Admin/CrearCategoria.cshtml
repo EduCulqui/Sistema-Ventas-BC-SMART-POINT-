@@ -41,3 +41,175 @@
         </div>
     </form>
 </div>
+
+<style>
+    /* ── Page header ─────────────────────────── */
+    .adm-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .adm-page-header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            margin: 0 0 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .adm-page-header p {
+            font-size: 0.825rem;
+            color: var(--bc-texto-2);
+            margin: 0;
+        }
+
+    /* ── Card del formulario ─────────────────── */
+    .adm-form-card {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 560px;
+    }
+
+    /* ── Campos ──────────────────────────────── */
+    .adm-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 1.25rem;
+    }
+
+        .adm-field label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--bc-texto-1);
+            letter-spacing: 0.01em;
+        }
+
+        .adm-field input[type="text"],
+        .adm-field input[type="number"],
+        .adm-field input[type="email"],
+        .adm-field textarea {
+            border: 1px solid var(--bc-borde);
+            border-radius: 10px;
+            padding: 0.55rem 0.85rem;
+            font-size: 0.875rem;
+            color: var(--bc-texto-1);
+            background: var(--bc-fondo);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+            font-family: inherit;
+        }
+
+            .adm-field input:focus,
+            .adm-field textarea:focus {
+                border-color: var(--bc-amarillo);
+                box-shadow: 0 0 0 3px rgba(245, 197, 0, 0.15);
+                background: var(--bc-blanco);
+            }
+
+        .adm-field textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+            .adm-field input::placeholder,
+            .adm-field textarea::placeholder {
+                color: var(--bc-texto-2);
+            }
+
+    /* ── Error de validación ─────────────────── */
+    .field-error {
+        min-height: 18px;
+    }
+
+        .field-error span {
+            font-size: 0.75rem;
+            color: #b91c1c;
+        }
+
+    /* ── Checkbox ────────────────────────────── */
+    .adm-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+        .adm-check input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            accent-color: var(--bc-amarillo);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .adm-check label {
+            font-size: 0.875rem;
+            color: var(--bc-texto-1);
+            cursor: pointer;
+            margin: 0;
+        }
+
+    /* ── Footer del form ─────────────────────── */
+    .adm-form-footer {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--bc-borde);
+        margin-top: 0.5rem;
+    }
+
+    /* ── Botones ─────────────────────────────── */
+    .btn-adm-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--bc-negro);
+        background: var(--bc-amarillo);
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 1.35rem;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
+        text-decoration: none;
+    }
+
+        .btn-adm-primary:hover {
+            background: #e0b400;
+            transform: translateY(-1px);
+        }
+
+        .btn-adm-primary:active {
+            transform: translateY(0);
+        }
+
+    .btn-adm-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.825rem;
+        font-weight: 500;
+        color: var(--bc-texto-2);
+        background: transparent;
+        border: 1px solid var(--bc-borde);
+        border-radius: 10px;
+        padding: 0.55rem 1.1rem;
+        text-decoration: none;
+        transition: color 0.15s, border-color 0.15s;
+    }
+
+        .btn-adm-edit:hover {
+            color: var(--bc-texto-1);
+            border-color: var(--bc-texto-2);
+        }
+</style>

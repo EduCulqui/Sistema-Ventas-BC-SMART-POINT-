@@ -12,7 +12,7 @@ using Sistema_BC_SMART_POINT.Data;
 namespace Sistema_BC_SMART_POINT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260413220436_Mig")]
+    [Migration("20260503024226_Mig")]
     partial class Mig
     {
         /// <inheritdoc />
@@ -417,13 +417,20 @@ namespace Sistema_BC_SMART_POINT.Migrations
                     b.Property<int>("ClienteId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ComprobantePago")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<int?>("CuponDescuentoId")
                         .HasColumnType("int");
 
                     b.Property<string>("EstadoPago")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime?>("FechaComprobante")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("FechaVenta")
                         .HasColumnType("datetime2");
@@ -433,8 +440,8 @@ namespace Sistema_BC_SMART_POINT.Migrations
 
                     b.Property<string>("MetodoPago")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<decimal>("SubtotalSinDescuento")
                         .HasColumnType("decimal(18,2)");

@@ -1,0 +1,259 @@
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Venta>
+@{
+    ViewData["Title"] = "Ventas";
+    Layout = "_AdminLayout";
+    string? estadoFiltro = ViewBag.EstadoFiltro;
+    string? metodoFiltro = ViewBag.MetodoFiltro;
+}
+
+<div class="adm-page-header" style="display:flex; justify-content:space-between; align-items:start; margin-bottom:24px;">
+    <div>
+        <h1 style="font-size:22px; font-weight:700; color:#111827; margin:0;">Ventas</h1>
+        <p style="color:#6b7280; font-size:13px; margin-top:4px;">
+            @Model.Count() pedidos
+            @if (!string.IsNullOrEmpty(estadoFiltro))
+            {
+                <span>· filtrado por <strong>@estadoFiltro</strong></span>
+            }
+        </p>
+    </div>
+</div>
+
+<div class="filtro-tabs">
+    <a href="@Url.Action("Ventas")"
+       class="filtro-tab @(estadoFiltro == null ? "active" : "")">
+        Todos
+        <span class="count">@(ViewBag.TotalPendientes + ViewBag.TotalVerificando + ViewBag.TotalPagados + ViewBag.TotalRechazados)</span>
+    </a>
+    <a href="@Url.Action("Ventas", new { estado = "En verificación" })"
+       class="filtro-tab @(estadoFiltro == "En verificación" ? "active" : "")">
+        En verificación
+        <span class="count">@ViewBag.TotalVerificando</span>
+    </a>
+    <a href="@Url.Action("Ventas", new { estado = "Pendiente" })"
+       class="filtro-tab @(estadoFiltro == "Pendiente" ? "active" : "")">
+        Pendientes
+        <span class="count">@ViewBag.TotalPendientes</span>
+    </a>
+    <a href="@Url.Action("Ventas", new { estado = "Pagado" })"
+       class="filtro-tab @(estadoFiltro == "Pagado" ? "active" : "")">
+        Pagados
+        <span class="count">@ViewBag.TotalPagados</span>
+    </a>
+    <a href="@Url.Action("Ventas", new { estado = "Rechazado" })"
+       class="filtro-tab @(estadoFiltro == "Rechazado" ? "active" : "")">
+        Rechazados
+        <span class="count">@ViewBag.TotalRechazados</span>
+    </a>
+</div>
+
+<div class="adm-card">
+    <table class="adm-table">
+        <thead>
+            <tr>
+                <th>Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Método</th>
+                <th>Total</th>
+                <th>Comprobante</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="8" style="text-align:center; padding:40px; color:#9ca3af;">
+                        No hay ventas con ese filtro.
+                    </td>
+                </tr>
+            }
+            @foreach (var v in Model)
+            {
+                <tr>
+                    <td>
+                        <span style="font-weight:700; color:#111827;">#@v.IdVenta</span>
+                        <div style="font-size:11px; color:#9ca3af;">
+                            @v.DetallesVenta.Count ítem(s)
+                        </div>
+                    </td>
+                    <td>
+                        <div style="font-weight:600; font-size:14px; color:#111827;">
+                            @v.Cliente?.Usuario?.Nombres @v.Cliente?.Usuario?.Apellidos
+                        </div>
+                        <div style="font-size:12px; color:#9ca3af;">
+                            @v.Cliente?.Usuario?.Email
+                        </div>
+                    </td>
+                    <td style="font-size:13px; color:#6b7280; white-space:nowrap;">
+                        @v.FechaVenta.ToString("dd/MM/yyyy")<br />
+                        <span style="font-size:11px;">@v.FechaVenta.ToString("HH:mm")</span>
+                    </td>
+                    <td style="font-size:13px;">@v.MetodoPago</td>
+                    <td style="font-weight:700; color:#111827; white-space:nowrap;">
+                        S/ @v.TotalVenta.ToString("0.00")
+                    </td>
+                    <td>
+                        @{
+                            var metodosComp = new[] { "Yape", "Plin", "Transferencia" };
+                        }
+                        @if (!string.IsNullOrEmpty(v.ComprobantePago))
+                        {
+                            <a href="@v.ComprobantePago" target="_blank" class="comp-badge comp-ok">
+                                Ver imagen →
+                            </a>
+                        }
+                        else if (metodosComp.Contains(v.MetodoPago))
+                        {
+                            <span class="comp-badge comp-pendiente">Sin subir</span>
+                        }
+                        else
+                        {
+                            <span class="comp-na">N/A</span>
+                        }
+                    </td>
+                    <td>
+                        @{
+                            string badgeClass = v.EstadoPago switch
+                            {
+                                "Pagado" => "badge-pagado",
+                                "En verificación" => "badge-verificando",
+                                "Rechazado" => "badge-rechazado",
+                                "Anulado" => "badge-anulado",
+                                _ => "badge-pendiente"
+                            };
+                        }
+                        <span class="badge-estado @badgeClass">@v.EstadoPago</span>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("DetalleVenta", new { id = v.IdVenta })"
+                           class="btn-adm-edit">Ver detalle</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<style>
+    .filtro-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .filtro-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        border: 1px solid var(--bc-borde);
+        color: var(--bc-texto-2);
+        background: var(--bc-blanco);
+        transition: all .15s;
+    }
+
+        .filtro-tab:hover {
+            border-color: var(--bc-negro);
+            color: var(--bc-negro);
+        }
+
+        .filtro-tab.active {
+            background: var(--bc-negro);
+            color: var(--bc-blanco);
+            border-color: var(--bc-negro);
+        }
+
+        .filtro-tab .count {
+            background: rgba(255,255,255,.2);
+            padding: 1px 7px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .filtro-tab:not(.active) .count {
+            background: #f3f4f6;
+            color: var(--bc-texto-2);
+        }
+
+    /* Badge estados */
+    .badge-estado {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .badge-pendiente {
+        background: #fefce8;
+        color: #92400e;
+        border: 1px solid #fef08a;
+    }
+
+    .badge-verificando {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+    }
+
+    .badge-pagado {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .badge-rechazado {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .badge-anulado {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
+    }
+
+    /* Comprobante */
+    .comp-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: opacity .15s;
+    }
+
+        .comp-badge:hover {
+            opacity: .8;
+        }
+
+    .comp-pendiente {
+        background: #fefce8;
+        color: #92400e;
+        border: 1px solid #fef08a;
+    }
+
+    .comp-ok {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+    }
+
+    .comp-na {
+        color: #9ca3af;
+        font-size: 12px;
+    }
+</style>

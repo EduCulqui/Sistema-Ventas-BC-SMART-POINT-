@@ -12,6 +12,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         private readonly AuthService _auth;
         public AuthController(AuthService auth) => _auth = auth;
 
+
         // GET Auth para Login
         public IActionResult Login(string? returnUrl)
         {

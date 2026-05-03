@@ -32,18 +32,18 @@
             @foreach (var p in Model)
             {
                 <tr>
-                    <td style="color:#9ca3af;">@p.IdProveedor</td>
-                    <td style="font-weight:600;">@p.NombreEmpresa</td>
-                    <td style="color:#6b7280;">@p.ContactoNombre</td>
+                    <td class="td-id">@p.IdProveedor</td>
+                    <td class="td-empresa">@p.NombreEmpresa</td>
+                    <td class="td-secundario">@p.ContactoNombre</td>
                     <td>@p.Celular</td>
-                    <td style="font-family:monospace;">@p.Ruc</td>
+                    <td class="td-ruc">@p.Ruc</td>
                     <td>
                         <span class="@(p.Estado ? "badge-activo" : "badge-inactivo")">
                             @(p.Estado ? "Activo" : "Inactivo")
                         </span>
                     </td>
                     <td>
-                        <div style="display:flex; gap:8px;">
+                        <div class="td-acciones">
                             <a href="@Url.Action("EditarProveedor", new { id = p.IdProveedor })"
                                class="btn-adm-edit">Editar</a>
                             @if (p.Estado)
@@ -55,6 +55,21 @@
                                     <button type="submit" class="btn-adm-delete">Desactivar</button>
                                 </form>
                             }
+                            else
+                            {
+                                <form method="post" asp-action="ActivarProveedor"
+                                      onsubmit="return confirm('¿Activar este proveedor?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.IdProveedor" />
+                                    <button type="submit" class="btn-adm-activate">Activar</button>
+                                </form>
+                            }
+                            <form method="post" asp-action="EliminarProveedorDefinitivo"
+                                  onsubmit="return confirm('¿Eliminar permanentemente este proveedor? Esta acción no se puede deshacer.')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@p.IdProveedor" />
+                                <button type="submit" class="btn-adm-destroy">Eliminar</button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -62,3 +77,248 @@
         </tbody>
     </table>
 </div>
+
+<style>
+    .adm-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .adm-page-header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            margin: 0 0 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .adm-page-header p {
+            font-size: 0.825rem;
+            color: var(--bc-texto-2);
+            margin: 0;
+        }
+
+    .btn-adm-primary {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--bc-negro);
+        background: var(--bc-amarillo);
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 1.35rem;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+        .btn-adm-primary:hover {
+            background: #e0b400;
+            transform: translateY(-1px);
+        }
+
+        .btn-adm-primary:active {
+            transform: translateY(0);
+        }
+
+    .adm-card {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .adm-card-header {
+        padding: 1.1rem 1.5rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .adm-card-header h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--bc-texto-1);
+            margin: 0;
+        }
+
+    .adm-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+        .adm-table thead tr {
+            background: var(--bc-fondo);
+        }
+
+        .adm-table th {
+            padding: 0.75rem 1.25rem;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--bc-texto-2);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            border-bottom: 1px solid var(--bc-borde);
+            white-space: nowrap;
+        }
+
+        .adm-table td {
+            padding: 0.85rem 1.25rem;
+            border-bottom: 1px solid var(--bc-borde);
+            color: var(--bc-texto-1);
+            vertical-align: middle;
+        }
+
+        .adm-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .adm-table tbody tr:hover {
+            background: var(--bc-fondo);
+        }
+
+    .td-id {
+        color: var(--bc-texto-2);
+    }
+
+    .td-empresa {
+        font-weight: 600;
+        color: var(--bc-texto-1);
+    }
+
+    .td-secundario {
+        color: var(--bc-texto-2);
+    }
+
+    .td-ruc {
+        font-family: monospace;
+        color: var(--bc-texto-1);
+    }
+
+    .td-acciones {
+        display: flex;
+        gap: 8px;
+    }
+
+    .badge-activo,
+    .badge-inactivo {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+    }
+
+    .badge-activo {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .badge-inactivo {
+        background: #fff1f2;
+        color: #b91c1c;
+    }
+
+    .btn-adm-edit {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--bc-texto-2);
+        background: transparent;
+        border: 1px solid var(--bc-borde);
+        border-radius: 8px;
+        padding: 0.35rem 0.85rem;
+        text-decoration: none;
+        transition: color 0.15s, border-color 0.15s;
+        white-space: nowrap;
+    }
+
+        .btn-adm-edit:hover {
+            color: var(--bc-texto-1);
+            border-color: var(--bc-texto-2);
+        }
+
+    .btn-adm-delete {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #b91c1c;
+        background: transparent;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 0.35rem 0.85rem;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        white-space: nowrap;
+    }
+
+        .btn-adm-delete:hover {
+            background: #fff1f2;
+            border-color: #b91c1c;
+        }
+
+    @@media (max-width: 700px) {
+        .adm-page-header
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .adm-table th,
+    .adm-table td {
+        padding: 0.65rem 0.75rem;
+    }
+
+    }
+
+    .btn-adm-destroy {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--bc-blanco);
+        background: #b91c1c;
+        border: 1px solid #b91c1c;
+        border-radius: 8px;
+        padding: 0.35rem 0.85rem;
+        cursor: pointer;
+        transition: background 0.15s;
+        white-space: nowrap;
+    }
+
+    .btn-adm-destroy:hover {
+        background: #991b1b;
+        border-color: #991b1b;
+    }
+
+    .btn-adm-activate {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #15803d;
+        background: transparent;
+        border: 1px solid #86efac;
+        border-radius: 8px;
+        padding: 0.35rem 0.85rem;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        white-space: nowrap;
+    }
+
+    .btn-adm-activate:hover {
+        background: #f0fdf4;
+        border-color: #15803d;
+    }
+</style>

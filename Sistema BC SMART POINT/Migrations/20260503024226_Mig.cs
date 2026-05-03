@@ -175,8 +175,10 @@ namespace Sistema_BC_SMART_POINT.Migrations
                     SubtotalSinDescuento = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IGV = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalVenta = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MetodoPago = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    EstadoPago = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    MetodoPago = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    EstadoPago = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    ComprobantePago = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    FechaComprobante = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ClienteId = table.Column<int>(type: "int", nullable: false),
                     CuponDescuentoId = table.Column<int>(type: "int", nullable: true)
                 },

@@ -1,0 +1,551 @@
+﻿@model Sistema_BC_SMART_POINT.Models.Venta
+@{
+    ViewData["Title"] = $"Pedido #{Model.IdVenta}";
+    Layout = "_AdminLayout";
+    var metodosComp = new[] { "Yape", "Plin", "Transferencia" };
+    bool tieneComp = !string.IsNullOrEmpty(Model.ComprobantePago);
+    bool puedeValidar = Model.EstadoPago == "En verificación" && tieneComp;
+    decimal descuento = Model.CuponDescuento != null
+        ? Math.Round(Model.SubtotalSinDescuento * (Model.CuponDescuento.PorcentajeDescuento / 100m), 2)
+        : 0;
+}
+
+
+
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+    <div>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
+            <a href="@Url.Action("Ventas")"
+               style="font-size:13px; color:#6b7280; text-decoration:none;">
+                ← Ventas
+            </a>
+            <span style="color:#d1d5db;">/</span>
+            <span style="font-size:13px; color:#111827; font-weight:600;">
+                Pedido #@Model.IdVenta
+            </span>
+        </div>
+        <h1 style="font-size:22px; font-weight:700; color:#111827; margin:0;">
+            Detalle del pedido
+        </h1>
+    </div>
+    @{
+        string badgeClass = Model.EstadoPago switch
+        {
+            "Pagado" => "badge-pagado",
+            "En verificación" => "badge-verificando",
+            "Rechazado" => "badge-rechazado",
+            _ => "badge-pendiente"
+        };
+    }
+    <span class="badge-estado @badgeClass" style="font-size:13px; padding:6px 16px;">
+        @Model.EstadoPago
+    </span>
+</div>
+
+<div class="dv-grid">
+
+
+    <div>
+
+        <div class="dv-card">
+            <div class="dv-card-header">
+                <h2>Productos</h2>
+                <span style="font-size:12px; color:#9ca3af;">@Model.DetallesVenta.Count ítem(s)</span>
+            </div>
+            @foreach (var d in Model.DetallesVenta)
+            {
+                <div class="dv-item">
+                    <div class="dv-item-img">
+                        @if (!string.IsNullOrEmpty(d.Producto?.ImagenUrl))
+                        {
+                            <img src="@d.Producto.ImagenUrl" alt="@d.Producto.Nombre" />
+                        }
+                </div>
+                <div>
+                    <div class="dv-item-name">@d.Producto?.Nombre</div>
+                    <div class="dv-item-meta">
+                        @string.Join(" · ", new[] { d.Producto?.Color, d.Producto?.Capacidad }
+                                                .Where(s => !string.IsNullOrEmpty(s)))
+                    </div>
+                    <div class="dv-item-meta" style="margin-top:4px;">
+                        S/ @d.PrecioUnitario.ToString("0.00") × @d.Cantidad
+                    </div>
+                </div>
+                <div>
+                    <div class="dv-item-price">S/ @d.SubTotal.ToString("0.00")</div>
+                    <div class="dv-item-qty">@d.Cantidad unid.</div>
+                </div>
+            </div>
+            }
+
+            <div class="dv-total-row">
+                <span class="lbl">Subtotal</span>
+                <span class="val">S/ @Model.SubtotalSinDescuento.ToString("0.00")</span>
+            </div>
+            @if (descuento > 0 && Model.CuponDescuento != null)
+            {
+                <div class="dv-total-row descuento">
+                    <span class="lbl">Cupón @Model.CuponDescuento.CodigoCupon (@Model.CuponDescuento.PorcentajeDescuento%)</span>
+                    <span class="val">− S/ @descuento.ToString("0.00")</span>
+                </div>
+            }
+            <div class="dv-total-row">
+                <span class="lbl">IGV (18%)</span>
+                <span class="val">S/ @Model.IGV.ToString("0.00")</span>
+            </div>
+            <div class="dv-total-row grand">
+                <span class="lbl">Total</span>
+                <span class="val">S/ @Model.TotalVenta.ToString("0.00")</span>
+            </div>
+        </div>
+
+        @if (metodosComp.Contains(Model.MetodoPago))
+        {
+            <div class="dv-card">
+                <div class="dv-card-header">
+                    <h2>Comprobante de pago</h2>
+                </div>
+                @if (tieneComp)
+                {
+                    <div class="comp-img-wrap">
+                        <img src="@Model.ComprobantePago" alt="Comprobante"
+                             class="comp-img"
+                             onclick="window.open('@Model.ComprobantePago','_blank')" />
+                        <div class="comp-meta">
+                            Subido el @Model.FechaComprobante?.ToString("dd/MM/yyyy 'a las' HH:mm")
+                            · Clic para ampliar
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div style="padding:28px 22px; text-align:center; color:#9ca3af; font-size:14px;">
+                        El cliente aún no ha subido el comprobante.
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+
+    <div>
+
+        @if (puedeValidar)
+        {
+            <div class="validar-panel">
+                <div class="validar-header">
+                    <span style="font-size:16px;">⚠</span>
+                    <h2>Pago pendiente de validación</h2>
+                </div>
+                <div class="validar-body">
+                    <p style="font-size:13px; color:#6b7280; margin-bottom:16px; line-height:1.5;">
+                        El cliente subió el comprobante. Verifica la imagen y confirma si el pago es válido.
+                    </p>
+                    <div class="validar-btns">
+                        <form method="post" asp-action="ValidarPago">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="ventaId" value="@Model.IdVenta" />
+                            <input type="hidden" name="accion" value="aprobar" />
+                            <button type="submit" class="btn-aprobar"
+                                    onclick="return confirm('¿Confirmar que el pago #@Model.IdVenta es válido?')">
+                                ✓ Aprobar pago
+                            </button>
+                        </form>
+                        <form method="post" asp-action="ValidarPago">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="ventaId" value="@Model.IdVenta" />
+                            <input type="hidden" name="accion" value="rechazar" />
+                            <button type="submit" class="btn-rechazar"
+                                    onclick="return confirm('¿Rechazar el pago #@Model.IdVenta?')">
+                                ✕ Rechazar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (Model.EstadoPago == "Pagado")
+        {
+            <div class="estado-ok pagado" style="margin-bottom:16px;">
+                ✓ Pago aprobado
+            </div>
+        }
+        else if (Model.EstadoPago == "Rechazado")
+        {
+            <div class="estado-ok rechazado" style="margin-bottom:16px;">
+                ✕ Pago rechazado
+            </div>
+        }
+
+        <div class="dv-card">
+            <div class="dv-card-header"><h2>Cliente</h2></div>
+            <div class="dv-row">
+                <span class="lbl">Nombre</span>
+                <span class="val">@Model.Cliente?.Usuario?.Nombres @Model.Cliente?.Usuario?.Apellidos</span>
+            </div>
+            <div class="dv-row">
+                <span class="lbl">Correo</span>
+                <span class="val" style="font-size:13px;">@Model.Cliente?.Usuario?.Email</span>
+            </div>
+            <div class="dv-row">
+                <span class="lbl">Celular</span>
+                <span class="val">@Model.Cliente?.Usuario?.Celular</span>
+            </div>
+            <div class="dv-row">
+                <span class="lbl">DNI / RUC</span>
+                <span class="val">@Model.Cliente?.DniRuc</span>
+            </div>
+        </div>
+
+        <div class="dv-card">
+            <div class="dv-card-header"><h2>Pedido</h2></div>
+            <div class="dv-row">
+                <span class="lbl">Fecha</span>
+                <span class="val">@Model.FechaVenta.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+            <div class="dv-row">
+                <span class="lbl">Método de pago</span>
+                <span class="val">@Model.MetodoPago</span>
+            </div>
+            @if (Model.CuponDescuento != null)
+            {
+                <div class="dv-row">
+                    <span class="lbl">Cupón</span>
+                    <span class="val">@Model.CuponDescuento.CodigoCupon</span>
+                </div>
+            }
+        </div>
+
+        @if (Model.Envio != null)
+        {
+            <div class="dv-card">
+                <div class="dv-card-header"><h2>Envío</h2></div>
+                <div class="dv-row">
+                    <span class="lbl">Dirección</span>
+                    <span class="val" style="font-size:13px; text-align:right;">@Model.Envio.DireccionEnvio</span>
+                </div>
+                <div class="dv-row">
+                    <span class="lbl">Ciudad</span>
+                    <span class="val">@Model.Envio.Ciudad</span>
+                </div>
+                <div class="dv-row">
+                    <span class="lbl">Estado envío</span>
+                    <span class="val">@Model.Envio.EstadoEnvio</span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Envio.NumeroSeguimiento))
+                {
+                    <div class="dv-row">
+                        <span class="lbl">Seguimiento</span>
+                        <span class="val" style="font-family:monospace;">@Model.Envio.NumeroSeguimiento</span>
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+</div>
+
+<style>
+    .dv-grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .dv-card {
+        background: #fff;
+        border: 1px solid var(--bc-borde);
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+
+    .dv-card-header {
+        padding: 16px 22px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .dv-card-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+    .dv-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 22px;
+        border-bottom: 1px solid #f9fafb;
+        font-size: 14px;
+    }
+
+        .dv-row:last-child {
+            border-bottom: none;
+        }
+
+        .dv-row .lbl {
+            color: #6b7280;
+        }
+
+        .dv-row .val {
+            color: #111827;
+            font-weight: 500;
+        }
+
+    /* Items */
+    .dv-item {
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 22px;
+        border-bottom: 1px solid #f9fafb;
+    }
+
+        .dv-item:last-child {
+            border-bottom: none;
+        }
+
+    .dv-item-img {
+        width: 48px;
+        height: 48px;
+        background: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+        .dv-item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 4px;
+        }
+
+    .dv-item-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .dv-item-meta {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 2px;
+    }
+
+    .dv-item-price {
+        font-size: 14px;
+        font-weight: 700;
+        color: #111827;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .dv-item-qty {
+        font-size: 12px;
+        color: #6b7280;
+        text-align: right;
+    }
+
+    /* Totales */
+    .dv-total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 22px;
+        font-size: 14px;
+        border-bottom: 1px solid #f9fafb;
+    }
+
+        .dv-total-row:last-child {
+            border-bottom: none;
+        }
+
+        .dv-total-row .lbl {
+            color: #6b7280;
+        }
+
+        .dv-total-row .val {
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .dv-total-row.grand {
+            background: #f9fafb;
+        }
+
+            .dv-total-row.grand .lbl {
+                font-size: 15px;
+                font-weight: 700;
+                color: #111827;
+            }
+
+            .dv-total-row.grand .val {
+                font-size: 18px;
+                font-weight: 800;
+                color: #111827;
+            }
+
+        .dv-total-row.descuento .val {
+            color: #16a34a;
+        }
+
+    /* Comprobante */
+    .comp-img-wrap {
+        padding: 20px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .comp-img {
+        width: 100%;
+        max-height: 320px;
+        object-fit: contain;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        cursor: zoom-in;
+    }
+
+    .comp-meta {
+        font-size: 12px;
+        color: #9ca3af;
+        text-align: center;
+    }
+
+    /* Badge estados */
+    .badge-estado {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-pendiente {
+        background: #fefce8;
+        color: #92400e;
+        border: 1px solid #fef08a;
+    }
+
+    .badge-verificando {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+    }
+
+    .badge-pagado {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .badge-rechazado {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    /* Panel validación */
+    .validar-panel {
+        background: #fff;
+        border: 1px solid var(--bc-borde);
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+
+    .validar-header {
+        background: #fefce8;
+        border-bottom: 1px solid #fef08a;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .validar-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #92400e;
+            margin: 0;
+        }
+
+    .validar-body {
+        padding: 20px;
+    }
+
+    .validar-btns {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-aprobar {
+        flex: 1;
+        padding: 11px;
+        background: #16a34a;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background .15s;
+    }
+
+        .btn-aprobar:hover {
+            background: #15803d;
+        }
+
+    .btn-rechazar {
+        flex: 1;
+        padding: 11px;
+        background: #fff;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background .15s, border-color .15s;
+    }
+
+        .btn-rechazar:hover {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+
+    .estado-ok {
+        padding: 14px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+        .estado-ok.pagado {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .estado-ok.rechazado {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+</style>
