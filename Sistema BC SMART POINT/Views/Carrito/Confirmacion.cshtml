@@ -13,7 +13,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pedido confirmado – BC SMART POINT</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
 
@@ -23,23 +22,16 @@
 
     <div class="page">
 
-        <!-- HERO CONFIRMACIÓN -->
         <div class="check-hero">
-            <div class="check-circle">
-                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 16l7 7L26 9" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </div>
             <h1>¡Pedido confirmado!</h1>
             <p>Gracias por tu compra. Te contactaremos para coordinar la entrega.</p>
             <div class="order-num">Pedido #@Model.IdVenta</div>
         </div>
 
-        <!-- PRODUCTOS -->
         <div class="card">
             <div class="card-head">
                 <h2>Productos</h2>
-                <span style="font-size:.8rem;color:var(--ink-3)">@Model.DetallesVenta.Count ítem(s)</span>
+                <span>@Model.DetallesVenta.Count ítem(s)</span>
             </div>
             @foreach (var d in Model.DetallesVenta)
             {
@@ -64,7 +56,6 @@
             </div>
         </div>
 
-        <!-- ENVÍO -->
         @if (Model.Envio != null)
         {
             <div class="card">
@@ -86,12 +77,334 @@
             </div>
         }
 
-        <!-- ACCIONES -->
+        <div class="card">
+            <div class="card-head"><h2>Comprobante de pago</h2></div>
+            <p>Sube una foto o captura de tu transferencia, Yape o Plin para que podamos verificar tu pago.</p>
+            <form method="post" asp-controller="Carrito" asp-action="SubirComprobante"
+                  enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idVenta" value="@Model.IdVenta" />
+                <div class="field">
+                    <label for="comprobante">Selecciona el archivo</label>
+                    <input type="file" id="comprobante" name="comprobante"
+                           accept="image/*,.pdf" required />
+                </div>
+                <button type="submit" class="btn-primary">Enviar comprobante</button>
+            </form>
+        </div>
+
         <div class="actions">
             <a href="@Url.Action("Index", "Catalogo")" class="btn-primary">Seguir comprando</a>
-            <a href="@Url.Action("Index", "Catalogo")" class="btn-secondary">Ver catálogo</a>
+            <a href="@Url.Action("MisPedidos", "Carrito")" class="btn-secondary">Ver mis pedidos</a>
         </div>
 
     </div>
+
 </body>
 </html>
+
+<style>
+    :root {
+        --bc-negro: #1A1A1A;
+        --bc-amarillo: #F5C500;
+        --bc-fondo: #F5F5F7;
+        --bc-blanco: #FFFFFF;
+        --bc-texto-1: #1D1D1F;
+        --bc-texto-2: #6E6E73;
+        --bc-borde: #D2D2D7;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: var(--bc-fondo);
+        color: var(--bc-texto-1);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 0.9rem;
+    }
+
+    .site-header {
+        background: var(--bc-negro);
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #2E2E2E;
+    }
+
+    .brand {
+        color: var(--bc-amarillo);
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        letter-spacing: 0.01em;
+    }
+
+        .brand span {
+            color: #FFFFFF;
+        }
+
+    .page {
+        max-width: 640px;
+        margin: 2rem auto;
+        padding: 0 1.25rem 3rem;
+    }
+
+    .check-hero {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 2rem 1rem;
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+    }
+
+        .check-hero h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .check-hero p {
+            font-size: 0.875rem;
+            color: var(--bc-texto-2);
+            margin-bottom: 1rem;
+        }
+
+    .order-num {
+        display: inline-block;
+        background: var(--bc-negro);
+        color: var(--bc-amarillo);
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 6px 16px;
+        border-radius: 20px;
+        letter-spacing: 0.03em;
+    }
+
+    .card {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+        background: var(--bc-fondo);
+    }
+
+        .card-head h2 {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--bc-texto-2);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin: 0;
+        }
+
+        .card-head span {
+            font-size: 0.8rem;
+            color: var(--bc-texto-2);
+        }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+        font-size: 0.875rem;
+    }
+
+        .detail-row:last-of-type {
+            border-bottom: none;
+        }
+
+    .dr-name {
+        flex: 1;
+        font-weight: 500;
+        color: var(--bc-texto-1);
+    }
+
+    .dr-qty {
+        color: var(--bc-texto-2);
+        font-size: 0.8rem;
+    }
+
+    .dr-price {
+        font-weight: 600;
+        color: var(--bc-texto-1);
+        white-space: nowrap;
+    }
+
+    .divider {
+        border: none;
+        border-top: 1px solid var(--bc-borde);
+        margin: 0;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.875rem;
+        color: var(--bc-texto-2);
+        border-top: 1px solid var(--bc-borde);
+    }
+
+        .total-row.grand {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--bc-texto-1);
+            padding: 0.85rem 1.25rem;
+        }
+
+        .total-row .label {
+            color: var(--bc-texto-2);
+        }
+
+        .total-row .value {
+            color: var(--bc-texto-1);
+            font-weight: 700;
+        }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+    }
+
+    .info-cell {
+        padding: 0.85rem 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+        border-right: 1px solid var(--bc-borde);
+    }
+
+        .info-cell:nth-child(even) {
+            border-right: none;
+        }
+
+        .info-cell:last-child {
+            border-bottom: none;
+            grid-column: 1 / -1;
+            border-right: none;
+        }
+
+    .ic-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--bc-texto-2);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 4px;
+    }
+
+    .ic-val {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--bc-texto-1);
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 1rem 1.25rem 0;
+    }
+
+        .field label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--bc-texto-1);
+        }
+
+        .field input[type="file"] {
+            border: 1px solid var(--bc-borde);
+            border-radius: 10px;
+            padding: 0.55rem 0.85rem;
+            font-size: 0.875rem;
+            background: var(--bc-fondo);
+            color: var(--bc-texto-1);
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+    .card > p {
+        padding: 0.75rem 1.25rem 0;
+        font-size: 0.875rem;
+        color: var(--bc-texto-2);
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--bc-negro);
+        background: var(--bc-amarillo);
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 1.35rem;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
+        text-decoration: none;
+        margin: 1rem 1.25rem 1.25rem;
+    }
+
+        .btn-primary:hover {
+            background: #e0b400;
+            transform: translateY(-1px);
+        }
+
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--bc-texto-2);
+        background: transparent;
+        border: 1px solid var(--bc-borde);
+        border-radius: 10px;
+        padding: 0.55rem 1.35rem;
+        text-decoration: none;
+        transition: color 0.15s, border-color 0.15s;
+    }
+
+        .btn-secondary:hover {
+            color: var(--bc-texto-1);
+            border-color: var(--bc-texto-2);
+        }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+
+    @@media (max-width: 560px) {
+        .info-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .info-cell {
+        border-right: none;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    }
+</style>

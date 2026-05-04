@@ -37,14 +37,16 @@ namespace Sistema_BC_SMART_POINT.Services
             {
                 decimal subtotal = items.Sum(i => i.SubTotal);
                 decimal descuento = subtotal * (checkout.DescuentoAplicado / 100m);
-                decimal baseImpo = subtotal - descuento;
-                decimal igv = baseImpo * 0.18m;
-                decimal total = baseImpo + igv;
+                decimal totalConDescuento = subtotal - descuento;
+                decimal baseImponible = Math.Round(totalConDescuento / 1.18m, 2);
+                decimal igv = Math.Round(totalConDescuento - baseImponible, 2);
+                decimal total = totalConDescuento;
 
                 var venta = new Venta
                 {
                     ClienteId = clienteId,
                     MetodoPago = checkout.MetodoPago,
+                    EstadoPago = "Pendiente",
                     SubtotalSinDescuento = subtotal,
                     IGV = Math.Round(igv, 2),
                     TotalVenta = Math.Round(total, 2),

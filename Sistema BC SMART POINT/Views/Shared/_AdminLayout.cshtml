@@ -270,6 +270,15 @@
                     </span>
                     Clientes
                 </a>
+                <a href="@Url.Action("Cupones", "Admin")"
+                   class="@(ViewContext.RouteData.Values["action"]?.ToString()!.Contains("Cupon") == true ? "active" : "")">
+                    <span class="adm-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M1 4.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v2.082a.5.5 0 0 1-.423.493C13.854 7.16 13 7.802 13 9c0 1.202.853 1.845 1.577 1.925a.5.5 0 0 1 .423.493V13.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-2.082a.5.5 0 0 1 .423-.493C1.146 10.845 2 10.202 2 9c0-1.197-.854-1.838-1.577-1.919A.5.5 0 0 1 0 6.582V4.5z" />
+                        </svg>
+                    </span>
+                    Cupones
+                </a>
             </nav>
 
             <div class="adm-logout">

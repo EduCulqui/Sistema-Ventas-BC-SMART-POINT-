@@ -1,0 +1,155 @@
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.CuponDescuento>
+@{
+    ViewData["Title"] = "Cupones";
+    Layout = "_AdminLayout";
+}
+
+
+<div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:24px;">
+    <div>
+        <h1 style="font-size:22px; font-weight:700; color:#111827; margin:0;">Cupones de descuento</h1>
+        <p style="color:#6b7280; font-size:13px; margin-top:4px;">
+            @ViewBag.TotalActivos activos · @ViewBag.TotalVencidos vencidos
+        </p>
+    </div>
+    <a href="@Url.Action("CrearCupon")" class="btn-adm-primary">+ Nuevo cupón</a>
+</div>
+
+<div class="adm-card">
+    <table class="adm-table">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Descuento</th>
+                <th>Válido desde</th>
+                <th>Vence</th>
+                <th>Usos</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7" style="text-align:center; padding:40px; color:#9ca3af;">
+                        No hay cupones registrados.
+                    </td>
+                </tr>
+            }
+            @foreach (var c in Model)
+            {
+                bool vencido = c.FechaVencimiento < DateTime.Today;
+                string badgeClass = !c.Estado ? "cupon-inactivo"
+                : vencido ? "cupon-vencido"
+                : "cupon-activo";
+                string badgeText = !c.Estado ? "Inactivo"
+                : vencido ? "Vencido"
+                : "Activo";
+
+                // Días restantes
+                int diasRestantes = (c.FechaVencimiento - DateTime.Today).Days;
+
+                <tr>
+                    <td>
+                        <span class="code-chip">@c.CodigoCupon</span>
+                    </td>
+                    <td>
+                        <span class="pct-badge">@c.PorcentajeDescuento%</span>
+                    </td>
+                    <td style="font-size:13px; color:#6b7280;">
+                        @c.FechaInicio.ToString("dd/MM/yyyy")
+                    </td>
+                    <td>
+                        <div style="font-size:13px; color:#6b7280;">
+                            @c.FechaVencimiento.ToString("dd/MM/yyyy")
+                        </div>
+                        @if (!vencido && c.Estado)
+                        {
+                            <div style="font-size:11px; color:@(diasRestantes <= 7 ? "#dc2626" : "#9ca3af");">
+                                @(diasRestantes == 0 ? "Vence hoy"
+                                                        : diasRestantes == 1 ? "Vence mañana"
+                                                        : $"{diasRestantes} días restantes")
+                    </div>
+                                        }
+                    </td>
+                    <td style="text-align:center; font-weight:600; color:#111827;">
+                        @(c.Ventas?.Count ?? 0)
+                    </td>
+                    <td>
+                        <span class="badge-cupon @badgeClass">@badgeText</span>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:6px;">
+                            <a href="@Url.Action("EditarCupon", new { id = c.IdCuponDescuento })"
+                               class="btn-adm-edit">Editar</a>
+                            <form method="post" asp-action="ToggleEstadoCupon"
+                                  onsubmit="return confirm('¿Cambiar estado del cupón @c.CodigoCupon?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@c.IdCuponDescuento" />
+                                <button type="submit"
+                                        class="@(c.Estado ? "btn-adm-delete" : "btn-adm-edit")"
+                                        style="font-size:12px; padding:6px 12px;">
+                                    @(c.Estado ? "Desactivar" : "Activar")
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .badge-cupon {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .cupon-activo {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .cupon-vencido {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .cupon-inactivo {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
+    }
+
+    .code-chip {
+        font-family: monospace;
+        font-size: 13px;
+        font-weight: 700;
+        background: #f3f4f6;
+        padding: 4px 10px;
+        border-radius: 6px;
+        letter-spacing: .05em;
+        color: #111827;
+        border: 1px solid #e5e7eb;
+    }
+
+    .pct-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bc-negro);
+        color: var(--bc-amarillo);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 8px;
+        min-width: 52px;
+    }
+</style>

@@ -1,0 +1,366 @@
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Cliente>
+@{
+    ViewData["Title"] = "Clientes";
+    Layout = "_AdminLayout";
+    string busqueda = ViewBag.Busqueda ?? "";
+}
+
+<div class="adm-page-header">
+    <div>
+        <h1>Clientes</h1>
+        <p>@ViewBag.TotalActivos activos · @ViewBag.TotalInactivos inactivos</p>
+    </div>
+</div>
+
+<form method="get" asp-action="Clientes" class="search-bar">
+    <input type="text" name="busqueda" value="@busqueda"
+           placeholder="Buscar por nombre, correo o DNI/RUC..." />
+    <button type="submit">Buscar</button>
+    @if (!string.IsNullOrEmpty(busqueda))
+    {
+        <a href="@Url.Action("Clientes")">Limpiar</a>
+    }
+</form>
+
+<div class="adm-card">
+    <table class="adm-table">
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>DNI / RUC</th>
+                <th>Celular</th>
+                <th>Ciudad</th>
+                <th>Registro</th>
+                <th>Pedidos</th>
+                <th>Total comprado</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="9" class="td-empty">No se encontraron clientes.</td>
+                </tr>
+            }
+            @foreach (var c in Model)
+            {
+                var iniciales = $"{c.Usuario?.Nombres?.FirstOrDefault()}{c.Usuario?.Apellidos?.FirstOrDefault()}";
+                var totalComprado = c.Ventas?.Where(v => v.EstadoPago == "Pagado").Sum(v => v.TotalVenta) ?? 0;
+                <tr>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div class="avatar">@iniciales.ToUpper()</div>
+                            <div>
+                                <div class="td-nombre">@c.Usuario?.Nombres @c.Usuario?.Apellidos</div>
+                                <div class="td-email">@c.Usuario?.Email</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="td-mono">@(string.IsNullOrEmpty(c.DniRuc) ? "—" : c.DniRuc)</td>
+                    <td class="td-secundario">@c.Usuario?.Celular</td>
+                    <td class="td-secundario">@(string.IsNullOrEmpty(c.Ciudad) ? "—" : c.Ciudad)</td>
+                    <td class="td-fecha">@c.Usuario?.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                    <td class="td-pedidos">@(c.Ventas?.Count ?? 0)</td>
+                    <td class="td-total">S/ @totalComprado.ToString("0.00")</td>
+                    <td>
+                        <span class="@(c.Usuario?.Estado == true ? "badge-activo" : "badge-inactivo")">
+                            @(c.Usuario?.Estado == true ? "Activo" : "Inactivo")
+                        </span>
+                    </td>
+                    <td>
+                        <div class="td-acciones">
+                            <a href="@Url.Action("DetalleCliente", new { id = c.IdCliente })"
+                               class="btn-adm-edit">Ver</a>
+                            <form method="post" asp-action="ToggleEstadoCliente"
+                                  onsubmit="return confirm('¿Cambiar estado de este cliente?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@c.Usuario?.IdUsuario" />
+                                <button type="submit"
+                                        class="@(c.Usuario?.Estado == true ? "btn-adm-delete" : "btn-adm-edit")">
+                                    @(c.Usuario?.Estado == true ? "Desactivar" : "Activar")
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .adm-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .adm-page-header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            margin: 0 0 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .adm-page-header p {
+            font-size: 0.825rem;
+            color: var(--bc-texto-2);
+            margin: 0;
+        }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+        .search-bar input {
+            flex: 1;
+            min-width: 240px;
+            border: 1px solid var(--bc-borde);
+            border-radius: 10px;
+            padding: 0.55rem 0.85rem;
+            font-size: 0.875rem;
+            color: var(--bc-texto-1);
+            background: var(--bc-blanco);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+            .search-bar input:focus {
+                border-color: var(--bc-amarillo);
+                box-shadow: 0 0 0 3px rgba(245, 197, 0, 0.15);
+            }
+
+            .search-bar input::placeholder {
+                color: var(--bc-texto-2);
+            }
+
+        .search-bar button {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--bc-negro);
+            background: var(--bc-amarillo);
+            border: none;
+            border-radius: 10px;
+            padding: 0.55rem 1.25rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            white-space: nowrap;
+        }
+
+            .search-bar button:hover {
+                background: #e0b400;
+            }
+
+        .search-bar a {
+            font-size: 0.825rem;
+            color: var(--bc-texto-2);
+            text-decoration: none;
+            padding: 0.55rem 0.75rem;
+            border-radius: 10px;
+            transition: color 0.15s;
+        }
+
+            .search-bar a:hover {
+                color: var(--bc-texto-1);
+            }
+
+    .adm-card {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .adm-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+        .adm-table thead tr {
+            background: var(--bc-fondo);
+        }
+
+        .adm-table th {
+            padding: 0.75rem 1.25rem;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--bc-texto-2);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            border-bottom: 1px solid var(--bc-borde);
+            white-space: nowrap;
+        }
+
+        .adm-table td {
+            padding: 0.85rem 1.25rem;
+            border-bottom: 1px solid var(--bc-borde);
+            color: var(--bc-texto-1);
+            vertical-align: middle;
+        }
+
+        .adm-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .adm-table tbody tr:hover {
+            background: var(--bc-fondo);
+        }
+
+    .td-empty {
+        text-align: center;
+        padding: 2.5rem;
+        color: var(--bc-texto-2);
+        font-size: 0.875rem;
+    }
+
+    .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--bc-negro);
+        color: var(--bc-amarillo);
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        letter-spacing: 0.02em;
+    }
+
+    .td-nombre {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--bc-texto-1);
+    }
+
+    .td-email {
+        font-size: 0.75rem;
+        color: var(--bc-texto-2);
+        margin-top: 2px;
+    }
+
+    .td-mono {
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: var(--bc-texto-1);
+    }
+
+    .td-secundario {
+        font-size: 0.8rem;
+        color: var(--bc-texto-2);
+    }
+
+    .td-fecha {
+        font-size: 0.8rem;
+        color: var(--bc-texto-2);
+        white-space: nowrap;
+    }
+
+    .td-pedidos {
+        text-align: center;
+        font-weight: 600;
+        color: var(--bc-texto-1);
+    }
+
+    .td-total {
+        font-weight: 700;
+        color: var(--bc-texto-1);
+        white-space: nowrap;
+    }
+
+    .td-acciones {
+        display: flex;
+        gap: 6px;
+    }
+
+    .badge-activo,
+    .badge-inactivo {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+    }
+
+    .badge-activo {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .badge-inactivo {
+        background: #fff1f2;
+        color: #b91c1c;
+    }
+
+    .btn-adm-edit {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--bc-texto-2);
+        background: transparent;
+        border: 1px solid var(--bc-borde);
+        border-radius: 8px;
+        padding: 0.35rem 0.85rem;
+        text-decoration: none;
+        transition: color 0.15s, border-color 0.15s;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+        .btn-adm-edit:hover {
+            color: var(--bc-texto-1);
+            border-color: var(--bc-texto-2);
+        }
+
+    .btn-adm-delete {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #b91c1c;
+        background: transparent;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 0.35rem 0.85rem;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        white-space: nowrap;
+    }
+
+        .btn-adm-delete:hover {
+            background: #fff1f2;
+            border-color: #b91c1c;
+        }
+
+    @@media (max-width: 700px) {
+        .adm-page-header
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .adm-table th,
+    .adm-table td {
+        padding: 0.65rem 0.75rem;
+    }
+
+    }
+</style>

@@ -1,16 +1,15 @@
-﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Venta>
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Envio>
 @{
-    ViewData["Title"] = "Ventas";
+    ViewData["Title"] = "Envíos";
     Layout = "_AdminLayout";
     string? estadoFiltro = ViewBag.EstadoFiltro;
-    string? metodoFiltro = ViewBag.MetodoFiltro;
 }
 
 <div class="adm-page-header">
     <div>
-        <h1>Ventas</h1>
+        <h1>Envíos</h1>
         <p>
-            @Model.Count() pedidos
+            @Model.Count() envíos
             @if (!string.IsNullOrEmpty(estadoFiltro))
             {
                 <span>· filtrado por <strong>@estadoFiltro</strong></span>
@@ -20,30 +19,30 @@
 </div>
 
 <div class="filtro-tabs">
-    <a href="@Url.Action("Ventas")"
+    <a href="@Url.Action("Envios")"
        class="filtro-tab @(estadoFiltro == null ? "active" : "")">
         Todos
-        <span class="count">@(ViewBag.TotalPendientes + ViewBag.TotalVerificando + ViewBag.TotalPagados + ViewBag.TotalRechazados)</span>
+        <span class="count">@(ViewBag.TotalPreparando + ViewBag.TotalDespachado + ViewBag.TotalEnCamino + ViewBag.TotalEntregado)</span>
     </a>
-    <a href="@Url.Action("Ventas", new { estado = "En verificación" })"
-       class="filtro-tab @(estadoFiltro == "En verificación" ? "active" : "")">
-        En verificación
-        <span class="count">@ViewBag.TotalVerificando</span>
+    <a href="@Url.Action("Envios", new { estado = "Preparando" })"
+       class="filtro-tab @(estadoFiltro == "Preparando" ? "active" : "")">
+        Preparando
+        <span class="count">@ViewBag.TotalPreparando</span>
     </a>
-    <a href="@Url.Action("Ventas", new { estado = "Pendiente" })"
-       class="filtro-tab @(estadoFiltro == "Pendiente" ? "active" : "")">
-        Pendientes
-        <span class="count">@ViewBag.TotalPendientes</span>
+    <a href="@Url.Action("Envios", new { estado = "Despachado" })"
+       class="filtro-tab @(estadoFiltro == "Despachado" ? "active" : "")">
+        Despachado
+        <span class="count">@ViewBag.TotalDespachado</span>
     </a>
-    <a href="@Url.Action("Ventas", new { estado = "Pagado" })"
-       class="filtro-tab @(estadoFiltro == "Pagado" ? "active" : "")">
-        Pagados
-        <span class="count">@ViewBag.TotalPagados</span>
+    <a href="@Url.Action("Envios", new { estado = "En camino" })"
+       class="filtro-tab @(estadoFiltro == "En camino" ? "active" : "")">
+        En camino
+        <span class="count">@ViewBag.TotalEnCamino</span>
     </a>
-    <a href="@Url.Action("Ventas", new { estado = "Rechazado" })"
-       class="filtro-tab @(estadoFiltro == "Rechazado" ? "active" : "")">
-        Rechazados
-        <span class="count">@ViewBag.TotalRechazados</span>
+    <a href="@Url.Action("Envios", new { estado = "Entregado" })"
+       class="filtro-tab @(estadoFiltro == "Entregado" ? "active" : "")">
+        Entregados
+        <span class="count">@ViewBag.TotalEntregado</span>
     </a>
 </div>
 
@@ -51,12 +50,13 @@
     <table class="adm-table">
         <thead>
             <tr>
-                <th>Pedido</th>
+                <th>#</th>
                 <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Método</th>
-                <th>Total</th>
-                <th>Comprobante</th>
+                <th>Dirección</th>
+                <th>Empresa</th>
+                <th>Seguimiento</th>
+                <th>Fecha envío</th>
+                <th>Entrega est.</th>
                 <th>Estado</th>
                 <th>Acciones</th>
             </tr>
@@ -65,59 +65,53 @@
             @if (!Model.Any())
             {
                 <tr>
-                    <td colspan="8" class="td-empty">No hay ventas con ese filtro.</td>
+                    <td colspan="9" class="td-empty">No hay envíos con ese filtro.</td>
                 </tr>
             }
-            @foreach (var v in Model)
+            @foreach (var e in Model)
             {
                 <tr>
                     <td>
-                        <div class="td-id">#@v.IdVenta</div>
-                        <div class="td-sub">@v.DetallesVenta.Count ítem(s)</div>
+                        <div class="td-id">#@e.IdEnvio</div>
+                        <div class="td-sub">Pedido #@e.VentaId</div>
                     </td>
                     <td>
-                        <div class="td-nombre">@v.Cliente?.Usuario?.Nombres @v.Cliente?.Usuario?.Apellidos</div>
-                        <div class="td-email">@v.Cliente?.Usuario?.Email</div>
+                        <div class="td-nombre">@e.Venta?.Cliente?.Usuario?.Nombres @e.Venta?.Cliente?.Usuario?.Apellidos</div>
+                        <div class="td-celular">@e.Venta?.Cliente?.Usuario?.Celular</div>
                     </td>
-                    <td class="td-fecha">
-                        @v.FechaVenta.ToString("dd/MM/yyyy")
-                        <div class="td-hora">@v.FechaVenta.ToString("HH:mm")</div>
-                    </td>
-                    <td class="td-metodo">@v.MetodoPago</td>
-                    <td class="td-total">S/ @v.TotalVenta.ToString("0.00")</td>
                     <td>
-                        @{
-                            var metodosComp = new[] { "Yape", "Plin", "Transferencia" };
-                        }
-                        @if (!string.IsNullOrEmpty(v.ComprobantePago))
+                        <div class="td-dir">@e.DireccionEnvio</div>
+                        <div class="td-ciudad">@e.Ciudad</div>
+                    </td>
+                    <td class="td-empresa">@(string.IsNullOrEmpty(e.EmpresaTransporte) ? "—" : e.EmpresaTransporte)</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(e.NumeroSeguimiento))
                         {
-                            <a href="@v.ComprobantePago" target="_blank" class="comp-badge comp-ok">Ver imagen →</a>
-                        }
-                        else if (metodosComp.Contains(v.MetodoPago))
-                        {
-                            <span class="comp-badge comp-pendiente">Sin subir</span>
+                            <span class="td-seguimiento">@e.NumeroSeguimiento</span>
                         }
                         else
                         {
-                            <span class="comp-na">N/A</span>
+                            <span class="td-na">Sin asignar</span>
                         }
                     </td>
+                    <td class="td-fecha">@(e.FechaEnvio.HasValue? e.FechaEnvio.Value.ToString("dd/MM/yyyy") : "—")</td>
+                    <td class="td-fecha">@(e.FechaEntregaEstimada.HasValue? e.FechaEntregaEstimada.Value.ToString("dd/MM/yyyy") : "—")</td>
                     <td>
                         @{
-                            string badgeClass = v.EstadoPago switch
+                            string badgeEnvio = e.EstadoEnvio switch
                             {
-                                "Pagado" => "badge-pagado",
-                                "En verificación" => "badge-verificando",
-                                "Rechazado" => "badge-rechazado",
-                                "Anulado" => "badge-anulado",
-                                _ => "badge-pendiente"
+                                "Despachado" => "badge-despachado",
+                                "En camino" => "badge-encamino",
+                                "Entregado" => "badge-entregado",
+                                "Devuelto" => "badge-devuelto",
+                                _ => "badge-preparando"
                             };
                         }
-                        <span class="badge-estado @badgeClass">@v.EstadoPago</span>
+                        <span class="badge-envio @badgeEnvio">@e.EstadoEnvio</span>
                     </td>
                     <td>
-                        <a href="@Url.Action("DetalleVenta", new { id = v.IdVenta })"
-                           class="btn-adm-edit">Ver detalle</a>
+                        <a href="@Url.Action("EditarEnvio", new { id = e.IdEnvio })"
+                           class="btn-adm-edit">Gestionar</a>
                     </td>
                 </tr>
             }
@@ -269,6 +263,7 @@
         font-size: 0.72rem;
         color: var(--bc-texto-2);
         margin-top: 2px;
+        font-weight: 400;
     }
 
     .td-nombre {
@@ -277,66 +272,52 @@
         color: var(--bc-texto-1);
     }
 
-    .td-email {
+    .td-celular {
         font-size: 0.72rem;
         color: var(--bc-texto-2);
         margin-top: 2px;
+    }
+
+    .td-dir {
+        font-size: 0.8rem;
+        color: var(--bc-texto-2);
+        max-width: 160px;
+        line-height: 1.4;
+    }
+
+    .td-ciudad {
+        font-size: 0.7rem;
+        color: var(--bc-texto-2);
+    }
+
+    .td-empresa {
+        font-size: 0.825rem;
+        color: var(--bc-texto-1);
+    }
+
+    .td-seguimiento {
+        font-family: monospace;
+        font-size: 0.75rem;
+        background: var(--bc-fondo);
+        border: 1px solid var(--bc-borde);
+        padding: 3px 8px;
+        border-radius: 6px;
+        color: var(--bc-texto-1);
+        display: inline-block;
+    }
+
+    .td-na {
+        font-size: 0.75rem;
+        color: var(--bc-texto-2);
     }
 
     .td-fecha {
         font-size: 0.8rem;
         color: var(--bc-texto-2);
         white-space: nowrap;
-        line-height: 1.6;
     }
 
-    .td-hora {
-        font-size: 0.7rem;
-        color: var(--bc-texto-2);
-    }
-
-    .td-metodo {
-        font-size: 0.825rem;
-        color: var(--bc-texto-1);
-    }
-
-    .td-total {
-        font-weight: 700;
-        color: var(--bc-texto-1);
-        white-space: nowrap;
-    }
-
-    .comp-badge {
-        display: inline-block;
-        font-size: 0.72rem;
-        font-weight: 600;
-        padding: 3px 10px;
-        border-radius: 20px;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-
-    .comp-ok {
-        background: #f0fdf4;
-        color: #15803d;
-        transition: background 0.15s;
-    }
-
-        .comp-ok:hover {
-            background: #dcfce7;
-        }
-
-    .comp-pendiente {
-        background: #fff7ed;
-        color: #c2410c;
-    }
-
-    .comp-na {
-        font-size: 0.75rem;
-        color: var(--bc-texto-2);
-    }
-
-    .badge-estado {
+    .badge-envio {
         display: inline-block;
         font-size: 0.72rem;
         font-weight: 600;
@@ -346,29 +327,29 @@
         white-space: nowrap;
     }
 
-    .badge-pagado {
-        background: #f0fdf4;
-        color: #15803d;
+    .badge-preparando {
+        background: var(--bc-fondo);
+        color: var(--bc-texto-2);
     }
 
-    .badge-verificando {
+    .badge-despachado {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .badge-encamino {
         background: #fff7ed;
         color: #c2410c;
     }
 
-    .badge-rechazado {
+    .badge-entregado {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .badge-devuelto {
         background: #fff1f2;
         color: #b91c1c;
-    }
-
-    .badge-anulado {
-        background: #f5f5f7;
-        color: var(--bc-texto-2);
-    }
-
-    .badge-pendiente {
-        background: #f5f5f7;
-        color: var(--bc-texto-2);
     }
 
     .btn-adm-edit {
@@ -400,4 +381,3 @@
 
     }
 </style>
-

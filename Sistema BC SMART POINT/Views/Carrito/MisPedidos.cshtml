@@ -1,0 +1,452 @@
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Venta>
+@{
+    ViewData["Title"] = "Mis pedidos";
+    Layout = "_Layout";
+}
+
+<div class="mp-wrap">
+
+    <div class="mp-header">
+        <h1>Mis pedidos</h1>
+        <p>
+            @if (Model.Any())
+            {
+                <span>@Model.Count() pedido(s) realizados</span>
+            }
+            else
+            {
+                <span>Aún no has realizado ningún pedido</span>
+            }
+        </p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="mp-vacio">
+            <p>Cuando realices un pedido aparecerá aquí.</p>
+            <a href="@Url.Action("Index", "Catalogo")">Explorar productos</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var v in Model)
+        {
+            var metodosComp = new[] { "Yape", "Plin", "Transferencia" };
+            bool necesitaComp = metodosComp.Contains(v.MetodoPago)
+            && string.IsNullOrEmpty(v.ComprobantePago)
+            && v.EstadoPago == "Pendiente";
+
+            string epClass = v.EstadoPago switch
+            {
+                "Pagado" => "ep-pagado",
+                "En verificación" => "ep-verificando",
+                "Rechazado" => "ep-rechazado",
+                _ => "ep-pendiente"
+            };
+
+            <div class="pedido-card">
+
+                <div class="pedido-head">
+                    <div>
+                        <div class="pedido-num">Pedido #@v.IdVenta</div>
+                        <div class="pedido-fecha">@v.FechaVenta.ToString("dd 'de' MMMM yyyy, HH:mm")</div>
+                    </div>
+                    <div class="pedido-head-right">
+                        <div class="pedido-total"><span>S/</span>@v.TotalVenta.ToString("0.00")</div>
+                        <span class="badge-ep @epClass">@v.EstadoPago</span>
+                    </div>
+                </div>
+
+                @if (necesitaComp)
+                {
+                    <div class="alerta-comp">
+                        <span>⚠</span>
+                        <span>Falta subir el comprobante de @v.MetodoPago</span>
+                        <a href="@Url.Action("Confirmacion", new { idVenta = v.IdVenta })">Subir ahora →</a>
+                    </div>
+                }
+
+                <div class="pedido-items">
+                    @foreach (var d in v.DetallesVenta.Take(3))
+                    {
+                        <div class="pedido-item">
+                            <div class="pi-img">
+                                @if (!string.IsNullOrEmpty(d.Producto?.ImagenUrl))
+                                {
+                                    <img src="@d.Producto.ImagenUrl" alt="@d.Producto.Nombre" />
+                                }
+                </div>
+                <div>
+                    <div class="pi-nombre">@d.Producto?.Nombre</div>
+                    <div class="pi-meta">
+                        @string.Join(" · ", new[] { d.Producto?.Color, d.Producto?.Capacidad }
+                                                .Where(s => !string.IsNullOrEmpty(s)))
+                        · ×@d.Cantidad
+                    </div>
+                </div>
+                <div class="pi-precio">S/ @d.SubTotal.ToString("0.00")</div>
+            </div>
+                        }
+                    @if (v.DetallesVenta.Count > 3)
+                    {
+                        <div class="mas-productos">+ @(v.DetallesVenta.Count - 3) producto(s) más</div>
+                    }
+                </div>
+
+                <div class="pedido-foot">
+                    <div class="pedido-foot-info">
+                        <span class="foot-tag">💳 @v.MetodoPago</span>
+                        @if (v.Envio != null)
+                        {
+                            string envClass = v.Envio.EstadoEnvio switch
+                            {
+                                "Despachado" => "env-despachado",
+                                "En camino" => "env-encamino",
+                                "Entregado" => "env-entregado",
+                                "Devuelto" => "env-devuelto",
+                                _ => "env-preparando"
+                            };
+                            <span class="badge-env @envClass">📦 @v.Envio.EstadoEnvio</span>
+                            @if (!string.IsNullOrEmpty(v.Envio.NumeroSeguimiento))
+                            {
+                                <span class="foot-tag" style="font-family:monospace;">
+                                    @v.Envio.NumeroSeguimiento
+                                </span>
+                            }
+                        }
+                    </div>
+                    <a href="@Url.Action("DetallePedido", new { idVenta = v.IdVenta })"
+                       class="btn-ver-detalle">Ver detalle →</a>
+                </div>
+
+            </div>
+        }
+    }
+
+</div>
+
+<style>
+    .mp-wrap {
+        max-width: 760px;
+        margin: 2rem auto;
+        padding: 0 1.25rem 3rem;
+    }
+
+    .mp-header {
+        margin-bottom: 1.75rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .mp-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            margin: 0 0 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .mp-header p {
+            font-size: 0.825rem;
+            color: var(--bc-texto-2);
+            margin: 0;
+        }
+
+    .mp-vacio {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+        padding: 3rem 2rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .mp-vacio p {
+            font-size: 0.875rem;
+            color: var(--bc-texto-2);
+            margin: 0;
+        }
+
+        .mp-vacio a {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--bc-negro);
+            background: var(--bc-amarillo);
+            border-radius: 10px;
+            padding: 0.55rem 1.35rem;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+            .mp-vacio a:hover {
+                background: #e0b400;
+            }
+
+    .pedido-card {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        transition: border-color 0.2s;
+    }
+
+        .pedido-card:hover {
+            border-color: var(--bc-amarillo);
+        }
+
+    .pedido-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+        background: var(--bc-fondo);
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .pedido-num {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--bc-texto-1);
+        margin-bottom: 2px;
+    }
+
+    .pedido-fecha {
+        font-size: 0.75rem;
+        color: var(--bc-texto-2);
+    }
+
+    .pedido-head-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pedido-total {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--bc-texto-1);
+        letter-spacing: -0.02em;
+    }
+
+        .pedido-total span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--bc-texto-2);
+            margin-right: 2px;
+        }
+
+    .badge-ep {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+    }
+
+    .ep-pagado {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .ep-verificando {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .ep-rechazado {
+        background: #fff1f2;
+        color: #b91c1c;
+    }
+
+    .ep-pendiente {
+        background: var(--bc-fondo);
+        color: var(--bc-texto-2);
+    }
+
+    .alerta-comp {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.65rem 1.25rem;
+        background: #fff7ed;
+        border-bottom: 1px solid #fdba74;
+        font-size: 0.8rem;
+        color: #c2410c;
+    }
+
+        .alerta-comp a {
+            margin-left: auto;
+            font-weight: 600;
+            color: #c2410c;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: color 0.15s;
+        }
+
+            .alerta-comp a:hover {
+                color: #9a3412;
+            }
+
+    .pedido-items {
+        padding: 0.75rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+    .pedido-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .pi-img {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: var(--bc-fondo);
+        border: 1px solid var(--bc-borde);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+        .pi-img img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+
+    .pi-nombre {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--bc-texto-1);
+    }
+
+    .pi-meta {
+        font-size: 0.72rem;
+        color: var(--bc-texto-2);
+        margin-top: 2px;
+    }
+
+    .pi-precio {
+        margin-left: auto;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--bc-texto-1);
+        white-space: nowrap;
+    }
+
+    .pedido-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.25rem;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .pedido-foot-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .foot-tag {
+        font-size: 0.75rem;
+        color: var(--bc-texto-2);
+        background: var(--bc-fondo);
+        border: 1px solid var(--bc-borde);
+        border-radius: 6px;
+        padding: 3px 10px;
+    }
+
+    .badge-env {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+    }
+
+    .env-preparando {
+        background: var(--bc-fondo);
+        color: var(--bc-texto-2);
+    }
+
+    .env-despachado {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .env-encamino {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .env-entregado {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .env-devuelto {
+        background: #fff1f2;
+        color: #b91c1c;
+    }
+
+    .btn-ver-detalle {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--bc-negro);
+        background: var(--bc-amarillo);
+        border-radius: 8px;
+        padding: 0.4rem 1rem;
+        text-decoration: none;
+        transition: background 0.15s, transform 0.1s;
+        white-space: nowrap;
+    }
+
+        .btn-ver-detalle:hover {
+            background: #e0b400;
+            transform: translateY(-1px);
+        }
+
+    .mas-productos {
+        font-size: 0.8rem;
+        color: var(--bc-texto-2);
+        padding-top: 4px;
+    }
+
+    @@media (max-width: 600px) {
+        .pedido-head
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pedido-head-right {
+        flex-wrap: wrap;
+    }
+
+    }
+</style>
+
+        

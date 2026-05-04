@@ -233,14 +233,14 @@ namespace Sistema_BC_SMART_POINT.Migrations
                 {
                     IdEnvio = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    DireccionEnvio = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Ciudad = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    CodigoPostal = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: false),
-                    FechaEnvio = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FechaEntregaEstimada = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EstadoEnvio = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    EmpresaTransporte = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    NumeroSeguimiento = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DireccionEnvio = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Ciudad = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CodigoPostal = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    FechaEnvio = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FechaEntregaEstimada = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EstadoEnvio = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    EmpresaTransporte = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    NumeroSeguimiento = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     VentaId = table.Column<int>(type: "int", nullable: false),
                     AdministradorId = table.Column<int>(type: "int", nullable: true)
                 },

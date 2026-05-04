@@ -12,7 +12,7 @@ using Sistema_BC_SMART_POINT.Data;
 namespace Sistema_BC_SMART_POINT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260503024226_Mig")]
+    [Migration("20260504022947_Mig")]
     partial class Mig
     {
         /// <inheritdoc />
@@ -201,38 +201,36 @@ namespace Sistema_BC_SMART_POINT.Migrations
 
                     b.Property<string>("Ciudad")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("CodigoPostal")
-                        .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
-
-                    b.Property<string>("DireccionEnvio")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("EmpresaTransporte")
+                    b.Property<string>("CodigoPostal")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("DireccionEnvio")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("EmpresaTransporte")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("EstadoEnvio")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
-                    b.Property<DateTime>("FechaEntregaEstimada")
+                    b.Property<DateTime?>("FechaEntregaEstimada")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaEnvio")
+                    b.Property<DateTime?>("FechaEnvio")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("NumeroSeguimiento")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("VentaId")
                         .HasColumnType("int");

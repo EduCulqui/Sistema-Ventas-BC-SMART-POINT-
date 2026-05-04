@@ -133,5 +133,76 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (venta == null) return NotFound();
             return View(venta);
         }
+
+
+        // GET /Carrito/MisPedidos
+        public async Task<IActionResult> MisPedidos()
+        {
+            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+            if (cliente == null) return RedirectToAction("Index", "Catalogo");
+
+            var pedidos = await _db.Ventas
+                .Include(v => v.DetallesVenta).ThenInclude(d => d.Producto)
+                .Include(v => v.Envio)
+                .Include(v => v.CuponDescuento)
+                .Where(v => v.ClienteId == cliente.IdCliente)
+                .OrderByDescending(v => v.FechaVenta)
+                .ToListAsync();
+
+            return View(pedidos);
+        }
+
+        // GET /Carrito/DetallePedido/5
+        public async Task<IActionResult> DetallePedido(int idVenta)
+        {
+            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+            if (cliente == null) return Unauthorized();
+
+            var venta = await _db.Ventas
+                .Include(v => v.DetallesVenta).ThenInclude(d => d.Producto)
+                .Include(v => v.Envio)
+                .Include(v => v.CuponDescuento)
+                .FirstOrDefaultAsync(v => v.IdVenta == idVenta && v.ClienteId == cliente.IdCliente);
+
+
+            if (venta == null) return NotFound();
+
+            return View(venta);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubirComprobante(int idVenta, IFormFile comprobante)
+        {
+            if (comprobante == null || comprobante.Length == 0)
+            {
+                TempData["Error"] = "Selecciona un archivo válido.";
+                return RedirectToAction("Confirmacion", new { idVenta });
+            }
+
+            var venta = await _db.Ventas.FindAsync(idVenta);
+            if (venta == null) return NotFound();
+
+            var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "comprobantes");
+            Directory.CreateDirectory(carpeta);
+
+            var extension = Path.GetExtension(comprobante.FileName);
+            var nombreArchivo = $"venta_{idVenta}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
+            var rutaCompleta = Path.Combine(carpeta, nombreArchivo);
+
+            using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+            {
+                await comprobante.CopyToAsync(stream);
+            }
+
+            venta.ComprobantePago = $"/comprobantes/{nombreArchivo}";
+            venta.FechaComprobante = DateTime.Now;
+            venta.EstadoPago = "En verificación";
+            await _db.SaveChangesAsync();
+
+            TempData["Exito"] = "Comprobante enviado correctamente. Verificaremos tu pago pronto.";
+            return RedirectToAction("Confirmacion", new { idVenta });
+        }
     }
 }

@@ -1,0 +1,528 @@
+﻿@model Sistema_BC_SMART_POINT.Models.Venta
+@{
+    ViewData["Title"] = $"Pedido #{Model.IdVenta}";
+    Layout = "_Layout";
+    decimal descuento = Model.CuponDescuento != null
+        ? Math.Round(Model.SubtotalSinDescuento * (Model.CuponDescuento.PorcentajeDescuento / 100m), 2)
+        : 0;
+    var metodosComp = new[] { "Yape", "Plin", "Transferencia" };
+    bool yaSubio = !string.IsNullOrEmpty(Model.ComprobantePago);
+}
+
+
+<div class="dp-wrap">
+
+    <a href="@Url.Action("MisPedidos")" class="dp-back">← Mis pedidos</a>
+
+    <div class="dp-header">
+        <div>
+            <h1>Pedido #@Model.IdVenta</h1>
+            <p>@Model.FechaVenta.ToString("dd 'de' MMMM yyyy, HH:mm")</p>
+        </div>
+        @{
+            string epClass = Model.EstadoPago switch
+            {
+                "Pagado" => "ep-pagado",
+                "En verificación" => "ep-verificando",
+                "Rechazado" => "ep-rechazado",
+                _ => "ep-pendiente"
+            };
+        }
+        <span class="badge-ep @epClass">@Model.EstadoPago</span>
+    </div>
+
+    <div class="dp-card">
+        <div class="dp-card-title">Productos</div>
+        @foreach (var d in Model.DetallesVenta)
+        {
+            <div class="dp-item">
+                <div class="dp-item-img">
+                    @if (!string.IsNullOrEmpty(d.Producto?.ImagenUrl))
+                    {
+                        <img src="@d.Producto.ImagenUrl" alt="@d.Producto.Nombre" />
+                    }
+            </div>
+            <div>
+                <div class="dp-item-name">@d.Producto?.Nombre</div>
+                <div class="dp-item-meta">
+                    @string.Join(" · ", new[] { d.Producto?.Color, d.Producto?.Capacidad }
+                                        .Where(s => !string.IsNullOrEmpty(s)))
+                </div>
+            </div>
+            <div class="dp-item-right">
+                <div class="dp-item-sub">S/ @d.SubTotal.ToString("0.00")</div>
+                <div class="dp-item-unit">S/ @d.PrecioUnitario.ToString("0.00") × @d.Cantidad</div>
+            </div>
+        </div>
+                }
+
+        <div class="dp-total-row">
+            <span class="lbl">Subtotal</span>
+            <span class="val">S/ @Model.SubtotalSinDescuento.ToString("0.00")</span>
+        </div>
+        @if (descuento > 0 && Model.CuponDescuento != null)
+        {
+            <div class="dp-total-row descuento">
+                <span class="lbl">Cupón @Model.CuponDescuento.CodigoCupon (@Model.CuponDescuento.PorcentajeDescuento%)</span>
+                <span class="val">− S/ @descuento.ToString("0.00")</span>
+            </div>
+        }
+        <div class="dp-total-row">
+            <span class="lbl">IGV (18%)</span>
+            <span class="val">S/ @Model.IGV.ToString("0.00")</span>
+        </div>
+        <div class="dp-total-row grand">
+            <span class="lbl">Total</span>
+            <span class="val">S/ @Model.TotalVenta.ToString("0.00")</span>
+        </div>
+    </div>
+
+    <div class="dp-card">
+        <div class="dp-card-title">Pago</div>
+        <div class="dp-row">
+            <span class="lbl">Método</span>
+            <span class="val">@Model.MetodoPago</span>
+        </div>
+        <div class="dp-row">
+            <span class="lbl">Estado</span>
+            <span class="val"><span class="badge-ep @epClass">@Model.EstadoPago</span></span>
+        </div>
+
+        @if (metodosComp.Contains(Model.MetodoPago))
+        {
+            <div class="dp-row comp-section">
+                <div class="comp-label">Comprobante</div>
+                @if (yaSubio)
+                {
+                    <img src="@Model.ComprobantePago" alt="Comprobante"
+                         class="comp-img"
+                         onclick="window.open('@Model.ComprobantePago','_blank')" />
+                    <span class="comp-fecha">
+                        Subido el @Model.FechaComprobante?.ToString("dd/MM/yyyy 'a las' HH:mm")
+                    </span>
+                }
+                else if (Model.EstadoPago == "Pendiente")
+                {
+                    <a href="@Url.Action("Confirmacion", "Carrito", new { idVenta = Model.IdVenta })"
+                       class="btn-primary-dp">
+                        Subir comprobante →
+                    </a>
+                }
+                else
+                {
+                    <span class="comp-fecha">Sin comprobante registrado.</span>
+                }
+            </div>
+        }
+    </div>
+
+    @if (Model.Envio != null)
+    {
+        <div class="dp-card">
+            <div class="dp-card-title">Envío</div>
+            <div class="dp-row">
+                <span class="lbl">Dirección</span>
+                <span class="val">@Model.Envio.DireccionEnvio</span>
+            </div>
+            <div class="dp-row">
+                <span class="lbl">Ciudad</span>
+                <span class="val">@Model.Envio.Ciudad</span>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Envio.EmpresaTransporte))
+            {
+                <div class="dp-row">
+                    <span class="lbl">Empresa</span>
+                    <span class="val">@Model.Envio.EmpresaTransporte</span>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.Envio.NumeroSeguimiento))
+            {
+                <div class="dp-row">
+                    <span class="lbl">N° seguimiento</span>
+                    <span class="val" style="font-family:monospace; font-size:0.8rem;">
+                        @Model.Envio.NumeroSeguimiento
+                    </span>
+                </div>
+            }
+            @if (Model.Envio.FechaEntregaEstimada.HasValue)
+            {
+                <div class="dp-row">
+                    <span class="lbl">Entrega estimada</span>
+                    <span class="val">@Model.Envio.FechaEntregaEstimada.Value.ToString("dd/MM/yyyy")</span>
+                </div>
+            }
+
+            <div class="timeline">
+                @{
+                    var estadosEnvio = new[] { "Preparando", "Despachado", "En camino", "Entregado" };
+                    int actualEnvio = Array.IndexOf(estadosEnvio, Model.Envio.EstadoEnvio);
+                }
+                @for (int i = 0; i < estadosEnvio.Length; i++)
+                {
+                    string stepClass = i < actualEnvio ? "done" : i == actualEnvio ? "curr" : "";
+                    string dot = i < actualEnvio ? "✓" : (i + 1).ToString();
+                    <div class="tl-step @stepClass">
+                        <div class="tl-dot">@dot</div>
+                        <div class="tl-label">@estadosEnvio[i]</div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+</div>
+
+<style>
+    .dp-wrap {
+        max-width: 720px;
+        margin: 2rem auto;
+        padding: 0 1.25rem 3rem;
+    }
+
+    .dp-back {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.825rem;
+        font-weight: 500;
+        color: var(--bc-texto-2);
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        transition: color 0.15s;
+    }
+
+        .dp-back:hover {
+            color: var(--bc-texto-1);
+        }
+
+    .dp-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+        .dp-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            margin: 0 0 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .dp-header p {
+            font-size: 0.825rem;
+            color: var(--bc-texto-2);
+            margin: 0;
+        }
+
+    .dp-card {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .dp-card-title {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--bc-texto-2);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 0.9rem 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+        background: var(--bc-fondo);
+    }
+
+    .dp-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .dp-item:last-of-type {
+            border-bottom: none;
+        }
+
+    .dp-item-img {
+        width: 52px;
+        height: 52px;
+        border-radius: 10px;
+        background: var(--bc-fondo);
+        border: 1px solid var(--bc-borde);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+        .dp-item-img img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+
+    .dp-item-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--bc-texto-1);
+    }
+
+    .dp-item-meta {
+        font-size: 0.75rem;
+        color: var(--bc-texto-2);
+        margin-top: 2px;
+    }
+
+    .dp-item-right {
+        margin-left: auto;
+        text-align: right;
+    }
+
+    .dp-item-sub {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--bc-texto-1);
+    }
+
+    .dp-item-unit {
+        font-size: 0.75rem;
+        color: var(--bc-texto-2);
+        margin-top: 2px;
+    }
+
+    .dp-total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.875rem;
+        color: var(--bc-texto-2);
+        border-top: 1px solid var(--bc-borde);
+    }
+
+        .dp-total-row.grand {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--bc-texto-1);
+            padding: 0.85rem 1.25rem;
+        }
+
+        .dp-total-row.descuento {
+            color: #15803d;
+        }
+
+        .dp-total-row .val {
+            font-weight: 600;
+            color: var(--bc-texto-1);
+        }
+
+        .dp-total-row.descuento .val {
+            color: #15803d;
+        }
+
+    .dp-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .dp-row:last-child {
+            border-bottom: none;
+        }
+
+        .dp-row .lbl {
+            color: var(--bc-texto-2);
+            font-size: 0.8rem;
+        }
+
+        .dp-row .val {
+            font-weight: 500;
+            color: var(--bc-texto-1);
+        }
+
+    .badge-ep {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+    }
+
+    .ep-pagado {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .ep-verificando {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .ep-rechazado {
+        background: #fff1f2;
+        color: #b91c1c;
+    }
+
+    .ep-pendiente {
+        background: #f5f5f7;
+        color: var(--bc-texto-2);
+    }
+
+    .comp-img {
+        max-width: 100%;
+        max-height: 320px;
+        border-radius: 10px;
+        border: 1px solid var(--bc-borde);
+        cursor: pointer;
+        object-fit: contain;
+        transition: opacity 0.2s;
+    }
+
+        .comp-img:hover {
+            opacity: 0.9;
+        }
+
+    .comp-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--bc-texto-2);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 10px;
+    }
+
+    .comp-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 1rem 1.25rem;
+    }
+
+    .comp-fecha {
+        font-size: 0.75rem;
+        color: var(--bc-texto-2);
+    }
+
+    .btn-primary-dp {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--bc-negro);
+        background: var(--bc-amarillo);
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 1.25rem;
+        text-decoration: none;
+        transition: background 0.15s, transform 0.1s;
+    }
+
+        .btn-primary-dp:hover {
+            background: #e0b400;
+            transform: translateY(-1px);
+        }
+
+    .timeline {
+        display: flex;
+        align-items: flex-start;
+        gap: 0;
+        padding: 1.25rem 1.25rem 1.5rem;
+        overflow-x: auto;
+    }
+
+    .tl-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        position: relative;
+    }
+
+        .tl-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--bc-borde);
+            z-index: 0;
+        }
+
+        .tl-step.done:not(:last-child)::after,
+        .tl-step.curr:not(:last-child)::after {
+            background: var(--bc-amarillo);
+        }
+
+    .tl-dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--bc-fondo);
+        border: 2px solid var(--bc-borde);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--bc-texto-2);
+        position: relative;
+        z-index: 1;
+        transition: background 0.2s;
+    }
+
+    .tl-step.done .tl-dot {
+        background: var(--bc-amarillo);
+        border-color: var(--bc-amarillo);
+        color: var(--bc-negro);
+    }
+
+    .tl-step.curr .tl-dot {
+        background: var(--bc-negro);
+        border-color: var(--bc-negro);
+        color: var(--bc-amarillo);
+    }
+
+    .tl-label {
+        font-size: 0.7rem;
+        color: var(--bc-texto-2);
+        margin-top: 6px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .tl-step.curr .tl-label {
+        color: var(--bc-texto-1);
+        font-weight: 600;
+    }
+
+    .tl-step.done .tl-label {
+        color: var(--bc-texto-1);
+    }
+
+    @@media (max-width: 600px) {
+        .dp-header
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dp-item {
+        flex-wrap: wrap;
+    }
+
+    }
+</style>
