@@ -1,7 +1,140 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">En Proceso</h1>
-</div>
+<section class="home-page-bc">
+
+    <div class="home-video-box">
+        <video autoplay muted loop playsinline>
+            <source src="/videos/videoiphone.mp4" type="video/mp4" />
+            Tu navegador no soporta video HTML5.
+        </video>
+    </div>
+
+    <div class="home-content-box">
+        <span class="home-label">BC Smart Point</span>
+
+        <h1>Encuentra tu próximo equipo</h1>
+
+        <p>
+            Explora productos tecnológicos disponibles con una experiencia simple,
+            rápida y ordenada.
+        </p>
+
+        <a asp-controller="Catalogo" asp-action="Index" class="home-btn">
+            Ver catálogo
+        </a>
+    </div>
+
+</section>
+
+<style>
+    body {
+        background: #f5f5f5;
+    }
+
+    .home-page-bc {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 34px 20px 70px;
+    }
+
+    .home-video-box {
+        width: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+        background: #1c1c1c;
+        border-left: 8px solid #ffc928;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+        margin-bottom: 26px;
+    }
+
+        .home-video-box video {
+            width: 100%;
+            height: 340px;
+            display: block;
+            object-fit: cover;
+            background: #1c1c1c;
+        }
+
+    .home-content-box {
+        background: #1c1c1c;
+        color: #ffffff;
+        border-radius: 18px;
+        padding: 38px;
+        border-left: 8px solid #ffc928;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .home-label {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: #ffc928;
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .home-content-box h1 {
+        margin: 0 0 10px;
+        color: #ffffff;
+        font-size: 42px;
+        font-weight: 900;
+        line-height: 1.1;
+    }
+
+    .home-content-box p {
+        max-width: 620px;
+        margin: 0 0 24px;
+        color: #d6d6d6;
+        font-size: 17px;
+        line-height: 1.5;
+    }
+
+    .home-btn {
+        min-height: 46px;
+        padding: 0 24px;
+        border-radius: 999px;
+        background: #ffc928;
+        color: #1c1c1c;
+        text-decoration: none;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s ease;
+    }
+
+        .home-btn:hover {
+            background: #ffffff;
+            color: #1c1c1c;
+        }
+
+    @@media (max-width: 768px) {
+        .home-page-bc {
+            padding: 24px 14px 50px;
+        }
+
+        .home-video-box {
+            border-radius: 14px;
+        }
+
+            .home-video-box video {
+                height: 210px;
+            }
+
+        .home-content-box {
+            padding: 28px;
+            border-radius: 14px;
+        }
+
+            .home-content-box h1 {
+                font-size: 32px;
+            }
+
+            .home-content-box p {
+                font-size: 15px;
+            }
+    }
+</style>
