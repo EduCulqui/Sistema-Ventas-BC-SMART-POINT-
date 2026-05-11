@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Sistema_BC_SMART_POINT.Data;
+using Sistema_BC_SMART_POINT.Models.ViewModels;
 using Sistema_BC_SMART_POINT.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,8 @@ builder.Services.AddScoped<AuthService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.Configure<ConfiguracionPagoViewModel>(
+    builder.Configuration.GetSection("ConfiguracionPago"));
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("StringSQL"));

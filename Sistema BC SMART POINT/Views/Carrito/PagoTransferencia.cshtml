@@ -1,0 +1,547 @@
+﻿@{
+    ViewData["Title"] = "Realizar pago";
+    string metodo = ViewBag.Metodo ?? "Yape";
+    decimal total = ViewBag.Total ?? 0m;
+    var config = ViewBag.ConfigPago as Sistema_BC_SMART_POINT.Models.ViewModels.ConfiguracionPagoViewModel;
+}
+
+<div class="pt-wrap">
+
+    <div class="pt-header">
+        <h1>Realizar pago</h1>
+        <p>Escanea el QR, realiza el pago y sube la captura</p>
+    </div>
+
+    <div class="ck-steps">
+        <div class="step done">
+            <div class="step-dot">✓</div>
+            <span class="step-label">Datos y método</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step active">
+            <div class="step-dot">2</div>
+            <span class="step-label">Pago</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step next">
+            <div class="step-dot">3</div>
+            <span class="step-label">Confirmación</span>
+        </div>
+    </div>
+
+    <div class="total-banner">
+        <div class="lbl">Monto a pagar</div>
+        <div class="monto"><span>S/</span>@total.ToString("0.00")</div>
+        <div class="metodo-tag">
+            @(metodo == "Yape" ? "📱" : metodo == "Plin" ? "📲" : "🏦")
+            Pago por @metodo
+        </div>
+    </div>
+
+    <div class="pt-card">
+        <div class="pt-card-title">Datos de pago — @config?.NombreTitular</div>
+
+        <div class="qr-section">
+            <div class="qr-wrap">
+                @if (!string.IsNullOrEmpty(config?.QrImagenUrl))
+                {
+                    <img src="@config.QrImagenUrl" alt="QR de pago" />
+                }
+                else
+                {
+                    <div class="qr-placeholder">
+                        <span style="font-size:2rem;">📷</span>
+                        <span>QR no configurado</span>
+                    </div>
+                }
+            </div>
+
+            <div class="datos-pago">
+                <div class="dato-row">
+                    <span class="dato-lbl">Titular</span>
+                    <span class="dato-val">@config?.NombreTitular</span>
+                </div>
+
+                @if (metodo == "Yape" && !string.IsNullOrEmpty(config?.NumeroYape))
+                {
+                    <div class="dato-row">
+                        <span class="dato-lbl">Número Yape</span>
+                        <span class="dato-val numero">@config.NumeroYape</span>
+                    </div>
+                }
+                else if (metodo == "Plin" && !string.IsNullOrEmpty(config?.NumeroPlin))
+                {
+                    <div class="dato-row">
+                        <span class="dato-lbl">Número Plin</span>
+                        <span class="dato-val numero">@config.NumeroPlin</span>
+                    </div>
+                }
+                else if (metodo == "Transferencia")
+                {
+                    @if (!string.IsNullOrEmpty(config?.BancoCuenta))
+                    {
+                        <div class="dato-row">
+                            <span class="dato-lbl">Banco</span>
+                            <span class="dato-val">@config.BancoCuenta</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(config?.NumeroCuenta))
+                    {
+                        <div class="dato-row">
+                            <span class="dato-lbl">Número de cuenta</span>
+                            <span class="dato-val numero">@config.NumeroCuenta</span>
+                        </div>
+                    }
+                }
+
+                <div class="dato-row" style="margin-top:4px;">
+                    <span class="dato-lbl">Monto exacto</span>
+                    <span class="dato-val" style="color:#15803d; font-size:1.1rem; font-weight:700;">
+                        S/ @total.ToString("0.00")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="instrucciones">
+            <ol>
+                @if (metodo == "Transferencia")
+                {
+                    <li>Abre tu app bancaria y realiza la transferencia a la cuenta indicada.</li>
+                    <li>Usa como referencia: <strong>BC Smart Point - Pedido</strong></li>
+                }
+                else
+                {
+                    <li>Abre tu app <strong>@metodo</strong> y escanea el QR o busca el número.</li>
+                    <li>Transfiere exactamente <strong>S/ @total.ToString("0.00")</strong>.</li>
+                }
+                <li>Toma captura de la confirmación del pago.</li>
+                <li>Sube la captura abajo y confirma tu pedido.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="upload-card">
+        <div class="pt-card-title">Sube tu comprobante de pago</div>
+        <div class="upload-body">
+
+            @if (TempData["ErrorComp"] != null)
+            {
+                <div class="error-msg">@TempData["ErrorComp"]</div>
+            }
+
+            <form method="post" asp-action="ConfirmarConComprobante"
+                  enctype="multipart/form-data" id="form-comp">
+                @Html.AntiForgeryToken()
+
+                <div class="upload-zone" id="upload-zone">
+                    <input type="file" name="comprobante" id="file-input"
+                           accept="image/jpeg,image/png,image/webp"
+                           onchange="previewImg(this)" />
+                    <div class="uz-icon">📷</div>
+                    <div class="uz-title">Toca para subir la captura</div>
+                    <div class="uz-sub">JPG, PNG o WEBP · Máx. 5MB</div>
+                    <div class="uz-preview" id="preview-box">
+                        <img id="preview-img" src="" alt="Vista previa" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-confirmar" id="btn-confirmar" disabled>
+                    Confirmar pedido →
+                </button>
+            </form>
+
+            <a href="@Url.Action("Checkout")" class="btn-volver-pt">← Volver y cambiar método</a>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        function previewImg(input) {
+            const preview = document.getElementById('preview-img');
+            const box     = document.getElementById('preview-box');
+            const btn     = document.getElementById('btn-confirmar');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src       = e.target.result;
+                    box.style.display = 'block';
+                    btn.disabled      = false;
+                    btn.textContent   = '✓ Confirmar pedido →';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}
+
+
+<style>
+    .pt-wrap {
+        max-width: 720px;
+        margin: 2rem auto;
+        padding: 0 1.25rem 3rem;
+    }
+
+    .pt-header {
+        margin-bottom: 1.75rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .pt-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            margin: 0 0 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .pt-header p {
+            font-size: 0.825rem;
+            color: var(--bc-texto-2);
+            margin: 0;
+        }
+
+    .ck-steps {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .step-dot {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 2px solid var(--bc-borde);
+        background: var(--bc-blanco);
+        color: var(--bc-texto-2);
+    }
+
+    .step.done .step-dot {
+        background: #f0fdf4;
+        border-color: #86efac;
+        color: #15803d;
+    }
+
+    .step.active .step-dot {
+        background: var(--bc-negro);
+        border-color: var(--bc-negro);
+        color: var(--bc-amarillo);
+    }
+
+    .step-label {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: var(--bc-texto-2);
+        white-space: nowrap;
+    }
+
+    .step.active .step-label {
+        color: var(--bc-texto-1);
+        font-weight: 600;
+    }
+
+    .step.done .step-label {
+        color: #15803d;
+    }
+
+    .step-line {
+        flex: 1;
+        height: 2px;
+        background: var(--bc-borde);
+        margin: 0 8px;
+        margin-bottom: 20px;
+    }
+
+    .total-banner {
+        background: var(--bc-negro);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+        .total-banner .lbl {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--bc-texto-2);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+        }
+
+        .total-banner .monto {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--bc-amarillo);
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+            .total-banner .monto span {
+                font-size: 1rem;
+                font-weight: 500;
+                color: var(--bc-texto-2);
+                margin-right: 4px;
+            }
+
+        .total-banner .metodo-tag {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #E5E5E5;
+            background: #2E2E2E;
+            border-radius: 20px;
+            padding: 4px 14px;
+        }
+
+    .pt-card,
+    .upload-card {
+        background: var(--bc-blanco);
+        border: 1px solid var(--bc-borde);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .pt-card-title {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--bc-texto-2);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 0.9rem 1.25rem;
+        border-bottom: 1px solid var(--bc-borde);
+        background: var(--bc-fondo);
+    }
+
+    .qr-section {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 0;
+    }
+
+    .qr-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.25rem;
+        border-right: 1px solid var(--bc-borde);
+        background: var(--bc-fondo);
+    }
+
+        .qr-wrap img {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+    .qr-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: var(--bc-texto-2);
+        font-size: 0.75rem;
+    }
+
+    .datos-pago {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .dato-row {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .dato-lbl {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--bc-texto-2);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .dato-val {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--bc-texto-1);
+    }
+
+        .dato-val.numero {
+            font-family: monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            letter-spacing: 0.04em;
+        }
+
+    .instrucciones {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid var(--bc-borde);
+        background: var(--bc-fondo);
+    }
+
+        .instrucciones ol {
+            padding-left: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .instrucciones li {
+            font-size: 0.825rem;
+            color: var(--bc-texto-2);
+            line-height: 1.5;
+        }
+
+            .instrucciones li strong {
+                color: var(--bc-texto-1);
+                font-weight: 600;
+            }
+
+    .upload-body {
+        padding: 1.25rem;
+    }
+
+    .error-msg {
+        font-size: 0.8rem;
+        color: #b91c1c;
+        background: #fff1f2;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-bottom: 1rem;
+    }
+
+    .upload-zone {
+        position: relative;
+        border: 2px dashed var(--bc-borde);
+        border-radius: 12px;
+        padding: 2rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        margin-bottom: 1rem;
+        background: var(--bc-fondo);
+    }
+
+        .upload-zone:hover {
+            border-color: var(--bc-amarillo);
+            background: rgba(245, 197, 0, 0.04);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+    .uz-icon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+
+    .uz-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--bc-texto-1);
+        margin-bottom: 4px;
+    }
+
+    .uz-sub {
+        font-size: 0.75rem;
+        color: var(--bc-texto-2);
+    }
+
+    .uz-preview {
+        display: none;
+        margin-top: 1rem;
+    }
+
+        .uz-preview img {
+            max-width: 100%;
+            max-height: 260px;
+            border-radius: 10px;
+            border: 1px solid var(--bc-borde);
+            object-fit: contain;
+        }
+
+    .btn-confirmar {
+        width: 100%;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--bc-negro);
+        background: var(--bc-amarillo);
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 1rem;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
+    }
+
+        .btn-confirmar:disabled {
+            background: var(--bc-borde);
+            color: var(--bc-texto-2);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-confirmar:not(:disabled):hover {
+            background: #e0b400;
+            transform: translateY(-1px);
+        }
+
+    .btn-volver-pt {
+        display: block;
+        text-align: center;
+        margin-top: 14px;
+        font-size: 0.8rem;
+        color: var(--bc-texto-2);
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+
+        .btn-volver-pt:hover {
+            color: var(--bc-texto-1);
+        }
+
+    @@media (max-width: 560px) {
+        .qr-section
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .qr-wrap {
+        border-right: none;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+    }
+</style>

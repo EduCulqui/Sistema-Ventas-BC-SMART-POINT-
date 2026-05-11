@@ -1,368 +1,386 @@
 ﻿@model Sistema_BC_SMART_POINT.Models.ViewModels.CheckoutViewModel
-
 @{
     ViewData["Title"] = "Checkout";
-    decimal descPct = decimal.TryParse(TempData["DescuentoPct"]?.ToString(), out var dp) ? dp : 0;
-    string cuponCode = TempData["CodigoCupon"]?.ToString() ?? "";
-    decimal descMonto = Math.Round(Model.Subtotal * (descPct / 100), 2);
-    decimal totalFinal = Model.Total - descMonto;
+    decimal descMonto = Model.Subtotal * (Model.DescuentoAplicado / 100m);
+    decimal baseCalc = Model.Subtotal - descMonto;
+    decimal igvCalc = Math.Round(baseCalc * 0.18m, 2);
+    decimal totalCalc = baseCalc + igvCalc;
 }
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Checkout – BC SMART POINT</title>
-</head>
-<body>
+<div class="ck-wrap">
 
-    <header class="site-header">
-        <a href="@Url.Action("Index", "Catalogo")" class="brand">BC <span>SMART</span> POINT</a>
-    </header>
+    <div class="ck-header">
+        <h1>Finalizar compra</h1>
+    </div>
 
-    <nav class="breadcrumb">
-        <a href="@Url.Action("Index", "Catalogo")">Catálogo</a>
-        <span>›</span>
-        <a href="@Url.Action("Index", "Carrito")">Carrito</a>
-        <span>›</span>
-        <span>Checkout</span>
-    </nav>
-
-    <div class="page-layout">
-        <div>
-            @if (TempData["ExitoCupon"] != null)
-            {
-                <div class="alert alert-ok">@TempData["ExitoCupon"]</div>
-            }
-            @if (TempData["ErrorCupon"] != null)
-            {
-                <div class="alert alert-err">@TempData["ErrorCupon"]</div>
-            }
-
-            <form method="post" asp-action="ConfirmarPedido">
-                @Html.AntiForgeryToken()
-
-                @if (!string.IsNullOrEmpty(cuponCode))
-                {
-                    <input type="hidden" name="CodigoCupon" value="@cuponCode" />
-                    <input type="hidden" name="DescuentoPct" value="@descPct" />
-                }
-
-                <div class="form-card">
-                    <h2>Datos de envío</h2>
-                    <div class="field-grid">
-                        <div class="field field-full">
-                            <label asp-for="DireccionEnvio">Dirección</label>
-                            <input asp-for="DireccionEnvio" placeholder="Av. Principal 123, Cajamarca" />
-                            <span asp-validation-for="DireccionEnvio" class="val-msg"></span>
-                        </div>
-                        <div class="field">
-                            <label asp-for="Ciudad">Ciudad</label>
-                            <input asp-for="Ciudad" placeholder="Cajamarca" />
-                            <span asp-validation-for="Ciudad" class="val-msg"></span>
-                        </div>
-                        <div class="field">
-                            <label>Departamento</label>
-                            <input placeholder="Cajamarca" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-card">
-                    <h2>Método de pago</h2>
-                    <div class="field">
-                        <label asp-for="MetodoPago">Selecciona un método</label>
-                        <select asp-for="MetodoPago">
-                            <option value="">— Seleccionar —</option>
-                            <option value="Transferencia">Transferencia bancaria</option>
-                            <option value="Yape">Yape</option>
-                            <option value="Plin">Plin</option>
-                        </select>
-                        <span asp-validation-for="MetodoPago" class="val-msg"></span>
-                    </div>
-                </div>
-
-                <button type="submit" id="btnSubmit" style="display:none">Confirmar</button>
-            </form>
-
-            <div class="form-card">
-                <h2>¿Tienes un cupón?</h2>
-                <form method="post" asp-action="AplicarCupon">
-                    @Html.AntiForgeryToken()
-                    <div class="cupon-row">
-                        <div class="field">
-                            <label for="codigo">Código de cupón</label>
-                            <input id="codigo" name="codigo" type="text" placeholder="Ej: APPLE10" />
-                        </div>
-                        <button type="submit" class="btn-cupon">Aplicar</button>
-                    </div>
-                </form>
-            </div>
+    <div class="ck-steps">
+        <div class="step active">
+            <div class="step-dot">1</div>
+            <span class="step-label">Datos y método</span>
         </div>
-
-        <div class="resumen-card">
-            <div class="resumen-title">Tu pedido</div>
-
-            <div class="mini-items">
-                @foreach (var item in Model.Items)
-                {
-                    <div class="mini-item">
-                        <span class="mname">@item.Nombre <span style="color:var(--bc-texto-2)">×@item.Cantidad</span></span>
-                        <span class="mprice">S/ @item.SubTotal.ToString("0.00")</span>
-                    </div>
-                }
-            </div>
-
-            <hr class="divider" />
-
-            <div class="resumen-row">
-                <span class="label">Subtotal</span>
-                <span>S/ @Model.Subtotal.ToString("0.00")</span>
-            </div>
-            <div class="resumen-row">
-                <span class="label">IGV (18%)</span>
-                <span>S/ @Model.IGV.ToString("0.00")</span>
-            </div>
-            @if (descPct > 0)
-            {
-                <div class="resumen-row descuento">
-                    <span class="label">Cupón @cuponCode (@descPct%)</span>
-                    <span class="value">− S/ @descMonto.ToString("0.00")</span>
-                </div>
-            }
-            <div class="resumen-row total">
-                <span class="label">Total</span>
-                <span class="value">S/ @totalFinal.ToString("0.00")</span>
-            </div>
-            <p class="igv-note">Incluye IGV. Envío coordinado por WhatsApp.</p>
-
-            <button class="btn-confirmar" onclick="document.getElementById('btnSubmit').click()">
-                Confirmar pedido →
-            </button>
-            <a href="@Url.Action("Index", "Carrito")" class="btn-volver">← Editar carrito</a>
+        <div class="step-line"></div>
+        <div class="step next">
+            <div class="step-dot">2</div>
+            <span class="step-label">Pago</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step next">
+            <div class="step-dot">3</div>
+            <span class="step-label">Confirmación</span>
         </div>
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <form method="post" asp-action="ProcederPago">
+        @Html.AntiForgeryToken()
 
-</body>
-</html>
+        <div class="ck-grid">
+            <div>
+                <div class="ck-form-card">
+
+                    <div class="ck-section">
+                        <div class="ck-section-title">Dirección de envío</div>
+                        <div class="ck-field">
+                            <label asp-for="DireccionEnvio">Dirección</label>
+                            <input asp-for="DireccionEnvio" placeholder="Av. Principal 123" />
+                            <div class="field-error"><span asp-validation-for="DireccionEnvio"></span></div>
+                        </div>
+                        <div class="ck-grid-2">
+                            <div class="ck-field">
+                                <label asp-for="Ciudad">Ciudad</label>
+                                <input asp-for="Ciudad" placeholder="Cajamarca" />
+                                <div class="field-error"><span asp-validation-for="Ciudad"></span></div>
+                            </div>
+                            <div class="ck-field">
+                                <label asp-for="CodigoPostal">Código postal</label>
+                                <input asp-for="CodigoPostal" placeholder="06001" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ck-section">
+                        <div class="ck-section-title">Método de pago</div>
+                        <div class="metodo-grid">
+                            <div class="metodo-option">
+                                <input type="radio" name="MetodoPago" id="m-yape" value="Yape" checked />
+                                <label class="metodo-label" for="m-yape">
+                                    <span class="metodo-icon">📱</span>
+                                    Yape
+                                </label>
+                            </div>
+                            <div class="metodo-option">
+                                <input type="radio" name="MetodoPago" id="m-plin" value="Plin" />
+                                <label class="metodo-label" for="m-plin">
+                                    <span class="metodo-icon">📲</span>
+                                    Plin
+                                </label>
+                            </div>
+                            <div class="metodo-option">
+                                <input type="radio" name="MetodoPago" id="m-trans" value="Transferencia" />
+                                <label class="metodo-label" for="m-trans">
+                                    <span class="metodo-icon">🏦</span>
+                                    Transferencia
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ck-section">
+                        <div class="ck-section-title">Cupón de descuento (opcional)</div>
+                        @if (TempData["ErrorCupon"] != null)
+                        {
+                            <div style="font-size:0.8rem; color:#b91c1c; margin-bottom:10px;">
+                                @TempData["ErrorCupon"]
+                            </div>
+                        }
+                        <div class="cupon-row">
+                            <div class="ck-field" style="margin:0; flex:1;">
+                                <input asp-for="CodigoCupon"
+                                       placeholder="Ej: APPLE10"
+                                       style="text-transform:uppercase;" />
+                            </div>
+                        </div>
+                        @if (Model.DescuentoAplicado > 0)
+                        {
+                            <div class="cupon-ok">✓ @Model.DescuentoAplicado% de descuento aplicado</div>
+                        }
+                        <input type="hidden" asp-for="DescuentoAplicado" />
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="ck-resumen">
+                <h2>Tu pedido</h2>
+
+                <div class="res-items">
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="res-item">
+                            <span class="ri-name">@item.Nombre</span>
+                            <span class="ri-qty">×@item.Cantidad</span>
+                            <span class="ri-price">S/ @item.SubTotal.ToString("0.00")</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="res-row">
+                    <span class="lbl">Subtotal</span>
+                    <span class="val">S/ @Model.Subtotal.ToString("0.00")</span>
+                </div>
+                @if (Model.DescuentoAplicado > 0)
+                {
+                    <div class="res-row">
+                        <span class="lbl">Descuento (@Model.DescuentoAplicado%)</span>
+                        <span class="desc">− S/ @descMonto.ToString("0.00")</span>
+                    </div>
+                }
+                <div class="res-row">
+                    <span class="lbl">IGV (18%)</span>
+                    <span class="val">S/ @igvCalc.ToString("0.00")</span>
+                </div>
+
+                <div class="res-total">
+                    <span class="lbl">Total</span>
+                    <span class="val"><span>S/</span>@totalCalc.ToString("0.00")</span>
+                </div>
+
+                <button type="submit" class="btn-siguiente">Continuar al pago →</button>
+
+                <a href="@Url.Action("Index")" class="btn-volver-ck">← Editar carrito</a>
+            </div>
+        </div>
+    </form>
+</div>
 
 <style>
-    :root {
-        --bc-negro: #1A1A1A;
-        --bc-negro-hover: #2E2E2E;
-        --bc-amarillo: #F5C500;
-        --bc-fondo: #F5F5F7;
-        --bc-blanco: #FFFFFF;
-        --bc-texto-1: #1D1D1F;
-        --bc-texto-2: #6E6E73;
-        --bc-borde: #D2D2D7;
+    .ck-wrap {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1.25rem 3rem;
     }
 
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    body {
-        background: var(--bc-fondo);
-        color: var(--bc-texto-1);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        font-size: 0.9rem;
-    }
-
-    .site-header {
-        background: var(--bc-negro);
-        padding: 1rem 2rem;
-        border-bottom: 1px solid #2E2E2E;
-    }
-
-    .brand {
-        color: var(--bc-amarillo);
-        font-size: 1rem;
-        font-weight: 700;
-        text-decoration: none;
-        letter-spacing: 0.01em;
-    }
-
-        .brand span {
-            color: #FFFFFF;
-        }
-
-    .breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 0.75rem 2rem;
-        font-size: 0.8rem;
-        color: var(--bc-texto-2);
-        background: var(--bc-blanco);
+    .ck-header {
+        margin-bottom: 1.75rem;
+        padding-bottom: 1.25rem;
         border-bottom: 1px solid var(--bc-borde);
     }
 
-        .breadcrumb a {
-            color: var(--bc-texto-2);
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-            .breadcrumb a:hover {
-                color: var(--bc-texto-1);
-            }
-
-        .breadcrumb span:last-child {
+        .ck-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--bc-texto-1);
-            font-weight: 500;
+            margin: 0;
+            letter-spacing: -0.02em;
         }
 
-    .page-layout {
+    .ck-steps {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .step-dot {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 2px solid var(--bc-borde);
+        background: var(--bc-blanco);
+        color: var(--bc-texto-2);
+        transition: background 0.2s, border-color 0.2s;
+    }
+
+    .step.active .step-dot {
+        background: var(--bc-negro);
+        border-color: var(--bc-negro);
+        color: var(--bc-amarillo);
+    }
+
+    .step.next .step-dot {
+        background: var(--bc-fondo);
+        border-color: var(--bc-borde);
+        color: var(--bc-texto-2);
+    }
+
+    .step-label {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: var(--bc-texto-2);
+        white-space: nowrap;
+    }
+
+    .step.active .step-label {
+        color: var(--bc-texto-1);
+        font-weight: 600;
+    }
+
+    .step-line {
+        flex: 1;
+        height: 2px;
+        background: var(--bc-borde);
+        margin: 0 8px;
+        margin-bottom: 20px;
+    }
+
+    .ck-grid {
         display: grid;
-        grid-template-columns: 1fr 360px;
+        grid-template-columns: 1fr 340px;
         gap: 1.5rem;
-        max-width: 1100px;
-        margin: 2rem auto;
-        padding: 0 1.5rem 3rem;
         align-items: start;
     }
 
-    .alert {
-        padding: 0.75rem 1rem;
-        border-radius: 10px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        margin-bottom: 1rem;
-    }
-
-    .alert-ok {
-        background: #f0fdf4;
-        border: 1px solid #86efac;
-        color: #15803d;
-    }
-
-    .alert-err {
-        background: #fff1f2;
-        border: 1px solid #fca5a5;
-        color: #b91c1c;
-    }
-
-    .form-card {
+    .ck-form-card {
         background: var(--bc-blanco);
         border: 1px solid var(--bc-borde);
         border-radius: 16px;
-        padding: 1.5rem;
+        overflow: hidden;
+    }
+
+    .ck-section {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--bc-borde);
+    }
+
+        .ck-section:last-child {
+            border-bottom: none;
+        }
+
+    .ck-section-title {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--bc-texto-2);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
         margin-bottom: 1rem;
     }
 
-        .form-card h2 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--bc-texto-1);
-            margin-bottom: 1.25rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--bc-borde);
-        }
-
-    .field-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 1rem;
-    }
-
-    .field {
+    .ck-field {
         display: flex;
         flex-direction: column;
         gap: 6px;
         margin-bottom: 1rem;
     }
 
-    .field-full {
-        grid-column: 1 / -1;
-    }
+        .ck-field:last-child {
+            margin-bottom: 0;
+        }
 
-    .field label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--bc-texto-1);
-        letter-spacing: 0.01em;
-    }
+        .ck-field label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--bc-texto-1);
+            letter-spacing: 0.01em;
+        }
 
-    .field input[type="text"],
-    .field input[type="email"],
-    .field input[type="number"],
-    .field select {
-        border: 1px solid var(--bc-borde);
-        border-radius: 10px;
-        padding: 0.55rem 0.85rem;
-        font-size: 0.875rem;
-        color: var(--bc-texto-1);
-        background: var(--bc-fondo);
-        outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
-        width: 100%;
-        font-family: inherit;
-        appearance: none;
-    }
+        .ck-field input[type="text"],
+        .ck-field input[type="number"],
+        .ck-field input[type="email"] {
+            border: 1px solid var(--bc-borde);
+            border-radius: 10px;
+            padding: 0.55rem 0.85rem;
+            font-size: 0.875rem;
+            color: var(--bc-texto-1);
+            background: var(--bc-fondo);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+            font-family: inherit;
+        }
 
-        .field input:focus,
-        .field select:focus {
+        .ck-field input:focus {
             border-color: var(--bc-amarillo);
             box-shadow: 0 0 0 3px rgba(245, 197, 0, 0.15);
             background: var(--bc-blanco);
         }
 
-    .field input::placeholder {
-        color: var(--bc-texto-2);
+        .ck-field input::placeholder {
+            color: var(--bc-texto-2);
+        }
+
+    .ck-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 1rem;
     }
 
-    .field select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236E6E73' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.85rem center;
-        padding-right: 2.25rem;
-        cursor: pointer;
-    }
-
-    .val-msg {
+    .field-error span {
         font-size: 0.75rem;
         color: #b91c1c;
-        min-height: 16px;
+    }
+
+    .metodo-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .metodo-option input[type="radio"] {
+        display: none;
+    }
+
+    .metodo-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 0.75rem 0.5rem;
+        border: 1px solid var(--bc-borde);
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.825rem;
+        font-weight: 500;
+        color: var(--bc-texto-2);
+        background: var(--bc-fondo);
+        transition: border-color 0.2s, color 0.2s, background 0.2s;
+        text-align: center;
+    }
+
+        .metodo-label:hover {
+            border-color: var(--bc-amarillo);
+            color: var(--bc-texto-1);
+        }
+
+    .metodo-option input[type="radio"]:checked + .metodo-label {
+        border-color: var(--bc-amarillo);
+        background: var(--bc-blanco);
+        color: var(--bc-texto-1);
+        font-weight: 600;
+        box-shadow: 0 0 0 2px rgba(245, 197, 0, 0.2);
+    }
+
+    .metodo-icon {
+        font-size: 1.25rem;
     }
 
     .cupon-row {
         display: flex;
+        gap: 8px;
         align-items: flex-end;
-        gap: 10px;
     }
 
-        .cupon-row .field {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-    .btn-cupon {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--bc-negro);
-        background: var(--bc-amarillo);
-        border: none;
-        border-radius: 10px;
-        padding: 0.55rem 1.25rem;
-        cursor: pointer;
-        transition: background 0.15s;
-        white-space: nowrap;
-        height: fit-content;
+    .cupon-ok {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #15803d;
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 8px;
+        padding: 6px 12px;
+        margin-top: 8px;
     }
 
-        .btn-cupon:hover {
-            background: #e0b400;
-        }
-
-    .resumen-card {
+    .ck-resumen {
         background: var(--bc-blanco);
         border: 1px solid var(--bc-borde);
         border-radius: 16px;
@@ -371,84 +389,100 @@
         top: 1.5rem;
     }
 
-    .resumen-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--bc-texto-1);
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--bc-borde);
-    }
+        .ck-resumen h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--bc-texto-1);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--bc-borde);
+        }
 
-    .mini-items {
+    .res-items {
         display: flex;
         flex-direction: column;
         gap: 8px;
         margin-bottom: 1rem;
     }
 
-    .mini-item {
+    .res-item {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 8px;
         font-size: 0.825rem;
     }
 
-    .mname {
-        color: var(--bc-texto-1);
+    .ri-name {
+        flex: 1;
         font-weight: 500;
+        color: var(--bc-texto-1);
     }
 
-    .mprice {
+    .ri-qty {
+        font-size: 0.75rem;
+        color: var(--bc-texto-2);
+    }
+
+    .ri-price {
         font-weight: 600;
         color: var(--bc-texto-1);
         white-space: nowrap;
     }
 
-    .divider {
-        border: none;
-        border-top: 1px solid var(--bc-borde);
-        margin: 0.75rem 0;
-    }
-
-    .resumen-row {
+    .res-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-size: 0.875rem;
         color: var(--bc-texto-2);
-        margin-bottom: 6px;
+        padding: 0.4rem 0;
+        border-top: 1px solid var(--bc-borde);
     }
 
-        .resumen-row.descuento {
-            color: #15803d;
-        }
-
-        .resumen-row.total {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--bc-texto-1);
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid var(--bc-borde);
-        }
-
-        .resumen-row .label {
+        .res-row .lbl {
             color: var(--bc-texto-2);
         }
 
-        .resumen-row.total .label {
+        .res-row .val {
+            font-weight: 500;
             color: var(--bc-texto-1);
         }
 
-    .igv-note {
-        font-size: 0.72rem;
-        color: var(--bc-texto-2);
-        margin-top: 0.75rem;
-        margin-bottom: 1.25rem;
+        .res-row .desc {
+            font-weight: 500;
+            color: #15803d;
+        }
+
+    .res-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 0.85rem 0 1rem;
+        border-top: 1px solid var(--bc-borde);
+        margin-top: 4px;
     }
 
-    .btn-confirmar {
+        .res-total .lbl {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--bc-texto-1);
+        }
+
+        .res-total .val {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--bc-texto-1);
+            letter-spacing: -0.02em;
+        }
+
+            .res-total .val span {
+                font-size: 0.8rem;
+                font-weight: 500;
+                color: var(--bc-texto-2);
+                margin-right: 2px;
+            }
+
+    .btn-siguiente {
         width: 100%;
         font-size: 0.9rem;
         font-weight: 600;
@@ -459,44 +493,57 @@
         padding: 0.7rem 1rem;
         cursor: pointer;
         transition: background 0.15s, transform 0.1s;
-        margin-bottom: 10px;
     }
 
-        .btn-confirmar:hover {
+        .btn-siguiente:hover {
             background: #e0b400;
             transform: translateY(-1px);
         }
 
-    .btn-volver {
+    .btn-volver-ck {
         display: block;
         text-align: center;
-        font-size: 0.825rem;
+        margin-top: 12px;
+        font-size: 0.8rem;
         color: var(--bc-texto-2);
         text-decoration: none;
         transition: color 0.15s;
     }
 
-        .btn-volver:hover {
+        .btn-volver-ck:hover {
             color: var(--bc-texto-1);
         }
 
     @@media (max-width: 800px) {
-        .page-layout
+        .ck-grid
 
     {
         grid-template-columns: 1fr;
     }
 
-    .resumen-card {
+    .ck-resumen {
         position: static;
     }
 
-    .field-grid {
+    .metodo-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .ck-grid-2 {
         grid-template-columns: 1fr;
     }
 
-    .field-full {
-        grid-column: 1;
+    }
+
+    @@media (max-width: 480px) {
+        .metodo-grid
+
+    {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .ck-steps {
+        gap: 0;
     }
 
     }
