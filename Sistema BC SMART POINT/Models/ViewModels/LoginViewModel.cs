@@ -14,7 +14,7 @@ namespace Sistema_BC_SMART_POINT.Models.ViewModels
 
         public bool Recordarme { get; set; }
 
-        // URL a la que regresar después del login (ej. /Carrito)
+        // URL a la que regresar después del login
         public string? ReturnUrl { get; set; }
     }
 }
