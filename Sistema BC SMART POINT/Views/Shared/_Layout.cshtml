@@ -34,24 +34,24 @@
                             <a class="nav-link-bc" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link-bc" asp-controller="Catalogo" asp-action="Index" asp-route-busqueda="iPhone">iPhone</a>
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index" asp-route-categoriaId="1">iPhone</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link-bc" asp-controller="Catalogo" asp-action="Index" asp-route-busqueda="iPad">iPad</a>
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index" asp-route-categoriaId="3">iPad</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link-bc" asp-controller="Catalogo" asp-action="Index" asp-route-busqueda="Watch">Watch</a>
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index" asp-route-categoriaId="4">Watch</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link-bc" asp-controller="Catalogo" asp-action="Index" asp-route-busqueda="Accesorios">Accesorios</a>
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index" asp-route-categoriaId="6">Accesorios</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link-bc" asp-controller="Catalogo" asp-action="Index">Ofertas</a>
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index">Ofertas</a>
                         </li>
                     </ul>
 
                     <form class="navbar-search-form me-3" method="get"
-                          asp-controller="Catalogo" asp-action="Index"
+                          asp-controller="Home" asp-action="Index"
                           role="search" aria-label="Buscar productos">
                         <input class="navbar-search-input" type="search" name="busqueda"
                                placeholder="Buscar productos..." aria-label="Buscar productos" />
@@ -182,11 +182,11 @@
                 <div>
                     <div class="footer-col__title">Tienda</div>
                     <ul class="footer-col__links">
-                        <li><a asp-controller="Catalogo" asp-action="Index">Catálogo</a></li>
-                        <li><a asp-controller="Catalogo" asp-action="Index" asp-route-busqueda="iPhone">iPhone</a></li>
-                        <li><a asp-controller="Catalogo" asp-action="Index" asp-route-busqueda="iPad">iPad</a></li>
-                        <li><a asp-controller="Catalogo" asp-action="Index" asp-route-busqueda="Mac">Mac</a></li>
-                        <li><a asp-controller="Catalogo" asp-action="Index" asp-route-busqueda="Accesorios">Accesorios</a></li>
+                        <li><a asp-controller="Home" asp-action="Index">Catálogo</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-route-categoriaId="1">iPhone</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-route-categoriaId="3">iPad</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-route-categoriaId="2">Mac</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-route-categoriaId="6">Accesorios</a></li>
                     </ul>
                 </div>
 
