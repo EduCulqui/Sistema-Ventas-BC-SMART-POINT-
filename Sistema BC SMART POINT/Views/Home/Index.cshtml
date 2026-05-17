@@ -1,140 +1,325 @@
-﻿@{
+@model Sistema_BC_SMART_POINT.Models.ViewModels.HomeViewModel
+@{
     ViewData["Title"] = "Inicio";
+    ViewData["FullWidth"] = true;
 }
 
-<section class="home-page-bc">
+@functions {
+    static string CatImgFile(string name)
+    {
+        var n = (name ?? "").ToLowerInvariant();
+        if (n.Contains("iphone"))                                          return "iPhones";
+        if (n.Contains("mac"))                                             return "macs";
+        if (n.Contains("ipad"))                                            return "iPads";
+        if (n.Contains("watch"))                                           return "applewatch";
+        if (n.Contains("audif") || n.Contains("audíf") || n.Contains("auricular")) return "Audifonos";
+        if (n.Contains("accesorio") || n.Contains("acesor"))              return "acesorios";
+        return "";
+    }
+}
 
-    <div class="home-video-box">
-        <video autoplay muted loop playsinline>
-            <source src="/videos/videoiphone.mp4" type="video/mp4" />
-            Tu navegador no soporta video HTML5.
-        </video>
+<div class="home-page-bc">
+
+    <div class="home-hero-wrap">
+        <section class="home-hero" aria-label="Banner principal">
+            <video class="home-hero__video" autoplay muted loop playsinline aria-hidden="true">
+                <source src="/videos/videoiphone.mp4" type="video/mp4" />
+            </video>
+            <div class="home-hero__overlay">
+                <span class="home-hero__label">BC Smart Point</span>
+                <h1 class="home-hero__title">Tecnología que<br>impulsa tu día</h1>
+                <p class="home-hero__desc">
+                    Explora smartphones, laptops y accesorios<br>con estilo, garantía y el mejor rendimiento.
+                </p>
+            </div>
+        </section>
     </div>
 
-    <div class="home-content-box">
-        <span class="home-label">BC Smart Point</span>
+    <section class="bc-section bc-section--gray">
+        <div class="bc-wrap">
 
-        <h1>Encuentra tu próximo equipo</h1>
+            <div class="bc-section__header">
+                <h2 class="bc-section__title">
+                    <span class="bc-section__title-icon" aria-hidden="true">⊞</span>
+                    Explora por categorías
+                </h2>
+            </div>
 
-        <p>
-            Explora productos tecnológicos disponibles con una experiencia simple,
-            rápida y ordenada.
-        </p>
+            <form method="get" asp-controller="Home" asp-action="Index" class="bc-filtros-form">
+                <div class="bc-filtro-input">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         width="15" height="15" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" name="busqueda" value="@Model.BusquedaActual"
+                           placeholder="Buscar por nombre o modelo..."
+                           aria-label="Buscar productos" />
+                </div>
+                <select name="categoriaId" aria-label="Filtrar por categoría">
+                    <option value="">Todas las categorías</option>
+                    @foreach (var cat in Model.Categorias)
+                    {
+                        <option value="@cat.IdCategoria"
+                                selected="@(Model.CategoriaActual == cat.IdCategoria ? "selected" : null)">
+                            @cat.NomCategoria
+                        </option>
+                    }
+                </select>
+                <select name="orden" aria-label="Ordenar productos">
+                    <option value="">Nombre A-Z</option>
+                    <option value="precio_asc" selected="@(Model.OrdenActual == "precio_asc" ? "selected" : null)">
+                        Precio: menor a mayor
+                    </option>
+                    <option value="precio_desc" selected="@(Model.OrdenActual == "precio_desc" ? "selected" : null)">
+                        Precio: mayor a menor
+                    </option>
+                </select>
+                <button type="submit" class="bc-btn-filtrar">Filtrar</button>
+                <a asp-controller="Home" asp-action="Index" class="bc-btn-limpiar">Limpiar</a>
+            </form>
 
-        <a asp-controller="Catalogo" asp-action="Index" class="home-btn">
-            Ver catálogo
-        </a>
-    </div>
+            <nav class="bc-categories-grid" aria-label="Categorías de productos">
+                <a asp-controller="Home" asp-action="Index"
+                   class="bc-cat-card bc-cat-card--todos @(Model.CategoriaActual == null && string.IsNullOrEmpty(Model.BusquedaActual) ? "bc-cat-card--active" : "")">
+                    <div class="bc-cat-card__img-wrap">
+                        <img src="/images/categorias/todos.png" alt="Todos los productos"
+                             class="bc-cat-card__img-bg"
+                             onerror="this.onerror=null;this.src='/images/no-image.svg'" />
+                    </div>
+                    <div class="bc-cat-card__info">
+                        <span class="bc-cat-card__name">Todos</span>
+                        <span class="bc-cat-card__sub">Ver todo</span>
+                    </div>
+                </a>
+                @foreach (var cat in Model.Categorias)
+                {
+                    var imgFile = CatImgFile(cat.NomCategoria);
+                    var imgSrc  = string.IsNullOrEmpty(imgFile)
+                        ? "/images/no-image.svg"
+                        : $"/images/categorias/{imgFile}.png";
+                    <a asp-controller="Home" asp-action="Index"
+                       asp-route-categoriaId="@cat.IdCategoria"
+                       class="bc-cat-card @(Model.CategoriaActual == cat.IdCategoria ? "bc-cat-card--active" : "")">
+                        <div class="bc-cat-card__img-wrap">
+                            <img src="@imgSrc" alt="@cat.NomCategoria"
+                                 class="bc-cat-card__img-bg"
+                                 onerror="this.onerror=null;this.src='/images/no-image.svg'" />
+                        </div>
+                        <div class="bc-cat-card__info">
+                            <span class="bc-cat-card__name">@cat.NomCategoria</span>
+                            <span class="bc-cat-card__sub">Ver productos</span>
+                        </div>
+                    </a>
+                }
+            </nav>
 
-</section>
-
-<style>
-    body {
-        background: #f5f5f5;
-    }
-
-    .home-page-bc {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 34px 20px 70px;
-    }
-
-    .home-video-box {
-        width: 100%;
-        border-radius: 18px;
-        overflow: hidden;
-        background: #1c1c1c;
-        border-left: 8px solid #ffc928;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
-        margin-bottom: 26px;
-    }
-
-        .home-video-box video {
-            width: 100%;
-            height: 340px;
-            display: block;
-            object-fit: cover;
-            background: #1c1c1c;
-        }
-
-    .home-content-box {
-        background: #1c1c1c;
-        color: #ffffff;
-        border-radius: 18px;
-        padding: 38px;
-        border-left: 8px solid #ffc928;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
-    }
-
-    .home-label {
-        display: inline-block;
-        margin-bottom: 10px;
-        color: #ffc928;
-        font-size: 14px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
-
-    .home-content-box h1 {
-        margin: 0 0 10px;
-        color: #ffffff;
-        font-size: 42px;
-        font-weight: 900;
-        line-height: 1.1;
-    }
-
-    .home-content-box p {
-        max-width: 620px;
-        margin: 0 0 24px;
-        color: #d6d6d6;
-        font-size: 17px;
-        line-height: 1.5;
-    }
-
-    .home-btn {
-        min-height: 46px;
-        padding: 0 24px;
-        border-radius: 999px;
-        background: #ffc928;
-        color: #1c1c1c;
-        text-decoration: none;
-        font-weight: 900;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.2s ease;
-    }
-
-        .home-btn:hover {
-            background: #ffffff;
-            color: #1c1c1c;
-        }
-
-    @@media (max-width: 768px) {
-        .home-page-bc {
-            padding: 24px 14px 50px;
-        }
-
-        .home-video-box {
-            border-radius: 14px;
-        }
-
-            .home-video-box video {
-                height: 210px;
+            @if (Model.ProductosFiltrados.Any())
+            {
+                <div class="bc-resultados-header">
+                    <h3 class="bc-resultados-title">Resultados</h3>
+                    <span class="bc-resultados-count">@Model.ProductosFiltrados.Count producto@(Model.ProductosFiltrados.Count == 1 ? "" : "s")</span>
+                </div>
+                <div class="bc-prod-list">
+                    @foreach (var p in Model.ProductosFiltrados)
+                    {
+                        var esNuevo  = p.FechaRegistro >= DateTime.Now.AddDays(-30);
+                        var stockBajo = p.StockActual <= p.StockMinimo;
+                        var specs    = string.Join(" • ", new[] { p.Modelo, p.Color, p.Capacidad }.Where(s => !string.IsNullOrEmpty(s)));
+                        <article class="bc-prod-row">
+                            <div class="bc-prod-row__img-wrap">
+                                <img src="@(string.IsNullOrEmpty(p.ImagenUrl) ? "/images/no-image.svg" : p.ImagenUrl)"
+                                     alt="@p.Nombre" class="bc-prod-row__img" loading="lazy"
+                                     onerror="this.onerror=null;this.src='/images/no-image.svg'" />
+                                @if (esNuevo)
+                                {
+                                    <span class="bc-prod-row__badge bc-prod-row__badge--nuevo">Nuevo</span>
+                                }
+                                else if (stockBajo)
+                                {
+                                    <span class="bc-prod-row__badge bc-prod-row__badge--stock">Últimas unidades</span>
+                                }
+                            </div>
+                            <div class="bc-prod-row__body">
+                                <div class="bc-prod-row__header">
+                                    @if (p.Categoria != null)
+                                    {
+                                        <span class="bc-prod-row__cat">@p.Categoria.NomCategoria</span>
+                                    }
+                                    <button class="bc-prod-row__fav" type="button" aria-label="Favorito">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="bc-prod-row__name">@p.Nombre</div>
+                                @if (!string.IsNullOrEmpty(specs))
+                                {
+                                    <div class="bc-prod-row__specs">@specs</div>
+                                }
+                                <div class="bc-prod-row__price">S/ @p.Precio.ToString("N2")</div>
+                                <div class="bc-prod-row__stock @(stockBajo ? "bc-prod-row__stock--low" : "")">
+                                    @p.StockActual unidad@(p.StockActual == 1 ? "" : "es") disponibles
+                                </div>
+                                <div class="bc-prod-row__actions">
+                                    <a asp-controller="Catalogo" asp-action="Detalle" asp-route-id="@p.IdProducto"
+                                       class="bc-prod-row__btn bc-prod-row__btn--outline">
+                                        Ver detalle
+                                    </a>
+                                    <form asp-controller="Carrito" asp-action="Agregar" method="post" class="bc-prod-row__form">
+                                        <input type="hidden" name="productoId" value="@p.IdProducto" />
+                                        <input type="hidden" name="cantidad" value="1" />
+                                        <button type="submit" class="bc-prod-row__btn bc-prod-row__btn--primary">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                            </svg>
+                                            Agregar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
             }
 
-        .home-content-box {
-            padding: 28px;
-            border-radius: 14px;
-        }
+        </div>
+    </section>
 
-            .home-content-box h1 {
-                font-size: 32px;
-            }
+    <section class="bc-section bc-section--white" aria-label="Beneficios de compra">
+        <div class="bc-wrap">
+            <div class="bc-benefits" role="list">
+                <div class="bc-benefit" role="listitem">
+                    <span class="bc-benefit__icon" aria-hidden="true">🚚</span>
+                    <div>
+                        <div class="bc-benefit__title">Envíos a todo el Perú</div>
+                        <div class="bc-benefit__desc">Rápidos y seguros</div>
+                    </div>
+                </div>
+                <div class="bc-benefit" role="listitem">
+                    <span class="bc-benefit__icon" aria-hidden="true">🛡️</span>
+                    <div>
+                        <div class="bc-benefit__title">Compra 100% segura</div>
+                        <div class="bc-benefit__desc">Protegemos tus datos</div>
+                    </div>
+                </div>
+                <div class="bc-benefit" role="listitem">
+                    <span class="bc-benefit__icon" aria-hidden="true">💳</span>
+                    <div>
+                        <div class="bc-benefit__title">Hasta 12 cuotas sin interés</div>
+                        <div class="bc-benefit__desc">Con tarjetas seleccionadas</div>
+                    </div>
+                </div>
+                <div class="bc-benefit" role="listitem">
+                    <span class="bc-benefit__icon" aria-hidden="true">✅</span>
+                    <div>
+                        <div class="bc-benefit__title">Garantía oficial</div>
+                        <div class="bc-benefit__desc">Productos originales</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            .home-content-box p {
-                font-size: 15px;
-            }
-    }
-</style>
+    <section class="bc-section bc-section--gray">
+        <div class="bc-wrap">
+            <div class="bc-section__header">
+                <h2 class="bc-section__title">
+                    <span aria-hidden="true">📍</span>&nbsp;Visítanos en nuestra tienda
+                </h2>
+            </div>
+            <div class="bc-location">
+                <div class="bc-location__info">
+                    <div class="bc-location__items">
+                        <div class="bc-location__item">
+                            <span class="bc-location__item-icon" aria-hidden="true">📍</span>
+                            <div class="bc-location__item-text">
+                                <strong>BC Smart Point – Tienda Física</strong>
+                                <span>Cajamarca, Perú</span>
+                            </div>
+                        </div>
+                        <div class="bc-location__item">
+                            <span class="bc-location__item-icon" aria-hidden="true">🕐</span>
+                            <div class="bc-location__item-text">
+                                <strong>Horarios de atención</strong>
+                                <span>Lunes a Sábado: 9:00 AM – 7:00 PM<br />Domingos y Festivos: 10:00 AM – 4:00 PM</span>
+                            </div>
+                        </div>
+                        <div class="bc-location__item">
+                            <span class="bc-location__item-icon" aria-hidden="true">📞</span>
+                            <div class="bc-location__item-text">
+                                <strong>Contáctanos</strong>
+                                <span>+51 976 123 456</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="https://maps.google.com/?q=Cajamarca+Peru" target="_blank"
+                       rel="noopener noreferrer" class="bc-location__cta">
+                        📍 Cómo llegar →
+                    </a>
+                </div>
+                <div class="bc-location__map">
+                    <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=-78.5300%2C-7.1900%2C-78.4700%2C-7.1300&layer=mapnik&marker=-7.1638%2C-78.5003"
+                            title="Ubicación BC Smart Point en Cajamarca"
+                            loading="lazy"
+                            aria-label="Mapa de la tienda física">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bc-section bc-section--dark" aria-label="Por qué elegirnos">
+        <div class="bc-wrap">
+            <div class="bc-features">
+                <div class="bc-feature">
+                    <div class="bc-feature__icon" aria-hidden="true">📦</div>
+                    <div class="bc-feature__title">Productos 100% originales</div>
+                    <div class="bc-feature__desc">Directo de Apple y distribuidores autorizados.</div>
+                </div>
+                <div class="bc-feature">
+                    <div class="bc-feature__icon" aria-hidden="true">🔄</div>
+                    <div class="bc-feature__title">Garantía oficial Apple</div>
+                    <div class="bc-feature__desc">Con respaldo y soporte garantizado.</div>
+                </div>
+                <div class="bc-feature">
+                    <div class="bc-feature__icon" aria-hidden="true">🎧</div>
+                    <div class="bc-feature__title">Soporte especializado</div>
+                    <div class="bc-feature__desc">Te ayudamos a elegir lo mejor para ti.</div>
+                </div>
+                <div class="bc-feature">
+                    <div class="bc-feature__icon" aria-hidden="true">🔃</div>
+                    <div class="bc-feature__title">Actualizaciones constantes</div>
+                    <div class="bc-feature__desc">Siempre los últimos productos y novedades.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bc-section bc-section--dark" aria-label="Newsletter" style="padding-top:0">
+        <div class="bc-wrap">
+            <div class="bc-newsletter-wrap">
+                <div class="bc-newsletter">
+                    <div class="bc-newsletter__text">
+                        <h3>Sé el primero en conocer<br>nuestras <span class="hl">ofertas y lanzamientos</span></h3>
+                        <p>No te pierdas nada de tecnología.</p>
+                    </div>
+                    <div class="bc-newsletter__form">
+                        <div class="bc-newsletter__row">
+                            <input type="email" class="bc-newsletter__input"
+                                   placeholder="Ingresa tu correo electrónico"
+                                   aria-label="Correo electrónico para suscripción" />
+                            <button type="button" class="bc-newsletter__submit" onclick="bcSubscribe(this)">
+                                Suscribirme
+                            </button>
+                        </div>
+                        <div class="bc-newsletter__note" aria-hidden="true">
+                            🔒 No compartimos tu información. Cancela cuando quieras.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
