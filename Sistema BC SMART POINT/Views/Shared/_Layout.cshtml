@@ -158,6 +158,8 @@
         </div>
     }
 
+    @if (ViewData["HideFooter"] == null || !(bool)ViewData["HideFooter"])
+    {
     <footer class="footer-bc-new" aria-label="Pie de página">
         <div class="container">
             <div class="footer-bc-new__grid">
@@ -215,9 +217,9 @@
                 <div>
                     <div class="footer-col__title">Contacto</div>
                     <ul class="footer-col__contact">
-                        <li><i class="fc-icon" aria-hidden="true">📞</i>+57 300 123 4567</li>
+                        <li><i class="fc-icon" aria-hidden="true">📞</i>+51 976 123 456</li>
                         <li><i class="fc-icon" aria-hidden="true">✉️</i>info@bcsmartpoint.com</li>
-                        <li><i class="fc-icon" aria-hidden="true">📍</i>Calle 45 # 23-67<br />Medellín, Colombia</li>
+                        <li><i class="fc-icon" aria-hidden="true">📍</i>Cajamarca, Perú</li>
                     </ul>
                 </div>
 
@@ -227,6 +229,7 @@
             </div>
         </div>
     </footer>
+    }
 
     <button class="bc-a11y-btn" id="bcA11yBtn"
             aria-label="Opciones de accesibilidad"

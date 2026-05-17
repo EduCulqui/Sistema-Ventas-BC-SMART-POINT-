@@ -1,6 +1,7 @@
 ﻿@model List<Sistema_BC_SMART_POINT.Models.ViewModels.CarritoItemViewModel>
 @{
     ViewData["Title"] = "Mi carrito";
+    ViewData["HideFooter"] = true;
     var subtotal = Model.Sum(i => i.SubTotal);
     var igv = Math.Round(subtotal * 0.18m, 2);
     var total = subtotal + igv;
