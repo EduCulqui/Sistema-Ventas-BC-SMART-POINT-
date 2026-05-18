@@ -13,13 +13,13 @@ namespace Sistema_BC_SMART_POINT.Controllers
         public AuthController(AuthService auth) => _auth = auth;
 
         // GET Auth para Login
+
         public IActionResult Login(string? returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
             return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
 
-        // POST 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel vm)
         {
@@ -48,19 +48,16 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 principal,
                 new AuthenticationProperties { IsPersistent = vm.Recordarme });
 
-            // Redirección por rol
             if (!string.IsNullOrEmpty(vm.ReturnUrl) && Url.IsLocalUrl(vm.ReturnUrl))
                 return Redirect(vm.ReturnUrl);
 
             return usuario.Rol == "Administrador"
                 ? RedirectToAction("Dashboard", "Admin")
-                : RedirectToAction("Index", "Catalogo");
+                : RedirectToAction("Index", "Home");
         }
 
-        // GET Auth para Registro
         public IActionResult Registro() => View(new RegistroViewModel());
 
-        // POST 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Registro(RegistroViewModel vm)
         {
@@ -77,11 +74,10 @@ namespace Sistema_BC_SMART_POINT.Controllers
             return RedirectToAction("Login");
         }
 
-        // GET Logout
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Index", "Catalogo");
+            return RedirectToAction("Index", "Home");
         }
     }
 }
