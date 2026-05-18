@@ -12,11 +12,8 @@ namespace Sistema_BC_SMART_POINT.Controllers
         private readonly AuthService _auth;
         public AuthController(AuthService auth) => _auth = auth;
 
-<<<<<<< HEAD
         // GET Auth para Login
-=======
 
->>>>>>> fc14112e445b1e48f7fddb088c477b9243b73856
         public IActionResult Login(string? returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;

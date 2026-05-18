@@ -1,0 +1,29 @@
+﻿@model IEnumerable<Sistema_BC_SMART_POINT.Models.Categoria>
+
+<li class="nav-item dropdown">
+    <a class="nav-link-bc dropdown-toggle" href="#"
+       id="dropCategorias" role="button"
+       data-bs-toggle="dropdown"
+       aria-expanded="false">
+        Categorías
+    </a>
+    <ul class="dropdown-menu dropdown-menu-bc" aria-labelledby="dropCategorias">
+        <li>
+            <a class="dropdown-item-bc"
+               asp-controller="Home" asp-action="Index">
+                ✦ Todos los productos
+            </a>
+        </li>
+        <li><hr class="dropdown-divider-bc" /></li>
+        @foreach (var cat in Model)
+        {
+            <li>
+                <a class="dropdown-item-bc"
+                   asp-controller="Home" asp-action="Index"
+                   asp-route-categoriaId="@cat.IdCategoria">
+                    @cat.NomCategoria
+                </a>
+            </li>
+        }
+    </ul>
+</li>

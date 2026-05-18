@@ -44,12 +44,13 @@
                 </div>
                 <select name="categoriaId" aria-label="Filtrar por categoría">
                     <option value="">Todas las categorías</option>
-                    <option value="6" selected="@(Model.CategoriaActual == 6 ? "selected" : null)">Accesorios</option>
-                    <option value="4" selected="@(Model.CategoriaActual == 4 ? "selected" : null)">Apple Watch</option>
-                    <option value="5" selected="@(Model.CategoriaActual == 5 ? "selected" : null)">Audífonos</option>
-                    <option value="3" selected="@(Model.CategoriaActual == 3 ? "selected" : null)">iPads</option>
-                    <option value="1" selected="@(Model.CategoriaActual == 1 ? "selected" : null)">iPhones</option>
-                    <option value="2" selected="@(Model.CategoriaActual == 2 ? "selected" : null)">Macs</option>
+                    @foreach (var cat in Model.Categorias)
+                    {
+                        <option value="@cat.IdCategoria"
+                                selected="@(Model.CategoriaActual == cat.IdCategoria ? "selected" : null)">
+                            @cat.NomCategoria
+                        </option>
+                    }
                 </select>
                 <select name="orden" aria-label="Ordenar productos">
                     <option value="">Nombre A-Z</option>
@@ -65,8 +66,9 @@
             </form>
 
             <nav class="bc-categories-grid" aria-label="Categorías de productos">
+
                 <a asp-controller="Home" asp-action="Index"
-                   class="bc-cat-card bc-cat-card--todos @(Model.CategoriaActual == null && string.IsNullOrEmpty(Model.BusquedaActual) ? "bc-cat-card--active" : "")">
+                   class="bc-cat-card @(Model.CategoriaActual == null && string.IsNullOrEmpty(Model.BusquedaActual) ? "bc-cat-card--active" : "")">
                     <div class="bc-cat-card__img-wrap">
                         <img src="/images/categorias/todos.png" alt="Todos los productos"
                              class="bc-cat-card__img-bg"
@@ -77,78 +79,32 @@
                         <span class="bc-cat-card__sub">Ver todo</span>
                     </div>
                 </a>
-                <a asp-controller="Home" asp-action="Index" asp-route-categoriaId="6"
-                   class="bc-cat-card @(Model.CategoriaActual == 6 ? "bc-cat-card--active" : "")">
-                    <div class="bc-cat-card__img-wrap">
-                        <img src="/images/categorias/accesorios.png" alt="Accesorios"
-                             class="bc-cat-card__img-bg"
-                             onerror="this.onerror=null;this.src='/images/no-image.svg'" />
-                    </div>
-                    <div class="bc-cat-card__info">
-                        <span class="bc-cat-card__name">Accesorios</span>
-                        <span class="bc-cat-card__sub">Ver productos</span>
-                    </div>
-                </a>
-                <a asp-controller="Home" asp-action="Index" asp-route-categoriaId="4"
-                   class="bc-cat-card @(Model.CategoriaActual == 4 ? "bc-cat-card--active" : "")">
-                    <div class="bc-cat-card__img-wrap">
-                        <img src="/images/categorias/applewatch.png" alt="Apple Watch"
-                             class="bc-cat-card__img-bg"
-                             onerror="this.onerror=null;this.src='/images/no-image.svg'" />
-                    </div>
-                    <div class="bc-cat-card__info">
-                        <span class="bc-cat-card__name">Apple Watch</span>
-                        <span class="bc-cat-card__sub">Ver productos</span>
-                    </div>
-                </a>
-                <a asp-controller="Home" asp-action="Index" asp-route-categoriaId="5"
-                   class="bc-cat-card @(Model.CategoriaActual == 5 ? "bc-cat-card--active" : "")">
-                    <div class="bc-cat-card__img-wrap">
-                        <img src="/images/categorias/Audifonos.png" alt="Audífonos"
-                             class="bc-cat-card__img-bg"
-                             onerror="this.onerror=null;this.src='/images/no-image.svg'" />
-                    </div>
-                    <div class="bc-cat-card__info">
-                        <span class="bc-cat-card__name">Audífonos</span>
-                        <span class="bc-cat-card__sub">Ver productos</span>
-                    </div>
-                </a>
-                <a asp-controller="Home" asp-action="Index" asp-route-categoriaId="3"
-                   class="bc-cat-card @(Model.CategoriaActual == 3 ? "bc-cat-card--active" : "")">
-                    <div class="bc-cat-card__img-wrap">
-                        <img src="/images/categorias/iPads.png" alt="iPads"
-                             class="bc-cat-card__img-bg"
-                             onerror="this.onerror=null;this.src='/images/no-image.svg'" />
-                    </div>
-                    <div class="bc-cat-card__info">
-                        <span class="bc-cat-card__name">iPads</span>
-                        <span class="bc-cat-card__sub">Ver productos</span>
-                    </div>
-                </a>
-                <a asp-controller="Home" asp-action="Index" asp-route-categoriaId="1"
-                   class="bc-cat-card @(Model.CategoriaActual == 1 ? "bc-cat-card--active" : "")">
-                    <div class="bc-cat-card__img-wrap">
-                        <img src="/images/categorias/iPhones.png" alt="iPhones"
-                             class="bc-cat-card__img-bg"
-                             onerror="this.onerror=null;this.src='/images/no-image.svg'" />
-                    </div>
-                    <div class="bc-cat-card__info">
-                        <span class="bc-cat-card__name">iPhones</span>
-                        <span class="bc-cat-card__sub">Ver productos</span>
-                    </div>
-                </a>
-                <a asp-controller="Home" asp-action="Index" asp-route-categoriaId="2"
-                   class="bc-cat-card @(Model.CategoriaActual == 2 ? "bc-cat-card--active" : "")">
-                    <div class="bc-cat-card__img-wrap">
-                        <img src="/images/categorias/macs.png" alt="Macs"
-                             class="bc-cat-card__img-bg"
-                             onerror="this.onerror=null;this.src='/images/no-image.svg'" />
-                    </div>
-                    <div class="bc-cat-card__info">
-                        <span class="bc-cat-card__name">Macs</span>
-                        <span class="bc-cat-card__sub">Ver productos</span>
-                    </div>
-                </a>
+
+                @foreach (var cat in Model.Categorias)
+                {
+                    var nombreImg = cat.NomCategoria
+                    .ToLower()
+                    .Replace(" ", "")
+                    .Replace("á", "a").Replace("é", "e")
+                    .Replace("í", "i").Replace("ó", "o")
+                    .Replace("ú", "u").Replace("ñ", "n");
+
+                    <a asp-controller="Home" asp-action="Index"
+                       asp-route-categoriaId="@cat.IdCategoria"
+                       class="bc-cat-card @(Model.CategoriaActual == cat.IdCategoria ? "bc-cat-card--active" : "")">
+                        <div class="bc-cat-card__img-wrap">
+                            <img src="/images/categorias/@(nombreImg).png"
+                                 alt="@cat.NomCategoria"
+                                 class="bc-cat-card__img-bg"
+                                 onerror="this.onerror=null;this.src='/images/no-image.svg'" />
+                        </div>
+                        <div class="bc-cat-card__info">
+                            <span class="bc-cat-card__name">@cat.NomCategoria</span>
+                            <span class="bc-cat-card__sub">Ver productos</span>
+                        </div>
+                    </a>
+                }
+
             </nav>
 
             @if (Model.ProductosFiltrados.Any())
