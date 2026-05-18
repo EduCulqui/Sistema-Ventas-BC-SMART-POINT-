@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -9,40 +9,66 @@
     <link rel="stylesheet" href="~/Sistema_BC_SMART_POINT.styles.css" asp-append-version="true" />
 </head>
 <body>
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-bc border-bottom mb-3">
+        <nav class="navbar navbar-expand-lg navbar-bc" aria-label="Navegación principal">
             <div class="container">
 
-                <a class="navbar-brand-bc fw-semibold" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand-bc" asp-controller="Home" asp-action="Index">
                     BC Smart Point
                 </a>
 
                 <button class="navbar-toggler navbar-toggler-bc" type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
+                        data-bs-target="#navbarMain"
+                        aria-controls="navbarMain"
                         aria-expanded="false"
-                        aria-label="Toggle navigation">
+                        aria-label="Abrir menú">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="collapse navbar-collapse" id="navbarMain">
 
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav me-auto align-items-center gap-1">
                         <li class="nav-item">
-                            <a class="nav-link-bc" asp-controller="Catalogo" asp-action="Index">
-                                Catálogo
-                            </a>
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index" asp-route-categoriaId="1">iPhone</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index" asp-route-categoriaId="3">iPad</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index" asp-route-categoriaId="4">Watch</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index" asp-route-categoriaId="6">Accesorios</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-bc" asp-controller="Home" asp-action="Index">Ofertas</a>
                         </li>
                     </ul>
+
+                    <form class="navbar-search-form me-3" method="get"
+                          asp-controller="Home" asp-action="Index"
+                          role="search" aria-label="Buscar productos">
+                        <input class="navbar-search-input" type="search" name="busqueda"
+                               placeholder="Buscar productos..." aria-label="Buscar productos" />
+                        <button class="navbar-search-btn" type="submit" aria-label="Buscar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                                 fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                        </button>
+                    </form>
 
                     <ul class="navbar-nav align-items-center gap-1">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <span class="nav-user-bc">
-                                    Hola, @User.Identity.Name.Split(' ')[0]
-                                </span>
+                                <span class="nav-user-bc">Hola, @User.Identity.Name.Split(' ')[0]</span>
                             </li>
 
                             @if (User.IsInRole("Cliente"))
@@ -57,17 +83,15 @@
                             @if (User.IsInRole("Administrador"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link-bc" asp-controller="Admin" asp-action="Dashboard">
-                                        Panel Admin
-                                    </a>
+                                    <a class="nav-link-bc" asp-controller="Admin" asp-action="Dashboard">Panel Admin</a>
                                 </li>
                             }
                             else
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link-bc nav-carrito-bc" asp-controller="Carrito" asp-action="Index">
+                                    <a class="nav-link-bc" asp-controller="Carrito" asp-action="Index" aria-label="Ver carrito">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                             fill="currentColor" viewBox="0 0 16 16">
+                                             fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
                                             <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
                                         </svg>
                                         Carrito
@@ -76,8 +100,7 @@
                             }
 
                             <li class="nav-item">
-                                <a class="btn-bc-outline btn-sm-bc"
-                                   asp-controller="Auth" asp-action="Logout">
+                                <a class="btn-bc-outline btn-sm-bc" asp-controller="Auth" asp-action="Logout">
                                     Cerrar sesión
                                 </a>
                             </li>
@@ -85,8 +108,7 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="btn-bc btn-sm-bc ms-2"
-                                   asp-controller="Auth" asp-action="Login">
+                                <a class="btn-bc btn-sm-bc ms-1" asp-controller="Auth" asp-action="Login">
                                     Iniciar sesión
                                 </a>
                             </li>
@@ -98,40 +120,157 @@
         </nav>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-
-            @if (TempData["Exito"] != null)
-            {
+    @if (ViewData["FullWidth"] != null && (bool)ViewData["FullWidth"] == true)
+    {
+        @if (TempData["Exito"] != null)
+        {
+            <div class="container pt-2">
                 <div class="alert alert-bc-exito alert-dismissible fade show" role="alert">
                     @TempData["Exito"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
-            }
-            @if (TempData["Error"] != null)
-            {
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="container pt-2">
                 <div class="alert alert-bc-error alert-dismissible fade show" role="alert">
                     @TempData["Error"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
-            }
-
+            </div>
+        }
+        <main role="main">
             @RenderBody()
         </main>
-    </div>
-
-    <footer class="footer-bc">
+    }
+    else
+    {
         <div class="container">
-            &copy; 2026 - BC Smart Point
+            <main role="main" class="pb-3">
+                @if (TempData["Exito"] != null)
+                {
+                    <div class="alert alert-bc-exito alert-dismissible fade show" role="alert">
+                        @TempData["Exito"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-bc-error alert-dismissible fade show" role="alert">
+                        @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>
+                }
+                @RenderBody()
+            </main>
+        </div>
+    }
+
+    @if (ViewData["HideFooter"] == null || !(bool)ViewData["HideFooter"])
+    {
+    <footer class="footer-bc-new" aria-label="Pie de página">
+        <div class="container">
+            <div class="footer-bc-new__grid">
+
+                <div class="footer-brand-col">
+                    <div class="footer-brand__logo">
+                        <span class="bc-yellow">BC</span>
+                        <span class="bc-white">Smart Point</span>
+                    </div>
+                    <p class="footer-brand__tagline">Tecnología que impulsa tu día.</p>
+                    <p class="footer-brand__sub">
+                        Explora smartphones, laptops y accesorios<br />con estilo, garantía y el mejor rendimiento.
+                    </p>
+                    <div class="footer-brand__social" aria-label="Redes sociales">
+                        <a href="#" class="footer-social-btn" aria-label="Facebook">f</a>
+                        <a href="#" class="footer-social-btn" aria-label="Instagram">in</a>
+                        <a href="#" class="footer-social-btn" aria-label="TikTok">tt</a>
+                        <a href="#" class="footer-social-btn" aria-label="WhatsApp">wa</a>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="footer-col__title">Tienda</div>
+                    <ul class="footer-col__links">
+                        <li><a asp-controller="Home" asp-action="Index">Catálogo</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-route-categoriaId="1">iPhone</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-route-categoriaId="3">iPad</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-route-categoriaId="2">Mac</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-route-categoriaId="6">Accesorios</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="footer-col__title">Información</div>
+                    <ul class="footer-col__links">
+                        <li><a href="#">Sobre nosotros</a></li>
+                        <li><a href="#">Envíos y entregas</a></li>
+                        <li><a href="#">Políticas de cambio</a></li>
+                        <li><a href="#">Garantías</a></li>
+                        <li><a href="#">Métodos de pago</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="footer-col__title">Ayuda</div>
+                    <ul class="footer-col__links">
+                        <li><a href="#">Preguntas frecuentes</a></li>
+                        <li><a href="#">Estado de tu pedido</a></li>
+                        <li><a href="#">Soporte técnico</a></li>
+                        <li><a href="#">Términos y condiciones</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy">Política de privacidad</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="footer-col__title">Contacto</div>
+                    <ul class="footer-col__contact">
+                        <li><i class="fc-icon" aria-hidden="true">📞</i>+51 976 123 456</li>
+                        <li><i class="fc-icon" aria-hidden="true">✉️</i>info@bcsmartpoint.com</li>
+                        <li><i class="fc-icon" aria-hidden="true">📍</i>Cajamarca, Perú</li>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="footer-bc-new__bottom">
+                &copy; 2024 BC Smart Point. Todos los derechos reservados.
+            </div>
         </div>
     </footer>
+    }
+
+    <button class="bc-a11y-btn" id="bcA11yBtn"
+            aria-label="Opciones de accesibilidad"
+            aria-expanded="false"
+            aria-haspopup="true"
+            type="button">
+        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="4" r="2" />
+            <path d="M20 9H4v2h6v11h2V15h2v7h2V11h4z" />
+        </svg>
+    </button>
+
+    <div class="bc-a11y-menu" id="bcA11yMenu" role="menu" aria-label="Opciones de accesibilidad">
+        <button class="bc-a11y-item" data-mode="modo-claro" role="menuitem" type="button">
+            <span class="a11y-icon" aria-hidden="true">☀️</span> Modo claro
+        </button>
+        <button class="bc-a11y-item" data-mode="modo-oscuro" role="menuitem" type="button">
+            <span class="a11y-icon" aria-hidden="true">🌙</span> Modo oscuro
+        </button>
+        <button class="bc-a11y-item" data-mode="alto-contraste" role="menuitem" type="button">
+            <span class="a11y-icon" aria-hidden="true">◑</span> Alto contraste
+        </button>
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>
+<<<<<<< HEAD
 
 <style>
     /* Variables  */
@@ -284,3 +423,5 @@
     }
 
 </style>
+=======
+>>>>>>> fc14112e445b1e48f7fddb088c477b9243b73856

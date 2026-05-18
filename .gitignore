@@ -361,5 +361,11 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+<<<<<<< HEAD
 
 Sistema BC SMART POINT/wwwroot/comprobantes/
+=======
+.claude/
+.claude.json
+.claude.local.json
+>>>>>>> fc14112e445b1e48f7fddb088c477b9243b73856

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120">
+  <rect width="160" height="120" fill="#F0F0F2"/>
+  <rect x="44" y="28" width="72" height="58" rx="6" fill="none" stroke="#C8C8CC" stroke-width="2.5"/>
+  <circle cx="62" cy="50" r="7" fill="none" stroke="#C8C8CC" stroke-width="2.5"/>
+  <polyline points="44,78 68,56 83,70 97,60 116,78" fill="none" stroke="#C8C8CC" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="80" y="106" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="11" fill="#ADADB3" text-anchor="middle">Sin imagen</text>
+</svg>
