@@ -14,7 +14,6 @@ namespace Sistema_BC_SMART_POINT.Models
         [Required]
         public decimal SubtotalSinDescuento { get; set; }
 
-        // IGV 18% calculado sobre el subtotal (después de descuento si aplica)
         [Required]
         public decimal IGV { get; set; }
 
