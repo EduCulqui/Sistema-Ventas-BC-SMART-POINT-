@@ -58,6 +58,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
         public async Task<IActionResult> EditarCategoria(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionCategorias);
             var cat = await _db.Categorias.FindAsync(id);
             if (cat == null) return NotFound();
             return View(cat);
@@ -324,6 +325,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
         public async Task<IActionResult> DetalleVenta(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Ventas");
             var venta = await _db.Ventas
                 .Include(v => v.Cliente).ThenInclude(c => c.Usuario)
                 .Include(v => v.DetallesVenta).ThenInclude(d => d.Producto)
@@ -379,6 +381,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
         public async Task<IActionResult> EditarEnvio(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionEnvios);
             var envio = await _db.Envios
                 .Include(e => e.Venta).ThenInclude(v => v.Cliente).ThenInclude(c => c.Usuario)
                 .Include(e => e.Venta).ThenInclude(v => v.DetallesVenta)
@@ -447,6 +450,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
         public async Task<IActionResult> DetalleCliente(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionClientes);
             var cliente = await _db.Clientes
                 .Include(c => c.Usuario)
                 .FirstOrDefaultAsync(c => c.IdCliente == id);
