@@ -109,9 +109,14 @@
                 @if (tieneComp)
                 {
                     <div class="comp-img-wrap">
-                        <img src="@Model.ComprobantePago" alt="Comprobante"
-                             class="comp-img"
-                             onclick="window.open('@Model.ComprobantePago','_blank')" />
+                        <a href="@Model.ComprobantePago"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           aria-label="Ver comprobante de pago en tamaño completo">
+                            <img src="@Model.ComprobantePago"
+                                 alt="Comprobante de pago"
+                                 class="comp-img" />
+                        </a>
                         <div class="comp-meta">
                             Subido el @Model.FechaComprobante?.ToString("dd/MM/yyyy 'a las' HH:mm")
                             · Clic para ampliar
