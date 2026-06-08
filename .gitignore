@@ -361,11 +361,15 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-<<<<<<< HEAD
 
+# Comprobantes de pago
 Sistema BC SMART POINT/wwwroot/comprobantes/
-=======
+
+# Claude AI files
 .claude/
 .claude.json
 .claude.local.json
->>>>>>> fc14112e445b1e48f7fddb088c477b9243b73856
+
+# Archivos con credenciales
+appsettings.Production.json
+appsettings.Development.json

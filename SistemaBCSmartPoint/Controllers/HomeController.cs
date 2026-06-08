@@ -20,6 +20,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
         public async Task<IActionResult> Index(int? categoriaId, string? busqueda, string? orden)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Index");
+
             var query = _context.Productos
                 .Include(p => p.Categoria)
                 .Where(p => p.Estado && p.StockActual > 0)
@@ -34,23 +37,21 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
             query = orden switch
             {
-                "precio_asc"  => query.OrderBy(p => p.Precio),
+                "precio_asc" => query.OrderBy(p => p.Precio),
                 "precio_desc" => query.OrderByDescending(p => p.Precio),
-                _             => query.OrderBy(p => p.Nombre)
+                _ => query.OrderBy(p => p.Nombre)
             };
 
             var vm = new HomeViewModel
             {
                 ProductosFiltrados = await query.ToListAsync(),
-
                 Categorias = await _context.Categorias
                     .Where(c => c.Estado)
                     .OrderBy(c => c.NomCategoria)
                     .ToListAsync(),
-
                 CategoriaActual = categoriaId,
-                BusquedaActual  = busqueda ?? "",
-                OrdenActual     = orden ?? ""
+                BusquedaActual = busqueda ?? "",
+                OrdenActual = orden ?? ""
             };
 
             return View(vm);

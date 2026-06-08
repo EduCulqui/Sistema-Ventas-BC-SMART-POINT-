@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Sistema_BC_SMART_POINT</RootNamespace>
+    <UserSecretsId>419f34d1-07bd-477b-853a-a9bea051c846</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
