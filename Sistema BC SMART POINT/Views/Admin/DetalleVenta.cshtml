@@ -109,9 +109,10 @@
                 @if (tieneComp)
                 {
                     <div class="comp-img-wrap">
-                        <img src="@Model.ComprobantePago" alt="Comprobante"
-                             class="comp-img"
-                             onclick="window.open('@Model.ComprobantePago','_blank')" />
+                        <a href="@Model.ComprobantePago" target="_blank" rel="noopener">
+                            <img src="@Model.ComprobantePago" alt="Comprobante"
+                                 class="comp-img" />
+                        </a>
                         <div class="comp-meta">
                             Subido el @Model.FechaComprobante?.ToString("dd/MM/yyyy 'a las' HH:mm")
                             · Clic para ampliar
@@ -143,21 +144,21 @@
                         El cliente subió el comprobante. Verifica la imagen y confirma si el pago es válido.
                     </p>
                     <div class="validar-btns">
-                        <form method="post" asp-action="ValidarPago">
+                        <form method="post" asp-action="ValidarPago"
+                              data-confirm="¿Confirmar que el pago #@Model.IdVenta es válido?">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="ventaId" value="@Model.IdVenta" />
                             <input type="hidden" name="accion" value="aprobar" />
-                            <button type="submit" class="btn-aprobar"
-                                    onclick="return confirm('¿Confirmar que el pago #@Model.IdVenta es válido?')">
+                            <button type="submit" class="btn-aprobar">
                                 ✓ Aprobar pago
                             </button>
                         </form>
-                        <form method="post" asp-action="ValidarPago">
+                        <form method="post" asp-action="ValidarPago"
+                              data-confirm="¿Rechazar el pago #@Model.IdVenta?">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="ventaId" value="@Model.IdVenta" />
                             <input type="hidden" name="accion" value="rechazar" />
-                            <button type="submit" class="btn-rechazar"
-                                    onclick="return confirm('¿Rechazar el pago #@Model.IdVenta?')">
+                            <button type="submit" class="btn-rechazar">
                                 ✕ Rechazar
                             </button>
                         </form>
@@ -245,6 +246,16 @@
 
     </div>
 </div>
+
+<script>
+    document.querySelectorAll("form[data-confirm]").forEach(form => {
+        form.addEventListener("submit", event => {
+            if (!confirm(form.dataset.confirm)) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
 
 <style>
     .dv-grid {

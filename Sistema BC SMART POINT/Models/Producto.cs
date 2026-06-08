@@ -9,10 +9,10 @@ namespace Sistema_BC_SMART_POINT.Models
         public int IdProducto { get; set; }
 
         [Required, StringLength(100)]
-        public string Nombre { get; set; }
+        public string Nombre { get; set; } = string.Empty;
 
         [Required, StringLength(255)]
-        public string Descripcion { get; set; }
+        public string Descripcion { get; set; } = string.Empty;
 
         [StringLength(200)]
         public string? ImagenUrl { get; set; }
@@ -26,13 +26,13 @@ namespace Sistema_BC_SMART_POINT.Models
         [StringLength(50)]
         public string? Modelo { get; set; }
 
-        [Required]
+        [Required, Range(0.01, 999999.99)]
         public decimal Precio { get; set; }
 
-        [Required]
+        [Required, Range(0, int.MaxValue)]
         public int StockActual { get; set; }
 
-        [Required]
+        [Required, Range(0, int.MaxValue)]
         public int StockMinimo { get; set; }
 
         [Required]
@@ -42,9 +42,11 @@ namespace Sistema_BC_SMART_POINT.Models
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
 
         // Relaciones
+        [Required, Range(1, int.MaxValue)]
         public int CategoriaId { get; set; }
         public Categoria? Categoria { get; set; }
 
+        [Required, Range(1, int.MaxValue)]
         public int ProveedorId { get; set; }
         public Proveedor? Proveedor { get; set; }
 

@@ -5,15 +5,15 @@ namespace Sistema_BC_SMART_POINT.Models.ViewModels
     public class CheckoutViewModel
     {
         // Dirección de envío
-        [Required] public string DireccionEnvio { get; set; } = string.Empty;
-        [Required] public string Ciudad { get; set; } = string.Empty;
-        public string? CodigoPostal { get; set; }
+        [Required, StringLength(200)] public string DireccionEnvio { get; set; } = string.Empty;
+        [Required, StringLength(80)] public string Ciudad { get; set; } = string.Empty;
+        [StringLength(12)] public string? CodigoPostal { get; set; }
 
         // Pago
-        [Required] public string MetodoPago { get; set; } = "Efectivo";
+        [Required, StringLength(30)] public string MetodoPago { get; set; } = "Efectivo";
 
         // Cupón opcional
-        public string? CodigoCupon { get; set; }
+        [StringLength(12)] public string? CodigoCupon { get; set; }
 
         public List<CarritoItemViewModel> Items { get; set; } = new();
         public decimal Subtotal { get; set; }

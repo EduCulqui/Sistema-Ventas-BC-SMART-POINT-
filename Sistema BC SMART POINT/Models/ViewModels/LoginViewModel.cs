@@ -6,9 +6,11 @@ namespace Sistema_BC_SMART_POINT.Models.ViewModels
     {
         [Required(ErrorMessage = "El correo es obligatorio")]
         [EmailAddress]
+        [StringLength(100)]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [StringLength(100, MinimumLength = 6)]
         [DataType(DataType.Password)]
         public string Contrasenia { get; set; } = string.Empty;
 

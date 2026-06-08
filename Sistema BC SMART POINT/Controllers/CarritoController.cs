@@ -37,6 +37,11 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Agregar(int productoId, int cantidad = 1)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("Detalle", "Catalogo", new { id = productoId });
+            }
+
             var prod = await _db.Productos.FindAsync(productoId);
             if (prod == null || prod.StockActual < cantidad)
             {
@@ -63,6 +68,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Quitar(int productoId)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Index");
             _carrito.QuitarItem(HttpContext.Session, productoId);
             return RedirectToAction("Index");
         }
@@ -152,6 +158,8 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarConComprobante(IFormFile comprobante)
         {
+            if (!ModelState.IsValid) return RedirectToAction("PagoTransferencia");
+
             // Validar archivo
             if (comprobante == null || comprobante.Length == 0)
             {
@@ -226,6 +234,8 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarDirecto()
         {
+            if (!ModelState.IsValid) return RedirectToAction("Checkout");
+
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
             if (cliente == null) return Unauthorized();

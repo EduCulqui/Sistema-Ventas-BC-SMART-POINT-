@@ -62,19 +62,14 @@
                 <input type="hidden" name="productoId" value="@Model.IdProducto" />
 
                 <div class="detalle-cantidad">
-                    <label class="cantidad-label">Cantidad</label>
+                    <label class="cantidad-label" for="qty">Cantidad</label>
                     <div class="cantidad-control">
-                        <button type="button" class="cantidad-btn" onclick="
-                                var i=document.getElementById('qty');
-                                if(+i.value>
-                            1) i.value=+i.value-1">−
+                        <button type="button" class="cantidad-btn" data-qty-step="-1">−
                         </button>
                         <input type="number" id="qty" name="cantidad"
                                value="1" min="1" max="@Model.StockActual"
                                class="cantidad-input" />
-                        <button type="button" class="cantidad-btn" onclick="
-                                var i=document.getElementById('qty');
-                                if(+i.value<@Model.StockActual) i.value=+i.value+1">+</button>
+                        <button type="button" class="cantidad-btn" data-qty-step="1">+</button>
                     </div>
                 </div>
 
@@ -99,6 +94,19 @@
 
     </div>
 </div>
+
+<script>
+    document.querySelectorAll("[data-qty-step]").forEach(button => {
+        button.addEventListener("click", () => {
+            const input = document.getElementById("qty");
+            const step = Number(button.dataset.qtyStep);
+            const min = Number(input.min);
+            const max = Number(input.max);
+            const next = Number(input.value) + step;
+            input.value = Math.min(max, Math.max(min, next));
+        });
+    });
+</script>
 
               
 <style>

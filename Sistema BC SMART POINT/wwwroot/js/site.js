@@ -64,7 +64,7 @@
         });
     }
 
-    window.bcSubscribe = function (btn) {
+    function bcSubscribe(btn) {
         var form = btn.closest('.bc-newsletter__form');
         var input = form ? form.querySelector('.bc-newsletter__input') : null;
         if (!input) return;
@@ -89,7 +89,15 @@
             btn.style.background = '';
             input.disabled = false;
         }, 3500);
-    };
+    }
+
+    function initNewsletter() {
+        document.querySelectorAll('.bc-newsletter__submit').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                bcSubscribe(btn);
+            });
+        });
+    }
 
     document.addEventListener('click', function (e) {
         var favBtn = e.target.closest('.bc-card__fav');
@@ -102,8 +110,12 @@
     });
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initA11y);
+        document.addEventListener('DOMContentLoaded', function () {
+            initA11y();
+            initNewsletter();
+        });
     } else {
         initA11y();
+        initNewsletter();
     }
 }());

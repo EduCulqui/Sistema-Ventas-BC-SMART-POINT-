@@ -38,8 +38,8 @@
                     <input type="hidden" name="adminId" value="@adminId" />
 
                     <div class="ev-field">
-                        <label>Estado del envío</label>
-                        <select name="estadoEnvio">
+                        <label for="estadoEnvio">Estado del envío</label>
+                        <select id="estadoEnvio" name="estadoEnvio">
                             @foreach (var est in new[] { "Preparando", "Despachado", "En camino", "Entregado", "Devuelto" })
                             {
                                 <option value="@est" selected="@(Model.EstadoEnvio == est ? "selected" : null)">
@@ -50,28 +50,28 @@
                     </div>
 
                     <div class="ev-field">
-                        <label>Empresa de transporte</label>
-                        <input type="text" name="empresaTransporte"
+                        <label for="empresaTransporte">Empresa de transporte</label>
+                        <input type="text" id="empresaTransporte" name="empresaTransporte"
                                value="@Model.EmpresaTransporte"
                                placeholder="Ej: Olva Courier, Shalom, etc." />
                     </div>
 
                     <div class="ev-field">
-                        <label>Número de seguimiento</label>
-                        <input type="text" name="numeroSeguimiento"
+                        <label for="numeroSeguimiento">Número de seguimiento</label>
+                        <input type="text" id="numeroSeguimiento" name="numeroSeguimiento"
                                value="@Model.NumeroSeguimiento"
                                placeholder="Ej: OC-123456789" />
                     </div>
 
                     <div class="ev-grid-2">
                         <div class="ev-field">
-                            <label>Fecha de envío</label>
-                            <input type="date" name="fechaEnvio"
+                            <label for="fechaEnvio">Fecha de envío</label>
+                            <input type="date" id="fechaEnvio" name="fechaEnvio"
                                    value="@(Model.FechaEnvio.HasValue? Model.FechaEnvio.Value.ToString("yyyy-MM-dd") : "")" />
                         </div>
                         <div class="ev-field">
-                            <label>Entrega estimada</label>
-                            <input type="date" name="fechaEntregaEstimada"
+                            <label for="fechaEntregaEstimada">Entrega estimada</label>
+                            <input type="date" id="fechaEntregaEstimada" name="fechaEntregaEstimada"
                                    value="@(Model.FechaEntregaEstimada.HasValue? Model.FechaEntregaEstimada.Value.ToString("yyyy-MM-dd") : "")" />
                         </div>
                     </div>

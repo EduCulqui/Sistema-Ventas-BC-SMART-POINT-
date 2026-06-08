@@ -11,6 +11,7 @@
         <section class="home-hero" aria-label="Banner principal">
             <video class="home-hero__video" autoplay muted loop playsinline aria-hidden="true">
                 <source src="/videos/videoiphone.mp4" type="video/mp4" />
+                <track kind="captions" src="/videos/sin-dialogo.vtt" srclang="es" label="Español" default />
             </video>
             <div class="home-hero__overlay">
                 <span class="home-hero__label">BC Smart Point</span>
@@ -303,7 +304,7 @@
                             <input type="email" class="bc-newsletter__input"
                                    placeholder="Ingresa tu correo electrónico"
                                    aria-label="Correo electrónico para suscripción" />
-                            <button type="button" class="bc-newsletter__submit" onclick="bcSubscribe(this)">
+                            <button type="button" class="bc-newsletter__submit">
                                 Suscribirme
                             </button>
                         </div>

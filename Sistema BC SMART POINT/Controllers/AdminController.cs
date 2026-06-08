@@ -67,6 +67,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarCategoria(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Categorias");
             var cat = await _db.Categorias.FindAsync(id);
             if (cat == null) return NotFound();
             cat.Estado = false;
@@ -78,6 +79,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarCategoriaDefinitivo(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Categorias");
             var cat = await _db.Categorias.FindAsync(id);
             if (cat == null)
             {
@@ -93,6 +95,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ActivarCategoria(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Categorias");
             var cat = await _db.Categorias.FindAsync(id);
             if (cat == null) return NotFound();
             cat.Estado = true;
@@ -143,6 +146,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarProveedor(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Proveedores");
             var prov = await _db.Proveedores.FindAsync(id);
             if (prov == null) return NotFound();
             prov.Estado = false;
@@ -153,6 +157,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarProveedorDefinitivo(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Proveedores");
             var prov = await _db.Proveedores.FindAsync(id);
             if (prov == null)
             {
@@ -167,6 +172,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ActivarProveedor(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Proveedores");
             var prov = await _db.Proveedores.FindAsync(id);
             if (prov == null) return NotFound();
             prov.Estado = true;
@@ -237,6 +243,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarProducto(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Productos");
             var prod = await _db.Productos.FindAsync(id);
             if (prod == null) return NotFound();
             prod.Estado = false;
@@ -248,6 +255,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarProductoDefinitivo(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Productos");
             var prod = await _db.Productos.FindAsync(id);
             if (prod == null)
             {
@@ -262,6 +270,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ActivarProducto(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Productos");
             var prod = await _db.Productos.FindAsync(id);
             if (prod == null) return NotFound();
             prod.Estado = true;
@@ -316,6 +325,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ValidarPago(int ventaId, string accion)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Ventas");
             var venta = await _db.Ventas.FindAsync(ventaId);
             if (venta == null) return NotFound();
 
@@ -376,6 +386,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
             string? empresaTransporte, string? numeroSeguimiento,
             DateTime? fechaEnvio, DateTime? fechaEntregaEstimada, int? adminId)
         {
+            if (!ModelState.IsValid) return RedirectToAction("EditarEnvio", new { id = idEnvio });
             var envio = await _db.Envios.FindAsync(idEnvio);
             if (envio == null) return NotFound();
 
@@ -447,6 +458,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleEstadoCliente(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Clientes");
             var usuario = await _db.Usuarios.FindAsync(id);
             if (usuario == null) return NotFound();
 
@@ -488,14 +500,14 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearCupon(CuponDescuento model)
         {
+            if (!ModelState.IsValid) return View(model);
+
             // Verificar que el código no exista
             if (await _db.CuponDescuento.AnyAsync(c => c.CodigoCupon == model.CodigoCupon))
             {
                 ModelState.AddModelError("CodigoCupon", "Este código ya existe.");
                 return View(model);
             }
-
-            if (!ModelState.IsValid) return View(model);
 
             model.CodigoCupon = model.CodigoCupon.ToUpper().Trim();
             model.FechaCreación = DateTime.Now;
@@ -516,6 +528,8 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarCupon(CuponDescuento model)
         {
+            if (!ModelState.IsValid) return View(model);
+
             // Verificar que el código no exista en otro cupón
             if (await _db.CuponDescuento.AnyAsync(c =>
                     c.CodigoCupon == model.CodigoCupon &&
@@ -524,8 +538,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 ModelState.AddModelError("CodigoCupon", "Este código ya está en uso.");
                 return View(model);
             }
-
-            if (!ModelState.IsValid) return View(model);
 
             model.CodigoCupon = model.CodigoCupon.ToUpper().Trim();
             _db.CuponDescuento.Update(model);
@@ -538,6 +550,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleEstadoCupon(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction("Cupones");
             var cupon = await _db.CuponDescuento.FindAsync(id);
             if (cupon == null) return NotFound();
 

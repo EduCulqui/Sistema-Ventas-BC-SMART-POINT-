@@ -8,9 +8,9 @@ namespace Sistema_BC_SMART_POINT.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdCategoria { get; set; }
         [Required, StringLength(50)]
-        public string NomCategoria { get; set; }
+        public string NomCategoria { get; set; } = string.Empty;
         [Required, StringLength(500)]
-        public string Descripcion { get; set; }
+        public string Descripcion { get; set; } = string.Empty;
         [Required]
         public bool Estado { get; set; }
 
