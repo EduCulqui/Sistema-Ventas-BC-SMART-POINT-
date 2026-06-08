@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Sistema_BC_SMART_POINT.Data;
+using Sistema_BC_SMART_POINT.Models;
 using Sistema_BC_SMART_POINT.Models.ViewModels;
 using Sistema_BC_SMART_POINT.Services;
 using System.Security.Claims;
@@ -40,6 +41,56 @@ namespace Sistema_BC_SMART_POINT.Controllers
             _db = db;
             _configPago = configPago.Value;
         }
+
+        // ─────────────────────────────────────────────
+        // Métodos auxiliares privados (eliminan duplicación)
+        // ─────────────────────────────────────────────
+
+        /// <summary>
+        /// Reconstruye el CheckoutViewModel desde TempData.
+        /// Centraliza el bloque duplicado en ConfirmarConComprobante y ConfirmarDirecto.
+        /// </summary>
+        private CheckoutViewModel ObtenerVmDesdeTempData()
+        {
+            return new CheckoutViewModel
+            {
+                DireccionEnvio = TempData[KeyCheckoutDireccion]?.ToString() ?? "",
+                Ciudad = TempData[KeyCheckoutCiudad]?.ToString() ?? "",
+                CodigoPostal = TempData[KeyCheckoutPostal]?.ToString(),
+                MetodoPago = TempData[KeyCheckoutMetodo]?.ToString() ?? "",
+                CodigoCupon = TempData[KeyCheckoutCupon]?.ToString(),
+                DescuentoAplicado = decimal.TryParse(
+                    TempData[KeyCheckoutDescuento]?.ToString(), out var dp) ? dp : 0
+            };
+        }
+
+        /// <summary>
+        /// Calcula IGV y Total a partir del subtotal y el porcentaje de descuento.
+        /// Centraliza el cálculo duplicado en Checkout, ProcederPago y PagoTransferencia.
+        /// </summary>
+        private static (decimal igv, decimal total) CalcularTotales(decimal subtotal, decimal descuentoPct)
+        {
+            decimal descMonto = subtotal * (descuentoPct / 100m);
+            decimal baseCalc = subtotal - descMonto;
+            decimal igv = Math.Round(baseCalc * 0.18m, 2);
+            return (igv, baseCalc + igv);
+        }
+
+        /// <summary>
+        /// Obtiene el cliente autenticado a partir del claim del usuario.
+        /// Centraliza el bloque duplicado en ConfirmarConComprobante, ConfirmarDirecto,
+        /// MisPedidos y DetallePedido.
+        /// </summary>
+        private async Task<(int usuarioId, Cliente? cliente)> ObtenerClienteAsync()
+        {
+            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+            return (usuarioId, cliente);
+        }
+
+        // ─────────────────────────────────────────────
+        // Acciones públicas
+        // ─────────────────────────────────────────────
 
         // GET /Carrito
         public IActionResult Index()
@@ -94,13 +145,16 @@ namespace Sistema_BC_SMART_POINT.Controllers
             var items = _carrito.ObtenerCarrito(HttpContext.Session);
             if (!items.Any()) return RedirectToAction(AccionIndex);
 
+            decimal subtotal = items.Sum(i => i.SubTotal);
+            var (igv, total) = CalcularTotales(subtotal, 0);
+
             var vm = new CheckoutViewModel
             {
                 Items = items,
-                Subtotal = items.Sum(i => i.SubTotal)
+                Subtotal = subtotal,
+                IGV = igv,
+                Total = total
             };
-            vm.IGV = Math.Round(vm.Subtotal * 0.18m, 2);
-            vm.Total = vm.Subtotal + vm.IGV;
 
             return View(vm);
         }
@@ -120,10 +174,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
                     ModelState.AddModelError("CodigoCupon", "Cupón inválido o vencido.");
             }
 
-            decimal descMonto = vm.Subtotal * (vm.DescuentoAplicado / 100m);
-            decimal baseCalc = vm.Subtotal - descMonto;
-            vm.IGV = Math.Round(baseCalc * 0.18m, 2);
-            vm.Total = baseCalc + vm.IGV;
+            var (igv, total) = CalcularTotales(vm.Subtotal, vm.DescuentoAplicado);
+            vm.IGV = igv;
+            vm.Total = total;
 
             if (!ModelState.IsValid) return View(AccionCheckout, vm);
 
@@ -150,11 +203,10 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
             var items = _carrito.ObtenerCarrito(HttpContext.Session);
             decimal sub = items.Sum(i => i.SubTotal);
-            decimal desc = decimal.TryParse(TempData.Peek(KeyCheckoutDescuento)?.ToString(),
-                            out var d) ? d : 0;
-            decimal base2 = sub - (sub * desc / 100m);
-            decimal igv = Math.Round(base2 * 0.18m, 2);
-            decimal total = base2 + igv;
+            decimal desc = decimal.TryParse(
+                TempData.Peek(KeyCheckoutDescuento)?.ToString(), out var d) ? d : 0;
+
+            var (igv, total) = CalcularTotales(sub, desc);
 
             ViewBag.Metodo = metodo;
             ViewBag.Total = total;
@@ -190,28 +242,16 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 return RedirectToAction(AccionPagoTransferencia);
             }
 
-            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+            var (_, cliente) = await ObtenerClienteAsync();
             if (cliente == null) return Unauthorized();
 
-            var vm = new CheckoutViewModel
-            {
-                DireccionEnvio = TempData[KeyCheckoutDireccion]?.ToString() ?? "",
-                Ciudad = TempData[KeyCheckoutCiudad]?.ToString() ?? "",
-                CodigoPostal = TempData[KeyCheckoutPostal]?.ToString(),
-                MetodoPago = TempData[KeyCheckoutMetodo]?.ToString() ?? "",
-                CodigoCupon = TempData[KeyCheckoutCupon]?.ToString(),
-                DescuentoAplicado = decimal.TryParse(
-                    TempData[KeyCheckoutDescuento]?.ToString(), out var dp) ? dp : 0
-            };
-
+            var vm = ObtenerVmDesdeTempData();
             var items = _carrito.ObtenerCarrito(HttpContext.Session);
             vm.Items = items;
 
             int idVenta = await _venta.RegistrarVentaAsync(cliente.IdCliente, vm, items);
 
-            var carpeta = Path.Combine(Directory.GetCurrentDirectory(),
-                            "wwwroot", "comprobantes");
+            var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "comprobantes");
             if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
 
             var nombreArchivo = $"venta_{idVenta}_{DateTime.Now:yyyyMMddHHmmss}{ext}";
@@ -238,21 +278,10 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarDirecto()
         {
-            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+            var (_, cliente) = await ObtenerClienteAsync();
             if (cliente == null) return Unauthorized();
 
-            var vm = new CheckoutViewModel
-            {
-                DireccionEnvio = TempData[KeyCheckoutDireccion]?.ToString() ?? "",
-                Ciudad = TempData[KeyCheckoutCiudad]?.ToString() ?? "",
-                CodigoPostal = TempData[KeyCheckoutPostal]?.ToString(),
-                MetodoPago = TempData[KeyCheckoutMetodo]?.ToString() ?? "",
-                CodigoCupon = TempData[KeyCheckoutCupon]?.ToString(),
-                DescuentoAplicado = decimal.TryParse(
-                    TempData[KeyCheckoutDescuento]?.ToString(), out var dp) ? dp : 0
-            };
-
+            var vm = ObtenerVmDesdeTempData();
             var items = _carrito.ObtenerCarrito(HttpContext.Session);
             vm.Items = items;
 
@@ -280,8 +309,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         // GET /Carrito/MisPedidos
         public async Task<IActionResult> MisPedidos()
         {
-            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+            var (_, cliente) = await ObtenerClienteAsync();
             if (cliente == null) return RedirectToAction(AccionIndex, "Catalogo");
 
             var pedidos = await _db.Ventas
@@ -301,8 +329,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (!ModelState.IsValid)
                 return RedirectToAction(AccionMisPedidos);
 
-            var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+            var (_, cliente) = await ObtenerClienteAsync();
             if (cliente == null) return Unauthorized();
 
             var venta = await _db.Ventas
@@ -310,7 +337,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 .Include(v => v.Envio)
                 .Include(v => v.CuponDescuento)
                 .FirstOrDefaultAsync(v => v.IdVenta == idVenta
-                                        && v.ClienteId == cliente.IdCliente);
+                                       && v.ClienteId == cliente.IdCliente);
 
             if (venta == null) return NotFound();
             return View(venta);
