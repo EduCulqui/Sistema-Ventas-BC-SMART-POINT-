@@ -4,7 +4,6 @@
     Layout = "_AdminLayout";
 }
 
-
 <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:24px;">
     <div>
         <h1 style="font-size:22px; font-weight:700; color:#111827; margin:0;">Cupones de descuento</h1>
@@ -40,15 +39,31 @@
             @foreach (var c in Model)
             {
                 bool vencido = c.FechaVencimiento < DateTime.Today;
-                string badgeClass = !c.Estado ? "cupon-inactivo"
-                : vencido ? "cupon-vencido"
-                : "cupon-activo";
-                string badgeText = !c.Estado ? "Inactivo"
-                : vencido ? "Vencido"
-                : "Activo";
-
-                // Días restantes
                 int diasRestantes = (c.FechaVencimiento - DateTime.Today).Days;
+
+                string badgeClass;
+                if (!c.Estado)
+                    badgeClass = "cupon-inactivo";
+                else if (vencido)
+                    badgeClass = "cupon-vencido";
+                else
+                    badgeClass = "cupon-activo";
+
+                string badgeText;
+                if (!c.Estado)
+                    badgeText = "Inactivo";
+                else if (vencido)
+                    badgeText = "Vencido";
+                else
+                    badgeText = "Activo";
+
+                string diasTexto;
+                if (diasRestantes == 0)
+                    diasTexto = "Vence hoy";
+                else if (diasRestantes == 1)
+                    diasTexto = "Vence mañana";
+                else
+                    diasTexto = $"{diasRestantes} días restantes";
 
                 <tr>
                     <td>
@@ -67,11 +82,9 @@
                         @if (!vencido && c.Estado)
                         {
                             <div style="font-size:11px; color:@(diasRestantes <= 7 ? "#dc2626" : "#9ca3af");">
-                                @(diasRestantes == 0 ? "Vence hoy"
-                                                        : diasRestantes == 1 ? "Vence mañana"
-                                                        : $"{diasRestantes} días restantes")
-                    </div>
-                                        }
+                                @diasTexto
+                            </div>
+                        }
                     </td>
                     <td style="text-align:center; font-weight:600; color:#111827;">
                         @(c.Ventas?.Count ?? 0)
