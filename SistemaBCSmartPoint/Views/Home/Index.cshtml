@@ -4,12 +4,11 @@
     ViewData["FullWidth"] = true;
 }
 
-
 <div class="home-page-bc">
 
     <div class="home-hero-wrap">
         <section class="home-hero" aria-label="Banner principal">
-            <video class="home-hero__video" autoplay muted loop playsinline aria-hidden="true">
+            <video class="home-hero__video" autoplay muted loop playsinline tabindex="-1">
                 <source src="/videos/videoiphone.mp4" type="video/mp4" />
             </video>
             <div class="home-hero__overlay">
@@ -36,7 +35,8 @@
                 <div class="bc-filtro-input">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                          width="15" height="15" aria-hidden="true">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                     <input type="text" name="busqueda" value="@Model.BusquedaActual"
                            placeholder="Buscar por nombre o modelo..."
@@ -72,7 +72,7 @@
                     <div class="bc-cat-card__img-wrap">
                         <img src="/images/categorias/todos.png" alt="Todos los productos"
                              class="bc-cat-card__img-bg"
-                             onerror="this.onerror=null;this.src='/images/no-image.svg'" />
+                             data-fallback="/images/no-image.svg" />
                     </div>
                     <div class="bc-cat-card__info">
                         <span class="bc-cat-card__name">Todos</span>
@@ -96,7 +96,7 @@
                             <img src="/images/categorias/@(nombreImg).png"
                                  alt="@cat.NomCategoria"
                                  class="bc-cat-card__img-bg"
-                                 onerror="this.onerror=null;this.src='/images/no-image.svg'" />
+                                 data-fallback="/images/no-image.svg" />
                         </div>
                         <div class="bc-cat-card__info">
                             <span class="bc-cat-card__name">@cat.NomCategoria</span>
@@ -116,14 +116,14 @@
                 <div class="bc-prod-list">
                     @foreach (var p in Model.ProductosFiltrados)
                     {
-                        var esNuevo  = p.FechaRegistro >= DateTime.Now.AddDays(-30);
+                        var esNuevo = p.FechaRegistro >= DateTime.Now.AddDays(-30);
                         var stockBajo = p.StockActual <= p.StockMinimo;
-                        var specs    = string.Join(" • ", new[] { p.Modelo, p.Color, p.Capacidad }.Where(s => !string.IsNullOrEmpty(s)));
+                        var specs = string.Join(" • ", new[] { p.Modelo, p.Color, p.Capacidad }.Where(s => !string.IsNullOrEmpty(s)));
                         <article class="bc-prod-row">
                             <div class="bc-prod-row__img-wrap">
                                 <img src="@(string.IsNullOrEmpty(p.ImagenUrl) ? "/images/no-image.svg" : p.ImagenUrl)"
                                      alt="@p.Nombre" class="bc-prod-row__img" loading="lazy"
-                                     onerror="this.onerror=null;this.src='/images/no-image.svg'" />
+                                     data-fallback="/images/no-image.svg" />
                                 @if (esNuevo)
                                 {
                                     <span class="bc-prod-row__badge bc-prod-row__badge--nuevo">Nuevo</span>
@@ -141,7 +141,7 @@
                                     }
                                     <button class="bc-prod-row__fav" type="button" aria-label="Favorito">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                                         </svg>
                                     </button>
                                 </div>
@@ -164,8 +164,9 @@
                                         <input type="hidden" name="cantidad" value="1" />
                                         <button type="submit" class="bc-prod-row__btn bc-prod-row__btn--primary">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                                <circle cx="9" cy="21" r="1" />
+                                                <circle cx="20" cy="21" r="1" />
+                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                                             </svg>
                                             Agregar
                                         </button>
@@ -317,3 +318,16 @@
     </section>
 
 </div>
+
+@section Scripts {
+    <script>
+        // Fallback para imágenes rotas — reemplaza onerror inline
+        document.querySelectorAll('img[data-fallback]').forEach(img => {
+            img.addEventListener('error', function () {
+                if (this.src !== this.dataset.fallback) {
+                    this.src = this.dataset.fallback;
+                }
+            });
+        });
+    </script>
+}
