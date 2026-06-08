@@ -17,6 +17,21 @@ namespace Sistema_BC_SMART_POINT.Controllers
         private readonly AppDbContext _db;
         private readonly ConfiguracionPagoViewModel _configPago;
 
+        // Constantes de acciones
+        private const string AccionIndex = "Index";
+        private const string AccionPagoTransferencia = "PagoTransferencia";
+        private const string AccionMisPedidos = "MisPedidos";
+        private const string AccionConfirmacion = "Confirmacion";
+        private const string AccionCheckout = "Checkout";
+
+        // Constantes de TempData
+        private const string KeyCheckoutDireccion = "CheckoutDireccion";
+        private const string KeyCheckoutCiudad = "CheckoutCiudad";
+        private const string KeyCheckoutPostal = "CheckoutPostal";
+        private const string KeyCheckoutMetodo = "CheckoutMetodo";
+        private const string KeyCheckoutCupon = "CheckoutCupon";
+        private const string KeyCheckoutDescuento = "CheckoutDescuento";
+
         public CarritoController(CarritoService carrito, VentaService venta,
             AppDbContext db, IOptions<ConfiguracionPagoViewModel> configPago)
         {
@@ -38,7 +53,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         public async Task<IActionResult> Agregar(int productoId, int cantidad = 1)
         {
             if (!ModelState.IsValid)
-                return RedirectToAction("Index", "Catalogo");
+                return RedirectToAction(AccionIndex, "Catalogo");
 
             var prod = await _db.Productos.FindAsync(productoId);
             if (prod == null || prod.StockActual < cantidad)
@@ -59,7 +74,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
             });
 
             TempData["Exito"] = $"{prod.Nombre} agregado al carrito.";
-            return RedirectToAction("Index");
+            return RedirectToAction(AccionIndex);
         }
 
         // POST /Carrito/Quitar
@@ -67,17 +82,17 @@ namespace Sistema_BC_SMART_POINT.Controllers
         public IActionResult Quitar(int productoId)
         {
             if (!ModelState.IsValid)
-                return RedirectToAction("Index");
+                return RedirectToAction(AccionIndex);
 
             _carrito.QuitarItem(HttpContext.Session, productoId);
-            return RedirectToAction("Index");
+            return RedirectToAction(AccionIndex);
         }
 
         // GET /Carrito/Checkout — Paso 1: datos + método
         public IActionResult Checkout()
         {
             var items = _carrito.ObtenerCarrito(HttpContext.Session);
-            if (!items.Any()) return RedirectToAction("Index");
+            if (!items.Any()) return RedirectToAction(AccionIndex);
 
             var vm = new CheckoutViewModel
             {
@@ -94,11 +109,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcederPago(CheckoutViewModel vm)
         {
-            // Reconstruir items desde session
             vm.Items = _carrito.ObtenerCarrito(HttpContext.Session);
             vm.Subtotal = vm.Items.Sum(i => i.SubTotal);
 
-            // Aplicar descuento si hay cupón
             if (!string.IsNullOrEmpty(vm.CodigoCupon))
             {
                 var (valido, pct, _) = await _venta.ValidarCuponAsync(vm.CodigoCupon);
@@ -112,20 +125,19 @@ namespace Sistema_BC_SMART_POINT.Controllers
             vm.IGV = Math.Round(baseCalc * 0.18m, 2);
             vm.Total = baseCalc + vm.IGV;
 
-            if (!ModelState.IsValid) return View("Checkout", vm);
+            if (!ModelState.IsValid) return View(AccionCheckout, vm);
 
-            // Guardar vm en TempData para el siguiente paso
-            TempData["CheckoutDireccion"] = vm.DireccionEnvio;
-            TempData["CheckoutCiudad"] = vm.Ciudad;
-            TempData["CheckoutPostal"] = vm.CodigoPostal;
-            TempData["CheckoutMetodo"] = vm.MetodoPago;
-            TempData["CheckoutCupon"] = vm.CodigoCupon;
-            TempData["CheckoutDescuento"] = vm.DescuentoAplicado.ToString();
+            TempData[KeyCheckoutDireccion] = vm.DireccionEnvio;
+            TempData[KeyCheckoutCiudad] = vm.Ciudad;
+            TempData[KeyCheckoutPostal] = vm.CodigoPostal;
+            TempData[KeyCheckoutMetodo] = vm.MetodoPago;
+            TempData[KeyCheckoutCupon] = vm.CodigoCupon;
+            TempData[KeyCheckoutDescuento] = vm.DescuentoAplicado.ToString();
 
             var metodosConPago = new[] { "Yape", "Plin", "Transferencia" };
 
             if (metodosConPago.Contains(vm.MetodoPago))
-                return RedirectToAction("PagoTransferencia");
+                return RedirectToAction(AccionPagoTransferencia);
 
             return RedirectToAction("ConfirmarDirecto");
         }
@@ -133,12 +145,12 @@ namespace Sistema_BC_SMART_POINT.Controllers
         // GET /Carrito/PagoTransferencia — Paso 2: QR + subir comprobante
         public IActionResult PagoTransferencia()
         {
-            var metodo = TempData.Peek("CheckoutMetodo")?.ToString();
-            if (string.IsNullOrEmpty(metodo)) return RedirectToAction("Checkout");
+            var metodo = TempData.Peek(KeyCheckoutMetodo)?.ToString();
+            if (string.IsNullOrEmpty(metodo)) return RedirectToAction(AccionCheckout);
 
             var items = _carrito.ObtenerCarrito(HttpContext.Session);
             decimal sub = items.Sum(i => i.SubTotal);
-            decimal desc = decimal.TryParse(TempData.Peek("CheckoutDescuento")?.ToString(),
+            decimal desc = decimal.TryParse(TempData.Peek(KeyCheckoutDescuento)?.ToString(),
                             out var d) ? d : 0;
             decimal base2 = sub - (sub * desc / 100m);
             decimal igv = Math.Round(base2 * 0.18m, 2);
@@ -156,12 +168,12 @@ namespace Sistema_BC_SMART_POINT.Controllers
         public async Task<IActionResult> ConfirmarConComprobante(IFormFile comprobante)
         {
             if (!ModelState.IsValid)
-                return RedirectToAction("PagoTransferencia");
+                return RedirectToAction(AccionPagoTransferencia);
 
             if (comprobante == null || comprobante.Length == 0)
             {
                 TempData["ErrorComp"] = "Debes subir la captura del pago.";
-                return RedirectToAction("PagoTransferencia");
+                return RedirectToAction(AccionPagoTransferencia);
             }
 
             var extensiones = new[] { ".jpg", ".jpeg", ".png", ".webp" };
@@ -169,13 +181,13 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (!extensiones.Contains(ext))
             {
                 TempData["ErrorComp"] = "Solo se permiten imágenes JPG, PNG o WEBP.";
-                return RedirectToAction("PagoTransferencia");
+                return RedirectToAction(AccionPagoTransferencia);
             }
 
             if (comprobante.Length > 5 * 1024 * 1024)
             {
                 TempData["ErrorComp"] = "La imagen no debe superar 5MB.";
-                return RedirectToAction("PagoTransferencia");
+                return RedirectToAction(AccionPagoTransferencia);
             }
 
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -184,13 +196,13 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
             var vm = new CheckoutViewModel
             {
-                DireccionEnvio = TempData["CheckoutDireccion"]?.ToString() ?? "",
-                Ciudad = TempData["CheckoutCiudad"]?.ToString() ?? "",
-                CodigoPostal = TempData["CheckoutPostal"]?.ToString(),
-                MetodoPago = TempData["CheckoutMetodo"]?.ToString() ?? "",
-                CodigoCupon = TempData["CheckoutCupon"]?.ToString(),
+                DireccionEnvio = TempData[KeyCheckoutDireccion]?.ToString() ?? "",
+                Ciudad = TempData[KeyCheckoutCiudad]?.ToString() ?? "",
+                CodigoPostal = TempData[KeyCheckoutPostal]?.ToString(),
+                MetodoPago = TempData[KeyCheckoutMetodo]?.ToString() ?? "",
+                CodigoCupon = TempData[KeyCheckoutCupon]?.ToString(),
                 DescuentoAplicado = decimal.TryParse(
-                    TempData["CheckoutDescuento"]?.ToString(), out var dp) ? dp : 0
+                    TempData[KeyCheckoutDescuento]?.ToString(), out var dp) ? dp : 0
             };
 
             var items = _carrito.ObtenerCarrito(HttpContext.Session);
@@ -219,7 +231,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
             _carrito.Limpiar(HttpContext.Session);
 
-            return RedirectToAction("Confirmacion", new { idVenta });
+            return RedirectToAction(AccionConfirmacion, new { idVenta });
         }
 
         // POST /Carrito/ConfirmarDirecto — para Efectivo/Tarjeta
@@ -232,13 +244,13 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
             var vm = new CheckoutViewModel
             {
-                DireccionEnvio = TempData["CheckoutDireccion"]?.ToString() ?? "",
-                Ciudad = TempData["CheckoutCiudad"]?.ToString() ?? "",
-                CodigoPostal = TempData["CheckoutPostal"]?.ToString(),
-                MetodoPago = TempData["CheckoutMetodo"]?.ToString() ?? "",
-                CodigoCupon = TempData["CheckoutCupon"]?.ToString(),
+                DireccionEnvio = TempData[KeyCheckoutDireccion]?.ToString() ?? "",
+                Ciudad = TempData[KeyCheckoutCiudad]?.ToString() ?? "",
+                CodigoPostal = TempData[KeyCheckoutPostal]?.ToString(),
+                MetodoPago = TempData[KeyCheckoutMetodo]?.ToString() ?? "",
+                CodigoCupon = TempData[KeyCheckoutCupon]?.ToString(),
                 DescuentoAplicado = decimal.TryParse(
-                    TempData["CheckoutDescuento"]?.ToString(), out var dp) ? dp : 0
+                    TempData[KeyCheckoutDescuento]?.ToString(), out var dp) ? dp : 0
             };
 
             var items = _carrito.ObtenerCarrito(HttpContext.Session);
@@ -247,14 +259,14 @@ namespace Sistema_BC_SMART_POINT.Controllers
             int idVenta = await _venta.RegistrarVentaAsync(cliente.IdCliente, vm, items);
             _carrito.Limpiar(HttpContext.Session);
 
-            return RedirectToAction("Confirmacion", new { idVenta });
+            return RedirectToAction(AccionConfirmacion, new { idVenta });
         }
 
         // GET /Carrito/Confirmacion
         public async Task<IActionResult> Confirmacion(int idVenta)
         {
             if (!ModelState.IsValid)
-                return RedirectToAction("MisPedidos");
+                return RedirectToAction(AccionMisPedidos);
 
             var venta = await _db.Ventas
                 .Include(v => v.DetallesVenta).ThenInclude(d => d.Producto)
@@ -270,7 +282,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         {
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
-            if (cliente == null) return RedirectToAction("Index", "Catalogo");
+            if (cliente == null) return RedirectToAction(AccionIndex, "Catalogo");
 
             var pedidos = await _db.Ventas
                 .Include(v => v.DetallesVenta).ThenInclude(d => d.Producto)
@@ -287,7 +299,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         public async Task<IActionResult> DetallePedido(int idVenta)
         {
             if (!ModelState.IsValid)
-                return RedirectToAction("MisPedidos");
+                return RedirectToAction(AccionMisPedidos);
 
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
