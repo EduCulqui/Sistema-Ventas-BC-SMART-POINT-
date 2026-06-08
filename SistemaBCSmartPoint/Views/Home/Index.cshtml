@@ -42,7 +42,9 @@
                            placeholder="Buscar por nombre o modelo..."
                            aria-label="Buscar productos" />
                 </div>
-                <select name="categoriaId" aria-label="Filtrar por categoría">
+
+                <label for="categoriaId" class="sr-only">Filtrar por categoría</label>
+                <select id="categoriaId" name="categoriaId">
                     <option value="">Todas las categorías</option>
                     @foreach (var cat in Model.Categorias)
                     {
@@ -52,7 +54,9 @@
                         </option>
                     }
                 </select>
-                <select name="orden" aria-label="Ordenar productos">
+
+                <label for="orden" class="sr-only">Ordenar productos</label>
+                <select id="orden" name="orden">
                     <option value="">Nombre A-Z</option>
                     <option value="precio_asc" selected="@(Model.OrdenActual == "precio_asc" ? "selected" : null)">
                         Precio: menor a mayor
@@ -61,6 +65,7 @@
                         Precio: mayor a menor
                     </option>
                 </select>
+
                 <button type="submit" class="bc-btn-filtrar">Filtrar</button>
                 <a asp-controller="Home" asp-action="Index" class="bc-btn-limpiar">Limpiar</a>
             </form>
@@ -321,7 +326,6 @@
 
 @section Scripts {
     <script>
-        // Fallback para imágenes rotas — reemplaza onerror inline
         document.querySelectorAll('img[data-fallback]').forEach(img => {
             img.addEventListener('error', function () {
                 if (this.src !== this.dataset.fallback) {
@@ -331,3 +335,17 @@
         });
     </script>
 }
+
+<style>
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0,0,0,0);
+        white-space: nowrap;
+        border: 0;
+    }
+</style>
