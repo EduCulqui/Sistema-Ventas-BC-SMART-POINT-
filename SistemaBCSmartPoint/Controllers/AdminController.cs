@@ -13,6 +13,15 @@ namespace Sistema_BC_SMART_POINT.Controllers
         private readonly AppDbContext _db;
         public AdminController(AppDbContext db) => _db = db;
 
+        private const string ExitoKey = "Exito";
+        private const string ErrorKey = "Error";
+        private const string AccionCategorias = "Categorias";
+        private const string AccionProveedores = "Proveedores";
+        private const string AccionProductos = "Productos";
+        private const string AccionEnvios = "Envios";
+        private const string AccionClientes = "Clientes";
+        private const string AccionCupones = "Cupones";
+
         // Dashboard
         public async Task<IActionResult> Dashboard()
         {
@@ -43,8 +52,8 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (!ModelState.IsValid) return View(model);
             _db.Categorias.Add(model);
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Categoría creada correctamente.";
-            return RedirectToAction("Categorias");
+            TempData[ExitoKey] = "Categoría creada correctamente.";
+            return RedirectToAction(AccionCategorias);
         }
 
         public async Task<IActionResult> EditarCategoria(int id)
@@ -60,45 +69,48 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (!ModelState.IsValid) return View(model);
             _db.Categorias.Update(model);
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Categoría actualizada.";
-            return RedirectToAction("Categorias");
+            TempData[ExitoKey] = "Categoría actualizada.";
+            return RedirectToAction(AccionCategorias);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarCategoria(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionCategorias);
             var cat = await _db.Categorias.FindAsync(id);
             if (cat == null) return NotFound();
             cat.Estado = false;
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Categoría desactivada.";
-            return RedirectToAction("Categorias");
+            TempData[ExitoKey] = "Categoría desactivada.";
+            return RedirectToAction(AccionCategorias);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarCategoriaDefinitivo(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionCategorias);
             var cat = await _db.Categorias.FindAsync(id);
             if (cat == null)
             {
-                TempData["Error"] = "Categoría no encontrada.";
-                return RedirectToAction("Categorias");
+                TempData[ErrorKey] = "Categoría no encontrada.";
+                return RedirectToAction(AccionCategorias);
             }
             _db.Categorias.Remove(cat);
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Categoría eliminada permanentemente.";
-            return RedirectToAction("Categorias");
+            TempData[ExitoKey] = "Categoría eliminada permanentemente.";
+            return RedirectToAction(AccionCategorias);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ActivarCategoria(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionCategorias);
             var cat = await _db.Categorias.FindAsync(id);
             if (cat == null) return NotFound();
             cat.Estado = true;
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Categoría activada.";
-            return RedirectToAction("Categorias");
+            TempData[ExitoKey] = "Categoría activada.";
+            return RedirectToAction(AccionCategorias);
         }
 
 
@@ -119,12 +131,13 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (!ModelState.IsValid) return View(model);
             _db.Proveedores.Add(model);
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Proveedor creado correctamente.";
-            return RedirectToAction("Proveedores");
+            TempData[ExitoKey] = "Proveedor creado correctamente.";
+            return RedirectToAction(AccionProveedores);
         }
 
         public async Task<IActionResult> EditarProveedor(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionProveedores);
             var prov = await _db.Proveedores.FindAsync(id);
             if (prov == null) return NotFound();
             return View(prov);
@@ -136,43 +149,48 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (!ModelState.IsValid) return View(model);
             _db.Proveedores.Update(model);
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Proveedor actualizado.";
-            return RedirectToAction("Proveedores");
+            TempData[ExitoKey] = "Proveedor actualizado.";
+            return RedirectToAction(AccionProveedores);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarProveedor(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionProveedores);
             var prov = await _db.Proveedores.FindAsync(id);
             if (prov == null) return NotFound();
             prov.Estado = false;
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Proveedor desactivado.";
-            return RedirectToAction("Proveedores");
+            TempData[ExitoKey] = "Proveedor desactivado.";
+            return RedirectToAction(AccionProveedores);
         }
+
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarProveedorDefinitivo(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionProveedores);
             var prov = await _db.Proveedores.FindAsync(id);
             if (prov == null)
             {
-                TempData["Error"] = "Proveedor no encontrado.";
-                return RedirectToAction("Proveedores");
+                TempData[ErrorKey] = "Proveedor no encontrado.";
+                return RedirectToAction(AccionProveedores);
             }
             _db.Proveedores.Remove(prov);
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Proveedor eliminado permanentemente.";
-            return RedirectToAction("Proveedores");
+            TempData[ExitoKey] = "Proveedor eliminado permanentemente.";
+            return RedirectToAction(AccionProveedores);
         }
+
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ActivarProveedor(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionProveedores);
             var prov = await _db.Proveedores.FindAsync(id);
             if (prov == null) return NotFound();
             prov.Estado = true;
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Proveedor activado.";
-            return RedirectToAction("Proveedores");
+            TempData[ExitoKey] = "Proveedor activado.";
+            return RedirectToAction(AccionProveedores);
         }
 
 
@@ -206,12 +224,13 @@ namespace Sistema_BC_SMART_POINT.Controllers
             model.FechaRegistro = DateTime.Now;
             _db.Productos.Add(model);
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Producto creado correctamente.";
-            return RedirectToAction("Productos");
+            TempData[ExitoKey] = "Producto creado correctamente.";
+            return RedirectToAction(AccionProductos);
         }
 
         public async Task<IActionResult> EditarProducto(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionProductos);
             var prod = await _db.Productos.FindAsync(id);
             if (prod == null) return NotFound();
             ViewBag.Categorias = await _db.Categorias.Where(c => c.Estado).ToListAsync();
@@ -230,44 +249,48 @@ namespace Sistema_BC_SMART_POINT.Controllers
             }
             _db.Productos.Update(model);
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Producto actualizado.";
-            return RedirectToAction("Productos");
+            TempData[ExitoKey] = "Producto actualizado.";
+            return RedirectToAction(AccionProductos);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarProducto(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionProductos);
             var prod = await _db.Productos.FindAsync(id);
             if (prod == null) return NotFound();
             prod.Estado = false;
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Producto desactivado.";
-            return RedirectToAction("Productos");
+            TempData[ExitoKey] = "Producto desactivado.";
+            return RedirectToAction(AccionProductos);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarProductoDefinitivo(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionProductos);
             var prod = await _db.Productos.FindAsync(id);
             if (prod == null)
             {
-                TempData["Error"] = "Producto no encontrado.";
-                return RedirectToAction("Productos");
+                TempData[ErrorKey] = "Producto no encontrado.";
+                return RedirectToAction(AccionProductos);
             }
             _db.Productos.Remove(prod);
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Producto eliminado permanentemente.";
-            return RedirectToAction("Productos");
+            TempData[ExitoKey] = "Producto eliminado permanentemente.";
+            return RedirectToAction(AccionProductos);
         }
+
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ActivarProducto(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionProductos);
             var prod = await _db.Productos.FindAsync(id);
             if (prod == null) return NotFound();
             prod.Estado = true;
             await _db.SaveChangesAsync();
-            TempData["Exito"] = "Producto activado.";
-            return RedirectToAction("Productos");
+            TempData[ExitoKey] = "Producto activado.";
+            return RedirectToAction(AccionProductos);
         }
 
         //  VENTAS
@@ -289,7 +312,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 .OrderByDescending(v => v.FechaVenta)
                 .ToListAsync();
 
-            // Contador para filtros
             ViewBag.TotalPendientes = await _db.Ventas.CountAsync(v => v.EstadoPago == "Pendiente");
             ViewBag.TotalVerificando = await _db.Ventas.CountAsync(v => v.EstadoPago == "En verificación");
             ViewBag.TotalPagados = await _db.Ventas.CountAsync(v => v.EstadoPago == "Pagado");
@@ -316,13 +338,14 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ValidarPago(int ventaId, string accion)
         {
+            if (!ModelState.IsValid) return RedirectToAction("DetalleVenta", new { id = ventaId });
             var venta = await _db.Ventas.FindAsync(ventaId);
             if (venta == null) return NotFound();
 
             venta.EstadoPago = accion == "aprobar" ? "Pagado" : "Rechazado";
             await _db.SaveChangesAsync();
 
-            TempData["Exito"] = accion == "aprobar"
+            TempData[ExitoKey] = accion == "aprobar"
                 ? $"Pago del pedido #{ventaId} aprobado correctamente."
                 : $"Pago del pedido #{ventaId} fue rechazado.";
 
@@ -363,7 +386,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
             if (envio == null) return NotFound();
 
-            // Obtener el AdministradorId del usuario logueado
             var usuarioId = int.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)!);
             var admin = await _db.Administradores.FirstOrDefaultAsync(a => a.UsuarioId == usuarioId);
             ViewBag.AdminId = admin?.IdAdministrador;
@@ -376,6 +398,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
             string? empresaTransporte, string? numeroSeguimiento,
             DateTime? fechaEnvio, DateTime? fechaEntregaEstimada, int? adminId)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionEnvios);
             var envio = await _db.Envios.FindAsync(idEnvio);
             if (envio == null) return NotFound();
 
@@ -386,14 +409,13 @@ namespace Sistema_BC_SMART_POINT.Controllers
             envio.FechaEntregaEstimada = fechaEntregaEstimada;
             envio.AdministradorId = adminId;
 
-            // Si se despacha por primera vez, registrar la fecha
             if (estadoEnvio == "Despachado" && envio.FechaEnvio == null)
                 envio.FechaEnvio = DateTime.Now;
 
             await _db.SaveChangesAsync();
 
-            TempData["Exito"] = $"Envío #{idEnvio} actualizado correctamente.";
-            return RedirectToAction("Envios");
+            TempData[ExitoKey] = $"Envío #{idEnvio} actualizado correctamente.";
+            return RedirectToAction(AccionEnvios);
         }
 
 
@@ -447,17 +469,18 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleEstadoCliente(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionClientes);
             var usuario = await _db.Usuarios.FindAsync(id);
             if (usuario == null) return NotFound();
 
             usuario.Estado = !usuario.Estado;
             await _db.SaveChangesAsync();
 
-            TempData["Exito"] = usuario.Estado
+            TempData[ExitoKey] = usuario.Estado
                 ? "Cliente activado correctamente."
                 : "Cliente desactivado correctamente.";
 
-            return RedirectToAction("Clientes");
+            return RedirectToAction(AccionClientes);
         }
 
 
@@ -488,7 +511,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearCupon(CuponDescuento model)
         {
-            // Verificar que el código no exista
             if (await _db.CuponDescuento.AnyAsync(c => c.CodigoCupon == model.CodigoCupon))
             {
                 ModelState.AddModelError("CodigoCupon", "Este código ya existe.");
@@ -502,12 +524,13 @@ namespace Sistema_BC_SMART_POINT.Controllers
             _db.CuponDescuento.Add(model);
             await _db.SaveChangesAsync();
 
-            TempData["Exito"] = $"Cupón {model.CodigoCupon} creado correctamente.";
-            return RedirectToAction("Cupones");
+            TempData[ExitoKey] = $"Cupón {model.CodigoCupon} creado correctamente.";
+            return RedirectToAction(AccionCupones);
         }
 
         public async Task<IActionResult> EditarCupon(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionCupones);
             var cupon = await _db.CuponDescuento.FindAsync(id);
             if (cupon == null) return NotFound();
             return View(cupon);
@@ -516,7 +539,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarCupon(CuponDescuento model)
         {
-            // Verificar que el código no exista en otro cupón
             if (await _db.CuponDescuento.AnyAsync(c =>
                     c.CodigoCupon == model.CodigoCupon &&
                     c.IdCuponDescuento != model.IdCuponDescuento))
@@ -531,24 +553,25 @@ namespace Sistema_BC_SMART_POINT.Controllers
             _db.CuponDescuento.Update(model);
             await _db.SaveChangesAsync();
 
-            TempData["Exito"] = $"Cupón {model.CodigoCupon} actualizado.";
-            return RedirectToAction("Cupones");
+            TempData[ExitoKey] = $"Cupón {model.CodigoCupon} actualizado.";
+            return RedirectToAction(AccionCupones);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleEstadoCupon(int id)
         {
+            if (!ModelState.IsValid) return RedirectToAction(AccionCupones);
             var cupon = await _db.CuponDescuento.FindAsync(id);
             if (cupon == null) return NotFound();
 
             cupon.Estado = !cupon.Estado;
             await _db.SaveChangesAsync();
 
-            TempData["Exito"] = cupon.Estado
+            TempData[ExitoKey] = cupon.Estado
                 ? $"Cupón {cupon.CodigoCupon} activado."
                 : $"Cupón {cupon.CodigoCupon} desactivado.";
 
-            return RedirectToAction("Cupones");
+            return RedirectToAction(AccionCupones);
         }
 
     }
