@@ -8,7 +8,7 @@ using Sistema_BC_SMART_POINT.Services;
 using System.Security.Claims;
 
 namespace Sistema_BC_SMART_POINT.Controllers
-    {
+{
     [Authorize]
     public class CarritoController : Controller
     {
@@ -37,6 +37,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Agregar(int productoId, int cantidad = 1)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Index", "Catalogo");
+
             var prod = await _db.Productos.FindAsync(productoId);
             if (prod == null || prod.StockActual < cantidad)
             {
@@ -63,6 +66,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Quitar(int productoId)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Index");
+
             _carrito.QuitarItem(HttpContext.Session, productoId);
             return RedirectToAction("Index");
         }
@@ -118,18 +124,15 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
             var metodosConPago = new[] { "Yape", "Plin", "Transferencia" };
 
-            // Si requiere comprobante → ir a PagoTransferencia
             if (metodosConPago.Contains(vm.MetodoPago))
                 return RedirectToAction("PagoTransferencia");
 
-            // Si es efectivo o tarjeta → confirmar directo
             return RedirectToAction("ConfirmarDirecto");
         }
 
         // GET /Carrito/PagoTransferencia — Paso 2: QR + subir comprobante
         public IActionResult PagoTransferencia()
         {
-            // Recuperar datos del checkout
             var metodo = TempData.Peek("CheckoutMetodo")?.ToString();
             if (string.IsNullOrEmpty(metodo)) return RedirectToAction("Checkout");
 
@@ -152,7 +155,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarConComprobante(IFormFile comprobante)
         {
-            // Validar archivo
+            if (!ModelState.IsValid)
+                return RedirectToAction("PagoTransferencia");
+
             if (comprobante == null || comprobante.Length == 0)
             {
                 TempData["ErrorComp"] = "Debes subir la captura del pago.";
@@ -173,12 +178,10 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 return RedirectToAction("PagoTransferencia");
             }
 
-            // Obtener cliente
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
             if (cliente == null) return Unauthorized();
 
-            // Reconstruir CheckoutViewModel desde TempData
             var vm = new CheckoutViewModel
             {
                 DireccionEnvio = TempData["CheckoutDireccion"]?.ToString() ?? "",
@@ -193,10 +196,8 @@ namespace Sistema_BC_SMART_POINT.Controllers
             var items = _carrito.ObtenerCarrito(HttpContext.Session);
             vm.Items = items;
 
-            // Registrar venta
             int idVenta = await _venta.RegistrarVentaAsync(cliente.IdCliente, vm, items);
 
-            // Guardar comprobante
             var carpeta = Path.Combine(Directory.GetCurrentDirectory(),
                             "wwwroot", "comprobantes");
             if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
@@ -207,7 +208,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
             using (var stream = new FileStream(rutaCompleta, FileMode.Create))
                 await comprobante.CopyToAsync(stream);
 
-            // Actualizar venta con comprobante
             var venta = await _db.Ventas.FindAsync(idVenta);
             if (venta != null)
             {
@@ -253,6 +253,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
         // GET /Carrito/Confirmacion
         public async Task<IActionResult> Confirmacion(int idVenta)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("MisPedidos");
+
             var venta = await _db.Ventas
                 .Include(v => v.DetallesVenta).ThenInclude(d => d.Producto)
                 .Include(v => v.Envio)
@@ -283,6 +286,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
         // GET /Carrito/DetallePedido
         public async Task<IActionResult> DetallePedido(int idVenta)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("MisPedidos");
+
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
             if (cliente == null) return Unauthorized();
