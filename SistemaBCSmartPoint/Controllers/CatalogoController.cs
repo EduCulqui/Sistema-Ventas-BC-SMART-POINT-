@@ -6,13 +6,15 @@ namespace Sistema_BC_SMART_POINT.Controllers
 {
     public class CatalogoController : Controller
     {
-        // Cualquier visitante puede ver el catálogo
         private readonly AppDbContext _db;
         public CatalogoController(AppDbContext db) => _db = db;
 
         // GET catalogo
         public async Task<IActionResult> Index(int? categoriaId, string? busqueda, string? orden)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Index");
+
             var query = _db.Productos
                 .Include(p => p.Categoria)
                 .Where(p => p.Estado && p.StockActual > 0)
@@ -43,6 +45,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
         // GET catalogo detalle
         public async Task<IActionResult> Detalle(int id)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Index");
+
             var producto = await _db.Productos
                 .Include(p => p.Categoria)
                 .Include(p => p.Proveedor)
