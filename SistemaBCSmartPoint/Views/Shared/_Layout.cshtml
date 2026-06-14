@@ -7,6 +7,151 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Sistema_BC_SMART_POINT.styles.css" asp-append-version="true" />
+    <style>
+        .dropdown-menu-bc {
+            background: #1A1A1A;
+            border: 1px solid #2E2E2E;
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 190px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.5);
+            margin-top: 6px !important;
+        }
+
+        .dropdown-item-bc {
+            display: block;
+            padding: 9px 14px;
+            font-size: 0.88rem;
+            color: #E5E5E5;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background .15s, color .15s;
+            font-weight: 500;
+        }
+
+            .dropdown-item-bc:hover {
+                background: #2E2E2E;
+                color: var(--bc-amarillo);
+            }
+
+        .dropdown-divider-bc {
+            border-color: #2E2E2E;
+            margin: 4px 0;
+        }
+
+        .nav-link-bc.dropdown-toggle::after {
+            border-top-color: #E5E5E5;
+        }
+
+        .footer-bc-mini {
+            background: var(--bc-negro);
+            border-top: 1px solid #2E2E2E;
+            padding: 24px 0 18px;
+            margin-top: 48px;
+        }
+
+        .footer-bc-mini__inner {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .footer-bc-mini__contact {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-bc-mini__contact-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: #777;
+            text-decoration: none;
+            transition: color .15s;
+        }
+
+            .footer-bc-mini__contact-item:hover {
+                color: var(--bc-amarillo);
+            }
+
+        .footer-bc-mini__links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+            .footer-bc-mini__links a {
+                font-size: 0.78rem;
+                color: #777 !important;
+                text-decoration: none !important;
+                transition: color .15s;
+            }
+
+                .footer-bc-mini__links a:hover {
+                    color: var(--bc-amarillo) !important;
+                }
+
+            .footer-bc-mini__links .sep {
+                color: #333;
+                font-size: 0.75rem;
+            }
+
+        .footer-bc-mini__copy {
+            border-top: 1px solid #2E2E2E;
+            padding-top: 14px;
+            text-align: center;
+            font-size: 0.72rem;
+            color: #444;
+        }
+
+        .footer-bc-mini .bc-yellow {
+            color: var(--bc-amarillo) !important;
+        }
+
+        .footer-bc-mini .bc-white {
+            color: #fff !important;
+        }
+
+        .footer-bc-mini a {
+            color: #777 !important;
+            text-decoration: none !important;
+        }
+
+            .footer-bc-mini a:hover {
+                color: var(--bc-amarillo) !important;
+            }
+
+        .footer-bc-mini .footer-bc-mini__brand .bc-yellow {
+            color: var(--bc-amarillo) !important;
+        }
+
+        .footer-bc-mini .footer-bc-mini__brand .bc-white {
+            color: #fff !important;
+        }
+
+        .footer-bc-mini .footer-social-btn {
+            color: #aaa !important;
+        }
+
+            .footer-bc-mini .footer-social-btn:hover {
+                color: var(--bc-amarillo) !important;
+                border-color: var(--bc-amarillo) !important;
+            }
+
+        @@media (max-width: 768px) {
+            .footer-bc-mini__inner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -264,148 +409,3 @@
 </body>
 </html>
 
-<style>
-    .dropdown-menu-bc {
-        background: #1A1A1A;
-        border: 1px solid #2E2E2E;
-        border-radius: 12px;
-        padding: 8px;
-        min-width: 190px;
-        box-shadow: 0 8px 24px rgba(0,0,0,.5);
-        margin-top: 6px !important;
-    }
-
-    .dropdown-item-bc {
-        display: block;
-        padding: 9px 14px;
-        font-size: 0.88rem;
-        color: #E5E5E5;
-        text-decoration: none;
-        border-radius: 8px;
-        transition: background .15s, color .15s;
-        font-weight: 500;
-    }
-
-        .dropdown-item-bc:hover {
-            background: #2E2E2E;
-            color: var(--bc-amarillo);
-        }
-
-    .dropdown-divider-bc {
-        border-color: #2E2E2E;
-        margin: 4px 0;
-    }
-
-    .nav-link-bc.dropdown-toggle::after {
-        border-top-color: #E5E5E5;
-    }
-
-    .footer-bc-mini {
-        background: var(--bc-negro);
-        border-top: 1px solid #2E2E2E;
-        padding: 24px 0 18px;
-        margin-top: 48px;
-    }
-
-    .footer-bc-mini__inner {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 18px;
-    }
-
-    .footer-bc-mini__contact {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .footer-bc-mini__contact-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.78rem;
-        color: #777;
-        text-decoration: none;
-        transition: color .15s;
-    }
-
-        .footer-bc-mini__contact-item:hover {
-            color: var(--bc-amarillo);
-        }
-
-    .footer-bc-mini__links {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-        .footer-bc-mini__links a {
-            font-size: 0.78rem;
-            color: #777 !important;
-            text-decoration: none !important;
-            transition: color .15s;
-        }
-
-            .footer-bc-mini__links a:hover {
-                color: var(--bc-amarillo) !important;
-            }
-
-        .footer-bc-mini__links .sep {
-            color: #333;
-            font-size: 0.75rem;
-        }
-
-    .footer-bc-mini__copy {
-        border-top: 1px solid #2E2E2E;
-        padding-top: 14px;
-        text-align: center;
-        font-size: 0.72rem;
-        color: #444;
-    }
-
-    .footer-bc-mini .bc-yellow {
-        color: var(--bc-amarillo) !important;
-    }
-
-    .footer-bc-mini .bc-white {
-        color: #fff !important;
-    }
-
-    .footer-bc-mini a {
-        color: #777 !important;
-        text-decoration: none !important;
-    }
-
-        .footer-bc-mini a:hover {
-            color: var(--bc-amarillo) !important;
-        }
-
-    .footer-bc-mini .footer-bc-mini__brand .bc-yellow {
-        color: var(--bc-amarillo) !important;
-    }
-
-    .footer-bc-mini .footer-bc-mini__brand .bc-white {
-        color: #fff !important;
-    }
-
-    .footer-bc-mini .footer-social-btn {
-        color: #aaa !important;
-    }
-
-        .footer-bc-mini .footer-social-btn:hover {
-            color: var(--bc-amarillo) !important;
-            border-color: var(--bc-amarillo) !important;
-        }
-
-    @@media (max-width: 768px) {
-        .footer-bc-mini__inner {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-    }
-</style>
