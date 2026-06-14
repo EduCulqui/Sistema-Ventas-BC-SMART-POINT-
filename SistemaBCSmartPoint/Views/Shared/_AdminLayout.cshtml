@@ -195,7 +195,7 @@
             <span class="adm-brand-sub">Panel de administración</span>
 
             <div class="adm-nav-label">General</div>
-            <nav class="adm-nav">
+            <nav class="adm-nav" aria-label="Navegación del administrador">
                 <a href="@Url.Action("Dashboard", "Admin")"
                    class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
                     <span class="adm-icon">
@@ -209,7 +209,7 @@
             </nav>
 
             <div class="adm-nav-label">Inventario</div>
-            <nav class="adm-nav">
+            tml<nav class="adm-nav" aria-label="Navegación del administrador">
                 <a href="@Url.Action("Productos", "Admin")"
                    class="@(ViewContext.RouteData.Values["action"]?.ToString()!.Contains("Producto") == true ? "active" : "")">
                     <span class="adm-icon">
@@ -240,7 +240,7 @@
             </nav>
 
             <div class="adm-nav-label">Operaciones</div>
-            <nav class="adm-nav">
+            tml<nav class="adm-nav" aria-label="Navegación del administrador">
                 <a href="@Url.Action("Ventas", "Admin")"
                    class="@(ViewContext.RouteData.Values["action"]?.ToString()!.Contains("Venta") == true ? "active" : "")">
                     <span class="adm-icon">

@@ -260,7 +260,7 @@
         </nav>
     </header>
 
-    @if (ViewData["FullWidth"] != null && (bool)ViewData["FullWidth"] == true)
+    @if (ViewData["FullWidth"] != null && (bool)ViewData["FullWidth"])
     {
         @if (TempData["Exito"] != null)
         {
@@ -280,12 +280,12 @@
                 </div>
             </div>
         }
-        <main role="main">@RenderBody()</main>
+        <main role="main" aria-label="Contenido principal">@RenderBody()</main>
     }
     else
     {
         <div class="container">
-            <main role="main" class="pb-3">
+            <main role="main" class="pb-3" aria-label="Contenido principal">
                 @if (TempData["Exito"] != null)
                 {
                     <div class="alert alert-bc-exito alert-dismissible fade show" role="alert">
