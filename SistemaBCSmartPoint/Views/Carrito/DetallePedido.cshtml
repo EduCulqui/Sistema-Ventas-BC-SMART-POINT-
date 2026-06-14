@@ -94,9 +94,11 @@
                 <div class="comp-label">Comprobante</div>
                 @if (yaSubio)
                 {
-                    <img src="@Model.ComprobantePago" alt="Comprobante"
-                         class="comp-img"
-                         onclick="window.open('@Model.ComprobantePago','_blank')" />
+                    <a href="@Model.ComprobantePago" target="_blank" rel="noopener noreferrer">
+                        <img src="@Model.ComprobantePago"
+                             alt="Comprobante"
+                             class="comp-img" />
+                    </a>
                     <span class="comp-fecha">
                         Subido el @Model.FechaComprobante?.ToString("dd/MM/yyyy 'a las' HH:mm")
                     </span>
