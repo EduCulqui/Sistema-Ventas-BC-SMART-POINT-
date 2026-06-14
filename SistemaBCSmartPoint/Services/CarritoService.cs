@@ -24,7 +24,7 @@ namespace Sistema_BC_SMART_POINT.Services
         }
 
         // Agregar o incrementar cantidad
-        public void AgregarItem(ISession session, CarritoItemViewModel item)
+        public static void AgregarItem(ISession session, CarritoItemViewModel item)
         {
             var carrito = ObtenerCarrito(session);
             var existente = carrito.FirstOrDefault(c => c.ProductoId == item.ProductoId);
@@ -36,7 +36,7 @@ namespace Sistema_BC_SMART_POINT.Services
         }
 
         // Quitar un ítem por ProductoId
-        public void QuitarItem(ISession session, int productoId)
+        public static void QuitarItem(ISession session, int productoId)
         {
             var carrito = ObtenerCarrito(session);
             carrito.RemoveAll(c => c.ProductoId == productoId);
@@ -46,7 +46,7 @@ namespace Sistema_BC_SMART_POINT.Services
         // Vaciar carrito completo
         public static void Limpiar(ISession session) => session.Remove(SessionKey);
 
-        public int ContarItems(ISession session) =>
+        public static int ContarItems(ISession session) =>
             ObtenerCarrito(session).Sum(c => c.Cantidad);
     }
 }

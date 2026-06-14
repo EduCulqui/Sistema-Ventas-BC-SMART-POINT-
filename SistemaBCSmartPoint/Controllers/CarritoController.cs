@@ -113,7 +113,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 return RedirectToAction("Detalle", "Catalogo", new { id = productoId });
             }
 
-            _carrito.AgregarItem(HttpContext.Session, new CarritoItemViewModel
+            CarritoService.AgregarItem(HttpContext.Session, new CarritoItemViewModel
             {
                 ProductoId = prod.IdProducto,
                 Nombre = prod.Nombre,
@@ -135,7 +135,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (!ModelState.IsValid)
                 return RedirectToAction(AccionIndex);
 
-            _carrito.QuitarItem(HttpContext.Session, productoId);
+            CarritoService.QuitarItem(HttpContext.Session, productoId);
             return RedirectToAction(AccionIndex);
         }
 
@@ -163,7 +163,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcederPago(CheckoutViewModel vm)
         {
-            var items = CarritoService.ObtenerCarrito(HttpContext.Session);
             vm.Subtotal = vm.Items.Sum(i => i.SubTotal);
 
             if (!string.IsNullOrEmpty(vm.CodigoCupon))
