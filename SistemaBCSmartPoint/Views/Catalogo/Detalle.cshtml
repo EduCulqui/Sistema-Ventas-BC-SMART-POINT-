@@ -2,12 +2,15 @@
 @{
     ViewData["Title"] = Model.Nombre;
 
-    string stockClass = Model.StockActual == 0 ? "stock-empty"
-                      : Model.StockActual <= Model.StockMinimo ? "stock-low"
-                      : "stock-ok";
-    string stockText = Model.StockActual == 0 ? "Sin stock"
-                      : Model.StockActual <= Model.StockMinimo ? $"Últimas unidades ({Model.StockActual})"
-                      : $"En stock ({Model.StockActual})";
+    string stockClass;
+    if (Model.StockActual == 0) stockClass = "stock-empty";
+    else if (Model.StockActual <= Model.StockMinimo) stockClass = "stock-low";
+    else stockClass = "stock-ok";
+
+    string stockText;
+    if (Model.StockActual == 0) stockText = "Sin stock";
+    else if (Model.StockActual <= Model.StockMinimo) stockText = $"Últimas unidades ({Model.StockActual})";
+    else stockText = $"En stock ({Model.StockActual})";
 }
 
 <div class="detalle-bc">

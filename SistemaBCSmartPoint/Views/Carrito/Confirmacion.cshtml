@@ -3,7 +3,6 @@
     ViewData["Title"] = $"Pedido #{Model.IdVenta} confirmado";
     decimal subtotal = Model.DetallesVenta.Sum(d => d.SubTotal);
     decimal igv = Math.Round(subtotal * 0.18m, 2);
-    decimal total = subtotal + igv;
 }
 <!DOCTYPE html>
 <html lang="es">
