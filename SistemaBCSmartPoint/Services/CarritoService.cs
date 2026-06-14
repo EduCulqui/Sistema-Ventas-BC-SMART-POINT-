@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Sistema_BC_SMART_POINT.Services
 {
-    public class CarritoService
+    public static class CarritoService
     {
         private const string SessionKey = "Carrito_BcSmartPoint";
 

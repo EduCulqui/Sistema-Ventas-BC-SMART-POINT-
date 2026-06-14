@@ -13,7 +13,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
     [Authorize]
     public class CarritoController : Controller
     {
-        private readonly CarritoService _carrito;
         private readonly VentaService _venta;
         private readonly AppDbContext _db;
         private readonly ConfiguracionPagoViewModel _configPago;
@@ -33,10 +32,9 @@ namespace Sistema_BC_SMART_POINT.Controllers
         private const string KeyCheckoutCupon = "CheckoutCupon";
         private const string KeyCheckoutDescuento = "CheckoutDescuento";
 
-        public CarritoController(CarritoService carrito, VentaService venta,
+        public CarritoController(VentaService venta,
             AppDbContext db, IOptions<ConfiguracionPagoViewModel> configPago)
         {
-            _carrito = carrito;
             _venta = venta;
             _db = db;
             _configPago = configPago.Value;

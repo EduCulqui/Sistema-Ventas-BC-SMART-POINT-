@@ -42,7 +42,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Servicios propios
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<CarritoService>();
 builder.Services.AddScoped<VentaService>();
 
 var app = builder.Build();
