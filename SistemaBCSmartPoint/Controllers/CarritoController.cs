@@ -95,7 +95,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         // GET /Carrito
         public IActionResult Index()
         {
-            var items = _carrito.ObtenerCarrito(HttpContext.Session);
+            var items = CarritoService.ObtenerCarrito(HttpContext.Session);
             return View(items);
         }
 
@@ -142,7 +142,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         // GET /Carrito/Checkout — Paso 1: datos + método
         public IActionResult Checkout()
         {
-            var items = _carrito.ObtenerCarrito(HttpContext.Session);
+            var items = CarritoService.ObtenerCarrito(HttpContext.Session);
             if (!items.Any()) return RedirectToAction(AccionIndex);
 
             decimal subtotal = items.Sum(i => i.SubTotal);
@@ -163,7 +163,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcederPago(CheckoutViewModel vm)
         {
-            vm.Items = _carrito.ObtenerCarrito(HttpContext.Session);
+            var items = CarritoService.ObtenerCarrito(HttpContext.Session);
             vm.Subtotal = vm.Items.Sum(i => i.SubTotal);
 
             if (!string.IsNullOrEmpty(vm.CodigoCupon))
@@ -201,12 +201,12 @@ namespace Sistema_BC_SMART_POINT.Controllers
             var metodo = TempData.Peek(KeyCheckoutMetodo)?.ToString();
             if (string.IsNullOrEmpty(metodo)) return RedirectToAction(AccionCheckout);
 
-            var items = _carrito.ObtenerCarrito(HttpContext.Session);
+            var items = CarritoService.ObtenerCarrito(HttpContext.Session);
             decimal sub = items.Sum(i => i.SubTotal);
             decimal desc = decimal.TryParse(
                 TempData.Peek(KeyCheckoutDescuento)?.ToString(), out var d) ? d : 0;
 
-            var (igv, total) = CalcularTotales(sub, desc);
+            var (_, total) = CalcularTotales(sub, desc);
 
             ViewBag.Metodo = metodo;
             ViewBag.Total = total;
@@ -246,7 +246,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (cliente == null) return Unauthorized();
 
             var vm = ObtenerVmDesdeTempData();
-            var items = _carrito.ObtenerCarrito(HttpContext.Session);
+            var items = CarritoService.ObtenerCarrito(HttpContext.Session);
             vm.Items = items;
 
             int idVenta = await _venta.RegistrarVentaAsync(cliente.IdCliente, vm, items);
@@ -269,7 +269,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            _carrito.Limpiar(HttpContext.Session);
+            CarritoService.Limpiar(HttpContext.Session);
 
             return RedirectToAction(AccionConfirmacion, new { idVenta });
         }
@@ -282,11 +282,11 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (cliente == null) return Unauthorized();
 
             var vm = ObtenerVmDesdeTempData();
-            var items = _carrito.ObtenerCarrito(HttpContext.Session);
+            var items = CarritoService.ObtenerCarrito(HttpContext.Session);
             vm.Items = items;
 
             int idVenta = await _venta.RegistrarVentaAsync(cliente.IdCliente, vm, items);
-            _carrito.Limpiar(HttpContext.Session);
+            CarritoService.Limpiar(HttpContext.Session);
 
             return RedirectToAction(AccionConfirmacion, new { idVenta });
         }

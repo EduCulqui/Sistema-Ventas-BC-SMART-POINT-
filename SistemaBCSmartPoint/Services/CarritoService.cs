@@ -8,7 +8,7 @@ namespace Sistema_BC_SMART_POINT.Services
         private const string SessionKey = "Carrito_BcSmartPoint";
 
         // Leer el carrito desde Session
-        public List<CarritoItemViewModel> ObtenerCarrito(ISession session)
+        public static List<CarritoItemViewModel> ObtenerCarrito(ISession session)
         {
             var json = session.GetString(SessionKey);
             if (string.IsNullOrEmpty(json))
@@ -18,7 +18,7 @@ namespace Sistema_BC_SMART_POINT.Services
         }
 
         // Guardar el carrito en Session
-        private void GuardarCarrito(ISession session, List<CarritoItemViewModel> carrito)
+        private static void GuardarCarrito(ISession session, List<CarritoItemViewModel> carrito)
         {
             session.SetString(SessionKey, JsonSerializer.Serialize(carrito));
         }
@@ -44,7 +44,7 @@ namespace Sistema_BC_SMART_POINT.Services
         }
 
         // Vaciar carrito completo
-        public void Limpiar(ISession session) => session.Remove(SessionKey);
+        public static void Limpiar(ISession session) => session.Remove(SessionKey);
 
         public int ContarItems(ISession session) =>
             ObtenerCarrito(session).Sum(c => c.Cantidad);
