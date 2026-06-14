@@ -3,15 +3,17 @@
     string metodo = ViewBag.Metodo ?? "Yape";
     decimal total = ViewBag.Total ?? 0m;
     var config = ViewBag.ConfigPago as Sistema_BC_SMART_POINT.Models.ViewModels.ConfiguracionPagoViewModel;
+
+    string metodoIcono;
+    if (metodo == "Yape") metodoIcono = "📱";
+    else if (metodo == "Plin") metodoIcono = "📲";
+    else metodoIcono = "🏦";
 }
-
 <div class="pt-wrap">
-
     <div class="pt-header">
         <h1>Realizar pago</h1>
         <p>Escanea el QR, realiza el pago y sube la captura</p>
     </div>
-
     <div class="ck-steps">
         <div class="step done">
             <div class="step-dot">✓</div>
@@ -28,12 +30,11 @@
             <span class="step-label">Confirmación</span>
         </div>
     </div>
-
     <div class="total-banner">
         <div class="lbl">Monto a pagar</div>
         <div class="monto"><span>S/</span>@total.ToString("0.00")</div>
         <div class="metodo-tag">
-            @(metodo == "Yape" ? "📱" : metodo == "Plin" ? "📲" : "🏦")
+            @metodoIcono
             Pago por @metodo
         </div>
     </div>
