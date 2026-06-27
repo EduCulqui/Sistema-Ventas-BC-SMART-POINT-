@@ -156,7 +156,8 @@ body {
     gap: 3px;
 }
 .bc-section__title-icon {
-    color: #B8860B;
+    color: #7A5200 !important;
+    font-size: 1.4rem;
 }
 .footer-brand__logo .bc-white  { color: #fff; }
 .footer-brand__tagline {
@@ -463,9 +464,9 @@ body {
 .bc-card__specs  { font-size: 0.75rem; color: var(--bc-texto-2); margin-bottom: 9px; }
 .bc-card__price  { font-size: 1rem; font-weight: 800; color: var(--bc-texto-1); margin-bottom: 3px; }
 .bc-card__stock {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: #16a34a;
+    color: #166534;
     margin-bottom: 11px;
 }
 .bc-card__stock--low  { color: #f59e0b; }
@@ -694,9 +695,13 @@ body {
     gap: 24px;
     text-align: center;
 }
-.bc-feature__icon  { font-size: 1.8rem; margin-bottom: 10px; }
+.bc-feature__icon {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #fff !important
+}
 .bc-feature__title { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
-.bc-feature__desc  { font-size: 0.875rem; color: #777; line-height: 1.5; }
+.bc-feature__desc  { font-size: 0.875rem; color: #aaa; line-height: 1.5; }
 .bc-newsletter-wrap {
     background: #232323;
     border-radius: 20px;
@@ -717,7 +722,7 @@ body {
     margin-bottom: 6px;
 }
 .bc-newsletter__text h3 .hl { color: var(--bc-amarillo); }
-.bc-newsletter__text p   { font-size: 0.82rem; color: #888; }
+.bc-newsletter__text p   { font-size: 0.875rem; color: #aaa; }
 .bc-newsletter__form  { display: flex; flex-direction: column; gap: 9px; min-width: 290px; }
 .bc-newsletter__row   { display: flex; gap: 8px; }
 .bc-newsletter__input {
@@ -902,9 +907,10 @@ body.alto-contraste .bc-card__price   { color: #ff0 !important; }
     box-shadow: 0 4px 18px rgba(0,0,0,0.09);
     transform: translateY(-2px);
 }
-.bc-cat-card--active .bc-cat-card__name {
-    color: #B8860B;
-}
+    .bc-cat-card--active .bc-cat-card__name {
+        color: #7A5200;
+        font-size: 0.875rem;
+    }
 .bc-cat-card__img-wrap {
     height: 160px;
     overflow: hidden;
@@ -941,8 +947,8 @@ body.alto-contraste .bc-card__price   { color: #ff0 !important; }
 }
 .bc-cat-card__sub {
     display: block;
-    font-size: 0.66rem;
-    color: var(--bc-texto-2);
+    font-size: 0.8rem;
+    color: #4A4A4F;
 }
 .bc-resultados-header {
     display: flex;
@@ -1032,7 +1038,7 @@ body.alto-contraste .bc-card__price   { color: #ff0 !important; }
     margin-bottom: 6px;
 }
 .bc-prod-row__cat {
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
@@ -1079,9 +1085,9 @@ body.alto-contraste .bc-card__price   { color: #ff0 !important; }
     margin-top: 6px;
 }
 .bc-prod-row__stock {
-    font-size: 0.72rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: #16a34a;
+    color: #166534;
 }
 .bc-prod-row__stock--low  { color: #f59e0b; }
 .bc-prod-row__actions {
