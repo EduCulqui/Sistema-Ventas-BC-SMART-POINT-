@@ -2,9 +2,10 @@
 @{
     ViewData["Title"] = "Mi carrito";
     ViewData["HideFooter"] = true;
-    var subtotal = Model.Sum(i => i.SubTotal);
-    var igv = Math.Round(subtotal * 0.18m, 2);
-    var total = subtotal + igv;
+    var totalConIgv = Model.Sum(i => i.SubTotal); 
+    var igv = Math.Round(totalConIgv - (totalConIgv / 1.18m), 2);
+    var subtotal = totalConIgv - igv;
+    var total = totalConIgv;
 }
 
 <div class="carrito-bc">

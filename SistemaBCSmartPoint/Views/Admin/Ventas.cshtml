@@ -120,11 +120,176 @@
                     </td>
                 </tr>
             }
-        </tbody>
+</tbody>
     </table>
 </div>
+<div class="bc-pagination-wrap">
+    <!-- Selector registros por página -->
+    <div class="bc-pagination-size">
+        <span>Mostrar</span>
+        <select onchange="cambiarTamano(this.value)" class="bc-pagination-select">
+            @{
+                var t = (int)ViewBag.TamanoPagina;
+            }
+            @if (t == 5)
+            {
+                <option value="5" selected>5</option>
+            }
+            else
+            {
+                <option value="5">5</option>
+            }
+            @if (t == 10)
+            {
+                <option value="10" selected>10</option>
+            }
+            else
+            {
+                <option value="10">10</option>
+            }
+            @if (t == 20)
+            {
+                <option value="20" selected>20</option>
+            }
+            else
+            {
+                <option value="20">20</option>
+            }
+        </select>
+        <span>de @ViewBag.TotalRegistros ventas</span>
+    </div>
 
+    <!-- Botones de página -->
+    <div class="bc-pagination">
+        @{
+            int paginaActual = (int)ViewBag.PaginaActual;
+            int totalPaginas = (int)ViewBag.TotalPaginas;
+            int rango = 2;
+        }
+
+        @if (paginaActual > 1)
+        {
+            <a class="bc-page-btn" asp-action="Ventas"
+               asp-route-pagina="1"
+               asp-route-tamano="@ViewBag.TamanoPagina"
+               asp-route-estado="@ViewBag.EstadoFiltro"
+               asp-route-metodo="@ViewBag.MetodoFiltro">« Primera</a>
+
+            <a class="bc-page-btn" asp-action="Ventas"
+               asp-route-pagina="@(paginaActual - 1)"
+               asp-route-tamano="@ViewBag.TamanoPagina"
+               asp-route-estado="@ViewBag.EstadoFiltro"
+               asp-route-metodo="@ViewBag.MetodoFiltro">← Anterior</a>
+        }
+
+        @if (paginaActual - rango > 1)
+        {
+            <span class="bc-page-btn">...</span>
+        }
+
+        @for (int i = Math.Max(1, paginaActual - rango); i <= Math.Min(totalPaginas, paginaActual + rango); i++)
+        {
+            <a class="bc-page-btn @(i == paginaActual ? "bc-page-btn--active" : "")"
+               asp-action="Ventas"
+               asp-route-pagina="@i"
+               asp-route-tamano="@ViewBag.TamanoPagina"
+               asp-route-estado="@ViewBag.EstadoFiltro"
+               asp-route-metodo="@ViewBag.MetodoFiltro">@i</a>
+        }
+
+        @if (paginaActual + rango < totalPaginas)
+        {
+            <span class="bc-page-btn">...</span>
+        }
+
+        @if (paginaActual < totalPaginas)
+        {
+            <a class="bc-page-btn" asp-action="Ventas"
+               asp-route-pagina="@(paginaActual + 1)"
+               asp-route-tamano="@ViewBag.TamanoPagina"
+               asp-route-estado="@ViewBag.EstadoFiltro"
+               asp-route-metodo="@ViewBag.MetodoFiltro">Siguiente →</a>
+
+            <a class="bc-page-btn" asp-action="Ventas"
+               asp-route-pagina="@totalPaginas"
+               asp-route-tamano="@ViewBag.TamanoPagina"
+               asp-route-estado="@ViewBag.EstadoFiltro"
+               asp-route-metodo="@ViewBag.MetodoFiltro">Última »</a>
+        }
+    </div>
+</div>
+</div>
+
+@section Scripts {
+    <script>
+        function cambiarTamano(tamano) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tamano', tamano);
+            url.searchParams.set('pagina', 1);
+            window.location.href = url.toString();
+        }
+    </script>
+}
 <style>
+    .bc-pagination-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .bc-pagination-size {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.875rem;
+        color: #4A4A4F; /* ratio ~5.2:1 sobre #fff ✓ */
+    }
+
+    .bc-pagination-select {
+        border: 1px solid #767676;
+        border-radius: 8px;
+        padding: 4px 8px;
+        font-size: 0.875rem;
+        color: #1D1D1F;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .bc-pagination {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .bc-page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        border: 1px solid #767676; /* ratio ~4.6:1 ✓ */
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1D1D1F;
+        text-decoration: none;
+        transition: border-color 0.2s, background 0.2s;
+    }
+
+        .bc-page-btn:hover {
+            border-color: #7A5200;
+            color: #1D1D1F;
+        }
+
+    .bc-page-btn--active {
+        background: #7A5200; /* amarillo oscuro ratio ~5.2:1 sobre #fff ✓ */
+        border-color: #7A5200;
+        color: #fff !important;
+    }
     .adm-page-header {
         display: flex;
         align-items: center;

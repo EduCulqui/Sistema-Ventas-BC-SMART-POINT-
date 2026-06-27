@@ -295,7 +295,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         }
 
         //  VENTAS
-        public async Task<IActionResult> Ventas(string? estado, string? metodo)
+        public async Task<IActionResult> Ventas(string? estado, string? metodo, int pagina = 1, int tamano = 10)
         {
             var query = _db.Ventas
                 .Include(v => v.Cliente).ThenInclude(c => c.Usuario)
@@ -305,12 +305,15 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
             if (!string.IsNullOrEmpty(estado))
                 query = query.Where(v => v.EstadoPago == estado);
-
             if (!string.IsNullOrEmpty(metodo))
                 query = query.Where(v => v.MetodoPago == metodo);
 
+            var total = await query.CountAsync();
+
             var lista = await query
                 .OrderByDescending(v => v.FechaVenta)
+                .Skip((pagina - 1) * tamano)
+                .Take(tamano)
                 .ToListAsync();
 
             ViewBag.TotalPendientes = await _db.Ventas.CountAsync(v => v.EstadoPago == "Pendiente");
@@ -319,6 +322,10 @@ namespace Sistema_BC_SMART_POINT.Controllers
             ViewBag.TotalRechazados = await _db.Ventas.CountAsync(v => v.EstadoPago == "Rechazado");
             ViewBag.EstadoFiltro = estado;
             ViewBag.MetodoFiltro = metodo;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = (int)Math.Ceiling(total / (double)tamano);
+            ViewBag.TamanoPagina = tamano;
+            ViewBag.TotalRegistros = total;
 
             return View(lista);
         }

@@ -40,14 +40,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
             _configPago = configPago.Value;
         }
 
-        // ─────────────────────────────────────────────
-        // Métodos auxiliares privados (eliminan duplicación)
-        // ─────────────────────────────────────────────
-
-        /// <summary>
-        /// Reconstruye el CheckoutViewModel desde TempData.
-        /// Centraliza el bloque duplicado en ConfirmarConComprobante y ConfirmarDirecto.
-        /// </summary>
         private CheckoutViewModel ObtenerVmDesdeTempData()
         {
             return new CheckoutViewModel
@@ -61,24 +53,19 @@ namespace Sistema_BC_SMART_POINT.Controllers
                     TempData[KeyCheckoutDescuento]?.ToString(), out var dp) ? dp : 0
             };
         }
-
-        /// <summary>
-        /// Calcula IGV y Total a partir del subtotal y el porcentaje de descuento.
-        /// Centraliza el cálculo duplicado en Checkout, ProcederPago y PagoTransferencia.
-        /// </summary>
-        private static (decimal igv, decimal total) CalcularTotales(decimal subtotal, decimal descuentoPct)
+        private static (decimal subtotalSinIgv, decimal igv, decimal total) CalcularTotales(decimal subtotal, decimal descuentoPct)
         {
             decimal descMonto = subtotal * (descuentoPct / 100m);
-            decimal baseCalc = subtotal - descMonto;
-            decimal igv = Math.Round(baseCalc * 0.18m, 2);
-            return (igv, baseCalc + igv);
+            decimal baseCalc = subtotal - descMonto; 
+
+            decimal igv = Math.Round(baseCalc - (baseCalc / 1.18m), 2);
+            decimal subtotalSinIgv = baseCalc - igv;
+            decimal total = baseCalc;
+
+            return (subtotalSinIgv, igv, total);
         }
 
-        /// <summary>
-        /// Obtiene el cliente autenticado a partir del claim del usuario.
-        /// Centraliza el bloque duplicado en ConfirmarConComprobante, ConfirmarDirecto,
-        /// MisPedidos y DetallePedido.
-        /// </summary>
+
         private async Task<(int usuarioId, Cliente? cliente)> ObtenerClienteAsync()
         {
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -144,12 +131,12 @@ namespace Sistema_BC_SMART_POINT.Controllers
             if (!items.Any()) return RedirectToAction(AccionIndex);
 
             decimal subtotal = items.Sum(i => i.SubTotal);
-            var (igv, total) = CalcularTotales(subtotal, 0);
+            var (subtotalSinIgv, igv, total) = CalcularTotales(subtotal, 0);
 
             var vm = new CheckoutViewModel
             {
                 Items = items,
-                Subtotal = subtotal,
+                Subtotal = subtotalSinIgv,
                 IGV = igv,
                 Total = total
             };
@@ -161,7 +148,7 @@ namespace Sistema_BC_SMART_POINT.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcederPago(CheckoutViewModel vm)
         {
-            vm.Subtotal = vm.Items.Sum(i => i.SubTotal);
+            decimal subtotalOriginal = vm.Items.Sum(i => i.SubTotal);
 
             if (!string.IsNullOrEmpty(vm.CodigoCupon))
             {
@@ -171,7 +158,8 @@ namespace Sistema_BC_SMART_POINT.Controllers
                     ModelState.AddModelError("CodigoCupon", "Cupón inválido o vencido.");
             }
 
-            var (igv, total) = CalcularTotales(vm.Subtotal, vm.DescuentoAplicado);
+            var (subtotalSinIgv, igv, total) = CalcularTotales(subtotalOriginal, vm.DescuentoAplicado);
+            vm.Subtotal = subtotalSinIgv;
             vm.IGV = igv;
             vm.Total = total;
 
@@ -203,8 +191,10 @@ namespace Sistema_BC_SMART_POINT.Controllers
             decimal desc = decimal.TryParse(
                 TempData.Peek(KeyCheckoutDescuento)?.ToString(), out var d) ? d : 0;
 
-            var (_, total) = CalcularTotales(sub, desc);
+            var (subtotalSinIgv, igvCalc, total) = CalcularTotales(sub, desc);
 
+            ViewBag.Subtotal = subtotalSinIgv;
+            ViewBag.Igv = igvCalc;
             ViewBag.Metodo = metodo;
             ViewBag.Total = total;
             ViewBag.ConfigPago = _configPago;

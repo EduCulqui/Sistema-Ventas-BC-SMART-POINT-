@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sistema BC SMART POINT\Sistema_BC_SMART_POINT.csproj" />
+	  <ProjectReference Include="..\SistemaBCSmartPoint\Sistema_BC_SMART_POINT.csproj" />
   </ItemGroup>
 
   <ItemGroup>
