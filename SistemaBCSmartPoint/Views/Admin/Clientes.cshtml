@@ -13,7 +13,11 @@
 </div>
 
 <form method="get" asp-action="Clientes" class="search-bar">
-    <input type="text" name="busqueda" value="@busqueda"
+    <label for="busquedaClientes" class="visually-hidden">Buscar por nombre, correo o DNI/RUC</label>
+    <input type="text"
+           id="busquedaClientes"
+           name="busqueda"
+           value="@busqueda"
            placeholder="Buscar por nombre, correo o DNI/RUC..." />
     <button type="submit">Buscar</button>
     @if (!string.IsNullOrEmpty(busqueda))

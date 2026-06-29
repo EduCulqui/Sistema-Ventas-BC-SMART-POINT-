@@ -204,17 +204,36 @@
                     </td>
                 </tr>
             }
+            @{
+                string ObtenerBadgeClass(bool estado, bool vencido)
+                {
+                    if (!estado) return "cupon-inactivo";
+                    if (vencido) return "cupon-vencido";
+                    return "cupon-activo";
+                }
+
+                string ObtenerBadgeText(bool estado, bool vencido)
+                {
+                    if (!estado) return "Inactivo";
+                    if (vencido) return "Vencido";
+                    return "Activo";
+                }
+
+                string ObtenerDiasTexto(int diasRestantes)
+                {
+                    if (diasRestantes == 0) return "Vence hoy";
+                    if (diasRestantes == 1) return "Vence mañana";
+                    return $"{diasRestantes} días restantes";
+                }
+            }
+
             @foreach (var c in Model)
             {
                 bool vencido = c.FechaVencimiento < DateTime.Today;
                 int diasRestantes = (c.FechaVencimiento - DateTime.Today).Days;
-
-                string badgeClass = !c.Estado ? "cupon-inactivo" : vencido ? "cupon-vencido" : "cupon-activo";
-                string badgeText = !c.Estado ? "Inactivo" : vencido ? "Vencido" : "Activo";
-
-                string diasTexto = diasRestantes == 0 ? "Vence hoy"
-                : diasRestantes == 1 ? "Vence mañana"
-                : $"{diasRestantes} días restantes";
+                string badgeClass = ObtenerBadgeClass(c.Estado, vencido);
+                string badgeText = ObtenerBadgeText(c.Estado, vencido);
+                string diasTexto = ObtenerDiasTexto(diasRestantes);
 
                 <tr>
                     <td><span class="code-chip">@c.CodigoCupon</span></td>

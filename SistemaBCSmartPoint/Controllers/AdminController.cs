@@ -22,6 +22,12 @@ namespace Sistema_BC_SMART_POINT.Controllers
         private const string AccionClientes = "Clientes";
         private const string AccionCupones = "Cupones";
 
+        // Constantes de estados de pago
+        private const string EstadoPagado = "Pagado";
+        private const string EstadoPendiente = "Pendiente";
+        private const string EstadoVerificando = "En verificación";
+        private const string EstadoRechazado = "Rechazado";
+
         // Dashboard
         public async Task<IActionResult> Dashboard()
         {
@@ -36,16 +42,15 @@ namespace Sistema_BC_SMART_POINT.Controllers
 
             // Ventas del mes actual
             var hoy = DateTime.Today;
-            var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
-            var inicioAyer = hoy.AddDays(-1);
+            var inicioMes = new DateTime(hoy.Year, hoy.Month, 1, 0, 0, 0, DateTimeKind.Local);
 
             ViewBag.VentasHoy = await _db.Ventas.CountAsync(v => v.FechaVenta.Date == hoy);
             ViewBag.VentasMes = await _db.Ventas.CountAsync(v => v.FechaVenta >= inicioMes);
             ViewBag.IngresosMes = await _db.Ventas
-                .Where(v => v.FechaVenta >= inicioMes && v.EstadoPago == "Pagado")
+                .Where(v => v.FechaVenta >= inicioMes && v.EstadoPago == EstadoPagado)
                 .SumAsync(v => (decimal?)v.TotalVenta) ?? 0;
             ViewBag.VentasPendientes = await _db.Ventas
-                .CountAsync(v => v.EstadoPago == "Pendiente" || v.EstadoPago == "En verificación");
+                .CountAsync(v => v.EstadoPago == EstadoPendiente || v.EstadoPago == EstadoVerificando);
 
             // Ventas últimos 30 días para gráfico
             var inicio30 = hoy.AddDays(-29);
@@ -60,7 +65,6 @@ namespace Sistema_BC_SMART_POINT.Controllers
             var labels = new List<string>();
             var montos = new List<decimal>();
             var cantidades = new List<int>();
-
             for (int i = 0; i < 30; i++)
             {
                 var fecha = inicio30.AddDays(i);
@@ -75,10 +79,10 @@ namespace Sistema_BC_SMART_POINT.Controllers
             ViewBag.GraficoCantidades = System.Text.Json.JsonSerializer.Serialize(cantidades);
 
             // Ventas por estado para dona
-            ViewBag.EstadoPendiente = await _db.Ventas.CountAsync(v => v.EstadoPago == "Pendiente");
-            ViewBag.EstadoVerificando = await _db.Ventas.CountAsync(v => v.EstadoPago == "En verificación");
-            ViewBag.EstadoPagado = await _db.Ventas.CountAsync(v => v.EstadoPago == "Pagado");
-            ViewBag.EstadoRechazado = await _db.Ventas.CountAsync(v => v.EstadoPago == "Rechazado");
+            ViewBag.EstadoPendiente = await _db.Ventas.CountAsync(v => v.EstadoPago == EstadoPendiente);
+            ViewBag.EstadoVerificando = await _db.Ventas.CountAsync(v => v.EstadoPago == EstadoVerificando);
+            ViewBag.EstadoPagado = await _db.Ventas.CountAsync(v => v.EstadoPago == EstadoPagado);
+            ViewBag.EstadoRechazado = await _db.Ventas.CountAsync(v => v.EstadoPago == EstadoRechazado);
 
             return View();
         }
