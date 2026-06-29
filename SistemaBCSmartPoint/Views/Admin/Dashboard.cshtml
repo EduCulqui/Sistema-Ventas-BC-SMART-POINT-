@@ -179,9 +179,8 @@
     </div>
     <a href="@Url.Action("Index", "Catalogo")" class="btn-adm-edit">Ver tienda</a>
 </div>
-
 <!-- Métricas generales -->
-<div class="adm-metrics" role="region" aria-label="Métricas generales">
+<section class="adm-metrics" aria-label="Métricas generales">
     <div class="adm-metric">
         <div class="label">Productos activos</div>
         <div class="value" aria-label="@ViewBag.TotalProductos productos activos">@ViewBag.TotalProductos</div>
@@ -198,10 +197,10 @@
         <div class="label">Stock bajo</div>
         <div class="value" aria-label="@ViewBag.StockBajo productos con stock bajo">@ViewBag.StockBajo</div>
     </div>
-</div>
+</section>
 
 <!-- Métricas de ventas -->
-<div class="adm-metrics" role="region" aria-label="Métricas de ventas">
+<section class="adm-metrics" aria-label="Métricas de ventas">
     <div class="adm-metric info">
         <div class="label">Ventas hoy</div>
         <div class="value" aria-label="@ViewBag.VentasHoy ventas hoy">@ViewBag.VentasHoy</div>
@@ -220,26 +219,24 @@
         <div class="label">Pendientes / Verificando</div>
         <div class="value" aria-label="@ViewBag.VentasPendientes ventas pendientes">@ViewBag.VentasPendientes</div>
     </div>
-</div>
+</section>
 
 <!-- Gráficos -->
-<div class="adm-charts" role="region" aria-label="Gráficos de ventas">
+<section class="adm-charts" aria-label="Gráficos de ventas">
     <!-- Gráfico de línea — ventas 30 días -->
     <div class="adm-chart-card">
         <h2>Ventas últimos 30 días</h2>
         <canvas id="graficoVentas" height="100"
-                aria-label="Gráfico de ventas de los últimos 30 días"
-                role="img"></canvas>
+                aria-label="Gráfico de ventas de los últimos 30 días"></canvas>
     </div>
 
     <!-- Gráfico dona — estados -->
     <div class="adm-chart-card">
         <h2>Ventas por estado</h2>
         <canvas id="graficoEstados" height="200"
-                aria-label="Gráfico de ventas por estado"
-                role="img"></canvas>
+                aria-label="Gráfico de ventas por estado"></canvas>
     </div>
-</div>
+</section>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
