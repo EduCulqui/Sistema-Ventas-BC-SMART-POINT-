@@ -130,8 +130,7 @@
         <label for="selectTamano" style="font-size:0.875rem; color:#4A4A4F;">Mostrar</label>
         <select id="selectTamano"
                 onchange="cambiarTamano(this.value)"
-                class="bc-pagination-select"
-                aria-label="Registros por página">
+                class="bc-pagination-select">
             @{
                 var t = (int)ViewBag.TamanoPagina;
             }
