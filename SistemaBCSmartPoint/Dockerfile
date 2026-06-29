@@ -10,8 +10,12 @@ RUN dotnet publish -c Release -o /app/publish
 # Etapa 2: Imagen final
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=build /app/publish .
+
+# Instala tzdata para que TZ funcione correctamente
+RUN apt-get update && apt-get install -y tzdata && rm -rf /var/lib/apt/lists/*
 ENV TZ=America/Lima
+
+COPY --from=build /app/publish .
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 ENTRYPOINT ["dotnet", "Sistema_BC_SMART_POINT.dll"]
