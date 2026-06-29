@@ -323,15 +323,32 @@ namespace Sistema_BC_SMART_POINT.Controllers
         public async Task<IActionResult> EliminarProductoDefinitivo(int id)
         {
             if (!ModelState.IsValid) return RedirectToAction(AccionProductos);
+
             var prod = await _db.Productos.FindAsync(id);
             if (prod == null)
             {
                 TempData[ErrorKey] = "Producto no encontrado.";
                 return RedirectToAction(AccionProductos);
             }
-            _db.Productos.Remove(prod);
-            await _db.SaveChangesAsync();
-            TempData[ExitoKey] = "Producto eliminado permanentemente.";
+
+            bool tieneVentas = await _db.DetallesVentas.AnyAsync(d => d.ProductoId == id);
+            if (tieneVentas)
+            {
+                TempData[ErrorKey] = "No se puede eliminar este producto porque ya tiene ventas registradas. Puedes desactivarlo en su lugar.";
+                return RedirectToAction(AccionProductos);
+            }
+
+            try
+            {
+                _db.Productos.Remove(prod);
+                await _db.SaveChangesAsync();
+                TempData[ExitoKey] = "Producto eliminado permanentemente.";
+            }
+            catch (DbUpdateException)
+            {
+                TempData[ErrorKey] = "No se pudo eliminar el producto porque tiene datos relacionados (ventas, detalles, etc.).";
+            }
+
             return RedirectToAction(AccionProductos);
         }
 
