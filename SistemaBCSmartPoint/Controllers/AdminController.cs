@@ -25,14 +25,63 @@ namespace Sistema_BC_SMART_POINT.Controllers
         // Dashboard
         public async Task<IActionResult> Dashboard()
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Dashboard");
+
             ViewBag.TotalProductos = await _db.Productos.CountAsync(p => p.Estado);
             ViewBag.TotalCategorias = await _db.Categorias.CountAsync(c => c.Estado);
             ViewBag.TotalProveedores = await _db.Proveedores.CountAsync(p => p.Estado);
             ViewBag.StockBajo = await _db.Productos
                 .CountAsync(p => p.Estado && p.StockActual <= p.StockMinimo);
+
+            // Ventas del mes actual
+            var hoy = DateTime.Today;
+            var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
+            var inicioAyer = hoy.AddDays(-1);
+
+            ViewBag.VentasHoy = await _db.Ventas.CountAsync(v => v.FechaVenta.Date == hoy);
+            ViewBag.VentasMes = await _db.Ventas.CountAsync(v => v.FechaVenta >= inicioMes);
+            ViewBag.IngresosMes = await _db.Ventas
+                .Where(v => v.FechaVenta >= inicioMes && v.EstadoPago == "Pagado")
+                .SumAsync(v => (decimal?)v.TotalVenta) ?? 0;
+            ViewBag.VentasPendientes = await _db.Ventas
+                .CountAsync(v => v.EstadoPago == "Pendiente" || v.EstadoPago == "En verificación");
+
+            // Ventas últimos 30 días para gráfico
+            var inicio30 = hoy.AddDays(-29);
+            var ventas30 = await _db.Ventas
+                .Where(v => v.FechaVenta.Date >= inicio30)
+                .GroupBy(v => v.FechaVenta.Date)
+                .Select(g => new { Fecha = g.Key, Total = g.Sum(v => v.TotalVenta), Cantidad = g.Count() })
+                .OrderBy(g => g.Fecha)
+                .ToListAsync();
+
+            // Generar labels y datos para todos los días (incluso sin ventas)
+            var labels = new List<string>();
+            var montos = new List<decimal>();
+            var cantidades = new List<int>();
+
+            for (int i = 0; i < 30; i++)
+            {
+                var fecha = inicio30.AddDays(i);
+                var venta = ventas30.FirstOrDefault(v => v.Fecha == fecha);
+                labels.Add(fecha.ToString("dd/MM"));
+                montos.Add(venta?.Total ?? 0);
+                cantidades.Add(venta?.Cantidad ?? 0);
+            }
+
+            ViewBag.GraficoLabels = System.Text.Json.JsonSerializer.Serialize(labels);
+            ViewBag.GraficoMontos = System.Text.Json.JsonSerializer.Serialize(montos);
+            ViewBag.GraficoCantidades = System.Text.Json.JsonSerializer.Serialize(cantidades);
+
+            // Ventas por estado para dona
+            ViewBag.EstadoPendiente = await _db.Ventas.CountAsync(v => v.EstadoPago == "Pendiente");
+            ViewBag.EstadoVerificando = await _db.Ventas.CountAsync(v => v.EstadoPago == "En verificación");
+            ViewBag.EstadoPagado = await _db.Ventas.CountAsync(v => v.EstadoPago == "Pagado");
+            ViewBag.EstadoRechazado = await _db.Ventas.CountAsync(v => v.EstadoPago == "Rechazado");
+
             return View();
         }
-
 
         //  CATEGORÍAS
 

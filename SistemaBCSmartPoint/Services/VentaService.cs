@@ -45,6 +45,7 @@ namespace Sistema_BC_SMART_POINT.Services
                 var venta = new Venta
                 {
                     ClienteId = clienteId,
+                    FechaVenta = DateTime.Now,
                     MetodoPago = checkout.MetodoPago,
                     EstadoPago = "Pendiente",
                     SubtotalSinDescuento = subtotal,

@@ -3,55 +3,27 @@
     Layout = "_AdminLayout";
 }
 
-<div class="adm-page-header">
-    <div>
-        <h1>Dashboard</h1>
-        <p>Bienvenido, @User.Identity?.Name — @DateTime.Now.ToString("dddd dd 'de' MMMM, yyyy")</p>
-    </div>
-    <a href="@Url.Action("Index", "Catalogo")" class="btn-adm-edit">Ver tienda</a>
-</div>
-
-<div class="adm-metrics">
-    <div class="adm-metric">
-        <div class="label">Productos activos</div>
-        <div class="value">@ViewBag.TotalProductos</div>
-    </div>
-    <div class="adm-metric">
-        <div class="label">Categorías</div>
-        <div class="value">@ViewBag.TotalCategorias</div>
-    </div>
-    <div class="adm-metric">
-        <div class="label">Proveedores</div>
-        <div class="value">@ViewBag.TotalProveedores</div>
-    </div>
-    <div class="adm-metric @(ViewBag.StockBajo > 0 ? "danger" : "success")">
-        <div class="label">Stock bajo</div>
-        <div class="value">@ViewBag.StockBajo</div>
-    </div>
-</div>
-
 <style>
-    /*  Page header  */
     .adm-page-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 2rem;
         padding-bottom: 1.25rem;
-        border-bottom: 1px solid var(--bc-borde);
+        border-bottom: 1px solid #D2D2D7;
     }
 
         .adm-page-header h1 {
             font-size: 1.6rem;
             font-weight: 700;
-            color: var(--bc-texto-1);
+            color: #1D1D1F;
             margin: 0 0 4px;
             letter-spacing: -0.02em;
         }
 
         .adm-page-header p {
-            font-size: 0.825rem;
-            color: var(--bc-texto-2);
+            font-size: 0.875rem;
+            color: #4A4A4F;
             margin: 0;
             text-transform: capitalize;
         }
@@ -60,38 +32,33 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-size: 0.825rem;
+        font-size: 0.875rem;
         font-weight: 600;
-        color: var(--bc-negro);
-        background: var(--bc-amarillo);
+        color: #111;
+        background: #F5C500;
         border: none;
         border-radius: 10px;
         padding: 0.5rem 1.1rem;
         text-decoration: none;
-        transition: background 0.15s, transform 0.1s;
-        white-space: nowrap;
+        transition: background 0.15s;
     }
 
         .btn-adm-edit:hover {
             background: #e0b400;
-            transform: translateY(-1px);
+            color: #111;
         }
 
-        .btn-adm-edit:active {
-            transform: translateY(0);
-        }
-
-    /* Métricas */
+    /* Métricas top */
     .adm-metrics {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .adm-metric {
-        background: var(--bc-blanco);
-        border: 1px solid var(--bc-borde);
+        background: #fff;
+        border: 1px solid #D2D2D7;
         border-radius: 16px;
         padding: 1.25rem 1.35rem 1.1rem;
         display: flex;
@@ -104,10 +71,9 @@
 
         .adm-metric:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
         }
 
-        /* Barra de acento inferior */
         .adm-metric::after {
             content: '';
             position: absolute;
@@ -115,12 +81,8 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: var(--bc-borde);
+            background: #F5C500;
             border-radius: 0 0 16px 16px;
-        }
-
-        .adm-metric:not(.danger):not(.success)::after {
-            background: var(--bc-amarillo);
         }
 
         .adm-metric.success::after {
@@ -131,18 +93,22 @@
             background: #fca5a5;
         }
 
+        .adm-metric.info::after {
+            background: #93c5fd;
+        }
+
         .adm-metric .label {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            color: var(--bc-texto-2);
+            color: #4A4A4F;
             text-transform: uppercase;
             letter-spacing: 0.07em;
         }
 
         .adm-metric .value {
-            font-size: 2.4rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            color: var(--bc-texto-1);
+            color: #1D1D1F;
             letter-spacing: -0.04em;
             line-height: 1;
         }
@@ -154,29 +120,223 @@
         .adm-metric.success .value {
             color: #15803d;
         }
-    /* Responsive  */
-    @@media (max-width: 900px) {
-        .adm-metrics
 
-    {
-        grid-template-columns: repeat(2, 1fr);
+        .adm-metric.info .value {
+            color: #1d4ed8;
+        }
+
+    /* Gráficos */
+    .adm-charts {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
 
+    .adm-chart-card {
+        background: #fff;
+        border: 1px solid #D2D2D7;
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+
+        .adm-chart-card h2 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #1D1D1F;
+            margin: 0 0 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+    @@media (max-width: 900px) {
+        .adm-metrics {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .adm-charts {
+            grid-template-columns: 1fr;
+        }
     }
 
     @@media (max-width: 560px) {
-        .adm-metrics
+        .adm-metrics {
+            grid-template-columns: 1fr;
+        }
 
-    {
-        grid-template-columns: 1fr;
+        .adm-page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
     }
-
-    .adm-page-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    }
-
 </style>
+
+<div class="adm-page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Bienvenido, @User.Identity?.Name — @DateTime.Now.ToString("dddd dd 'de' MMMM, yyyy")</p>
+    </div>
+    <a href="@Url.Action("Index", "Catalogo")" class="btn-adm-edit">Ver tienda</a>
+</div>
+
+<!-- Métricas generales -->
+<div class="adm-metrics" role="region" aria-label="Métricas generales">
+    <div class="adm-metric">
+        <div class="label">Productos activos</div>
+        <div class="value" aria-label="@ViewBag.TotalProductos productos activos">@ViewBag.TotalProductos</div>
+    </div>
+    <div class="adm-metric">
+        <div class="label">Categorías</div>
+        <div class="value" aria-label="@ViewBag.TotalCategorias categorías">@ViewBag.TotalCategorias</div>
+    </div>
+    <div class="adm-metric">
+        <div class="label">Proveedores</div>
+        <div class="value" aria-label="@ViewBag.TotalProveedores proveedores">@ViewBag.TotalProveedores</div>
+    </div>
+    <div class="adm-metric @(ViewBag.StockBajo > 0 ? "danger" : "success")">
+        <div class="label">Stock bajo</div>
+        <div class="value" aria-label="@ViewBag.StockBajo productos con stock bajo">@ViewBag.StockBajo</div>
+    </div>
+</div>
+
+<!-- Métricas de ventas -->
+<div class="adm-metrics" role="region" aria-label="Métricas de ventas">
+    <div class="adm-metric info">
+        <div class="label">Ventas hoy</div>
+        <div class="value" aria-label="@ViewBag.VentasHoy ventas hoy">@ViewBag.VentasHoy</div>
+    </div>
+    <div class="adm-metric">
+        <div class="label">Ventas este mes</div>
+        <div class="value" aria-label="@ViewBag.VentasMes ventas este mes">@ViewBag.VentasMes</div>
+    </div>
+    <div class="adm-metric success">
+        <div class="label">Ingresos del mes</div>
+        <div class="value" aria-label="Ingresos del mes S/ @ViewBag.IngresosMes">
+            S/ @(((decimal)ViewBag.IngresosMes).ToString("N2"))
+        </div>
+    </div>
+    <div class="adm-metric @(ViewBag.VentasPendientes > 0 ? "danger" : "success")">
+        <div class="label">Pendientes / Verificando</div>
+        <div class="value" aria-label="@ViewBag.VentasPendientes ventas pendientes">@ViewBag.VentasPendientes</div>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="adm-charts" role="region" aria-label="Gráficos de ventas">
+    <!-- Gráfico de línea — ventas 30 días -->
+    <div class="adm-chart-card">
+        <h2>Ventas últimos 30 días</h2>
+        <canvas id="graficoVentas" height="100"
+                aria-label="Gráfico de ventas de los últimos 30 días"
+                role="img"></canvas>
+    </div>
+
+    <!-- Gráfico dona — estados -->
+    <div class="adm-chart-card">
+        <h2>Ventas por estado</h2>
+        <canvas id="graficoEstados" height="200"
+                aria-label="Gráfico de ventas por estado"
+                role="img"></canvas>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels     = @Html.Raw(ViewBag.GraficoLabels);
+        const montos     = @Html.Raw(ViewBag.GraficoMontos);
+        const cantidades = @Html.Raw(ViewBag.GraficoCantidades);
+
+        // Gráfico línea
+        new Chart(document.getElementById('graficoVentas'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Ingresos (S/)',
+                        data: montos,
+                        borderColor: '#F5C500',
+                        backgroundColor: 'rgba(245,197,0,0.08)',
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#F5C500',
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'yMonto'
+                    },
+                    {
+                        label: 'Cantidad de ventas',
+                        data: cantidades,
+                        borderColor: '#1A1A1A',
+                        backgroundColor: 'rgba(26,26,26,0.05)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#1A1A1A',
+                        tension: 0.4,
+                        fill: false,
+                        yAxisID: 'yCantidad'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        labels: { font: { size: 12 }, color: '#1D1D1F' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { font: { size: 11 }, color: '#4A4A4F', maxRotation: 45 },
+                        grid: { color: '#F0F0F0' }
+                    },
+                    yMonto: {
+                        position: 'left',
+                        ticks: {
+                            font: { size: 11 }, color: '#4A4A4F',
+                            callback: val => 'S/ ' + val.toLocaleString()
+                        },
+                        grid: { color: '#F0F0F0' }
+                    },
+                    yCantidad: {
+                        position: 'right',
+                        ticks: { font: { size: 11 }, color: '#4A4A4F' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+
+        // Gráfico dona
+        new Chart(document.getElementById('graficoEstados'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Pendiente', 'En verificación', 'Pagado', 'Rechazado'],
+                datasets: [{
+                    data: [
+                        @ViewBag.EstadoPendiente,
+                        @ViewBag.EstadoVerificando,
+                        @ViewBag.EstadoPagado,
+                        @ViewBag.EstadoRechazado
+                    ],
+                    backgroundColor: ['#F5C500', '#93c5fd', '#86efac', '#fca5a5'],
+                    borderColor:     ['#e0b400', '#60a5fa', '#4ade80', '#f87171'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 12 }, color: '#1D1D1F', padding: 16 }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    </script>
+}

@@ -1,0 +1,33 @@
+﻿@model IEnumerable<dynamic>
+
+@if (Model.Any())
+{
+    <div class="stock-alert-wrap" id="stockAlertWrap" role="alert" aria-live="polite">
+        <div class="stock-alert-header">
+            <span class="stock-alert-icon" aria-hidden="true">⚠</span>
+            <strong>@Model.Count() producto(s) con stock bajo</strong>
+            <button class="stock-alert-toggle"
+                    onclick="toggleStockAlert()"
+                    aria-expanded="true"
+                    aria-controls="stockAlertList"
+                    aria-label="Mostrar u ocultar lista de productos con stock bajo">
+                ▲
+            </button>
+        </div>
+        <ul class="stock-alert-list" id="stockAlertList">
+            @foreach (var p in Model)
+            {
+                <li class="stock-alert-item @(p.StockActual == 0 ? "stock-cero" : "")">
+                    <span class="stock-alert-nombre">@p.Nombre</span>
+                    <span class="stock-alert-nums">
+                        <span class="stock-actual @(p.StockActual == 0 ? "cero" : "bajo")">
+                            @p.StockActual und.
+                        </span>
+                        <span class="stock-sep">·</span>
+                        <span class="stock-min">mín. @p.StockMinimo</span>
+                    </span>
+                </li>
+            }
+        </ul>
+    </div>
+}
