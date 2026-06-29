@@ -47,7 +47,8 @@
 </div>
 
 <div class="adm-card">
-    <table class="adm-table">
+    <div class="adm-table-scroll">
+        <table class="adm-table">
         <thead>
             <tr>
                 <th>Pedido</th>
@@ -121,7 +122,8 @@
                 </tr>
             }
 </tbody>
-    </table>
+        </table>
+    </div>
 </div>
 <div class="bc-pagination-wrap">
     <div class="bc-pagination-size">
@@ -556,6 +558,14 @@
             border-color: var(--bc-texto-2);
         }
 
+    .adm-table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .adm-table {
+        min-width: 720px;
+    }
     @@media (max-width: 700px) {
         .adm-table th, .adm-table td
 

@@ -1,10 +1,16 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaBCSmartPoint", "SistemaBCSmartPoint\Sistema_BC_SMART_POINT.csproj", "{B8C10A45-B2F4-433B-83D5-4AD40568DC9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sistema_BC_SMART_POINT", "SistemaBCSmartPoint\Sistema_BC_SMART_POINT.csproj", "{B8C10A45-B2F4-433B-83D5-4AD40568DC9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{47CF14A0-2804-4C1D-BCD0-83212D9AD3EA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución", "Elementos de la solución", "{D107F4C8-89CC-BEA8-D3D7-CA6B7733353D}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfile = Dockerfile
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

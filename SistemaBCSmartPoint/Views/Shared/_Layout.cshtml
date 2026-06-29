@@ -222,6 +222,47 @@
                 border-color: var(--bc-amarillo) !important;
             }
 
+        @@media (max-width: 991px) {
+            .navbar-search-form {
+                width: 100%;
+                margin: 12px 0 !important;
+            }
+
+            .navbar-search-input {
+                min-width: 0;
+                width: 100%;
+                flex: 1;
+            }
+
+            .navbar-nav {
+                width: 100%;
+            }
+
+                .navbar-nav .nav-item {
+                    width: 100%;
+                }
+
+            .nav-link-bc {
+                width: 100%;
+            }
+
+            .nav-user-bc {
+                display: block;
+                padding: 0.4rem 0.9rem;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .navbar-brand-bc {
+                font-size: 1.15rem;
+            }
+
+            .btn-sm-bc {
+                font-size: 0.85rem;
+                padding: 0.45rem 1rem;
+            }
+        }
+
         @@media (max-width: 768px) {
             .footer-bc-mini__inner {
                 flex-direction: column;

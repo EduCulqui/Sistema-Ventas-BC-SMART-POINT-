@@ -328,13 +328,87 @@
                 border: 1px solid #fca5a5;
                 color: #b91c1c;
             }
+
+        /* ── Botón hamburguesa móvil ── */
+        .adm-mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 14px;
+            left: 14px;
+            z-index: 10000;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: var(--bc-negro);
+            border: 1px solid #2E2E2E;
+            color: var(--bc-amarillo);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .adm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9990;
+        }
+
+        @@media (max-width: 900px) {
+            .adm-mobile-toggle {
+                display: flex;
+            }
+
+            .adm-sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                z-index: 9995;
+                box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+            }
+
+                .adm-sidebar.open {
+                    transform: translateX(0);
+                }
+
+            .adm-overlay.open {
+                display: block;
+            }
+
+            .adm-main {
+                padding: 4.5rem 1.25rem 2rem;
+                width: 100%;
+            }
+
+            .stock-alert-wrap {
+                width: calc(100% - 32px);
+                right: 16px;
+                left: 16px;
+                bottom: 16px;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .adm-main {
+                padding: 4.5rem 1rem 1.5rem;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <button class="adm-mobile-toggle" id="admMobileToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="admSidebar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+        </svg>
+    </button>
+    <div class="adm-overlay" id="admOverlay"></div>
     <div class="adm-wrapper">
 
-        <aside class="adm-sidebar">
+        <aside class="adm-sidebar" id="admSidebar">
 
             <a class="adm-brand" href="@Url.Action("Dashboard", "Admin")">BC Smart Point</a>
             <span class="adm-brand-sub">Panel de administración</span>
@@ -354,7 +428,7 @@
             </nav>
 
             <div class="adm-nav-label">Inventario</div>
-            tml<nav class="adm-nav" aria-label="Navegación del administrador">
+            <nav class="adm-nav" aria-label="Navegación del administrador">
                 <a href="@Url.Action("Productos", "Admin")"
                    class="@(ViewContext.RouteData.Values["action"]?.ToString()!.Contains("Producto") == true ? "active" : "")">
                     <span class="adm-icon">
@@ -458,6 +532,25 @@
 
     @await Component.InvokeAsync("StockBajo")
 
+    <script>
+        const admToggle  = document.getElementById('admMobileToggle');
+        const admSidebar = document.getElementById('admSidebar');
+        const admOverlay = document.getElementById('admOverlay');
+
+        function admCloseSidebar() {
+            admSidebar?.classList.remove('open');
+            admOverlay?.classList.remove('open');
+            admToggle?.setAttribute('aria-expanded', 'false');
+        }
+
+        admToggle?.addEventListener('click', () => {
+            const isOpen = admSidebar.classList.toggle('open');
+            admOverlay.classList.toggle('open', isOpen);
+            admToggle.setAttribute('aria-expanded', isOpen.toString());
+        });
+
+        admOverlay?.addEventListener('click', admCloseSidebar);
+    </script>
     <script>
         function toggleStockAlert() {
             const wrap = document.getElementById('stockAlertWrap');

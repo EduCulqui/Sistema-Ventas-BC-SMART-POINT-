@@ -32,13 +32,16 @@
     <form method="get" asp-action="Index" class="catalogo-filtros">
         <div class="filtro-busqueda">
             <span>🔎</span>
+            <label for="busqueda" class="visually-hidden">Buscar por nombre o modelo</label>
             <input type="text"
+                   id="busqueda"
                    name="busqueda"
                    value="@busqueda"
                    placeholder="Buscar por nombre o modelo..." />
         </div>
 
-        <select name="categoriaId">
+        <label for="categoriaId" class="visually-hidden">Categoría</label>
+        <select id="categoriaId" name="categoriaId">
             <option value="">Todas las categorías</option>
             @foreach (var cat in categorias ?? Enumerable.Empty<Sistema_BC_SMART_POINT.Models.Categoria>())
             {
@@ -49,7 +52,8 @@
             }
         </select>
 
-        <select name="orden">
+        <label for="orden" class="visually-hidden">Ordenar por</label>
+        <select id="orden" name="orden">
             <option value="">Nombre A-Z</option>
             <option value="precio_asc" selected="@(orden == "precio_asc" ? "selected" : null)">
                 Precio: menor a mayor
@@ -60,7 +64,6 @@
         </select>
 
         <button type="submit" class="btn-filtrar">Filtrar</button>
-
         <a href="@Url.Action("Index")" class="btn-limpiar">
             Limpiar
         </a>
