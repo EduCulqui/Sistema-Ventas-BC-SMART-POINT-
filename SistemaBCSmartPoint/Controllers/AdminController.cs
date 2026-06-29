@@ -297,6 +297,8 @@ namespace Sistema_BC_SMART_POINT.Controllers
         //  VENTAS
         public async Task<IActionResult> Ventas(string? estado, string? metodo, int pagina = 1, int tamano = 10)
         {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Dashboard");
             var query = _db.Ventas
                 .Include(v => v.Cliente).ThenInclude(c => c.Usuario)
                 .Include(v => v.DetallesVenta)
