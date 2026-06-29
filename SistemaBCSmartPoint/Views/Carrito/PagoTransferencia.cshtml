@@ -136,6 +136,7 @@
                 @Html.AntiForgeryToken()
 
                 <div class="upload-zone" id="upload-zone">
+                    <label for="file-input" class="visually-hidden">Subir comprobante de pago</label>
                     <input type="file" name="comprobante" id="file-input"
                            accept="image/jpeg,image/png,image/webp"
                            onchange="previewImg(this)" />

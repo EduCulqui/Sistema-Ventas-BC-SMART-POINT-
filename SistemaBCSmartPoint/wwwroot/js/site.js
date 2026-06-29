@@ -68,7 +68,7 @@
         const input = form ? form.querySelector('.bc-newsletter__input') : null;
         if (!input) return;
         const email = input.value.trim();
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (!/^[^\s@]+@[^\s@.]+\.[^\s@]+$/.test(email)) {
             input.style.borderColor = '#ef4444';
             input.focus();
             setTimeout(function () { input.style.borderColor = ''; }, 2000);

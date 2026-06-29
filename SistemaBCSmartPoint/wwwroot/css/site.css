@@ -477,7 +477,6 @@ body {
     gap: 8px;
     margin: 0;
 }
-.bc-section__title-icon { color: var(--bc-amarillo); }
 .bc-section__link {
     color: var(--bc-amarillo);
     font-size: 0.88rem;
